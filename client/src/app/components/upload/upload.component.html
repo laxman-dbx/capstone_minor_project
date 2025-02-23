@@ -1,0 +1,17 @@
+<div class="upload-wrapper">
+    <div class="upload-box">
+      <div class="upload">
+        <div class="header-box">
+          <h4 class="header-content">SELECT YOUR FILES</h4>
+        </div>
+        <div class="upload-content">
+          <app-dropfileinput
+            (fileChange)="onFileChange($event)">
+          </app-dropfileinput>
+          <button class="upload-button" id="upload">
+            UPLOAD
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

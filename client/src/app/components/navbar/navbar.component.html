@@ -1,0 +1,29 @@
+
+<nav class="navbar">
+  <div class="container">
+    <div class="logo">
+      <img
+        src="https://imgs.search.brave.com/gzq8ikdJko5if7XH1QSgWh6Q9t257GvxP65QpwsVZxo/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9keW5h/bWljLmJyYW5kY3Jv/d2QuY29tL2Fzc2V0/L2xvZ28vOWZhZjRh/MDItMGI3Zi00ZDNh/LTgxMTQtY2FiZGNi/YmI5OTUzL2xvZ28t/c2VhcmNoLWdyaWQt/MXg_bG9nb1RlbXBs/YXRlVmVyc2lvbj0x/JnY9NjM3NjYxNDIy/MTQxNDMwMDAw"
+        alt="Logo"
+        routerLink="/"
+      />
+    </div>
+    <ul class="nav-links">
+      <li *ngFor="let item of navigation">
+        <a [routerLink]="item.href" [ngClass]="{ 'active': isCurrentRoute(item.href) }">
+          {{ item.name }}
+        </a>
+      </li>
+    </ul>
+    <div class="profile-section">
+      <button class="bell-icon">
+        <i class="fa fa-bell"></i>
+      </button>
+      <div class="user-profile" *ngIf="isLogin">
+        <img src="assets/profile.png" alt="User" routerLink="/profile"/>
+        <button class="sign-out" (click)="signOut()">Sign out</button>
+      </div>
+      <a *ngIf="!isLogin" routerLink="/sign-in" class="sign-in">Sign in</a>
+    </div>
+  </div>
+</nav>

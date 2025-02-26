@@ -7,7 +7,7 @@ const { uploadDocument } = require("../controllers/uploadController");
 const router = express.Router();
 
 router.post('/upload', authMiddleware, uploadMiddleware, uploadDocument);
-router.get("/my-documents", authMiddleware, getUserDocuments);
+router.get("/user-docs", authMiddleware, getUserDocuments);
 router.get("/download/:fileKey",authMiddleware,downloadDocument);
 router.delete("/delete/:fileKey", authMiddleware, deleteDocument);
 

@@ -22,9 +22,7 @@ const uploadDocument = async (req, res) => {
         }
 
         // Mask PII Data
-        console.log("file path",processedFilePath, typeof maskImagePII);
         const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/');
-        console.log("file processed",maskImagePII);
 
         // Upload masked file to S3
         const fileStream = fs.createReadStream(maskedFilePath);
@@ -52,7 +50,7 @@ const uploadDocument = async (req, res) => {
 
         await newDocument.save();
         
-        res.json({ message: "File uploaded & masked successfully", fileUrl: result.Location });
+        res.json({ message: "File uploaded & masked successfully", fileUrl: req.file.filename});
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

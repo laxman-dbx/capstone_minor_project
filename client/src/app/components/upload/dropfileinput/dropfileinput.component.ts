@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 interface FileEvent {
   files: File[];
@@ -17,10 +16,10 @@ export class DropfileinputComponent {
   @ViewChild('fileDropRef') fileDropRef!: ElementRef;
 
   file: File | null = null;
-  previewUrl: SafeUrl | null = null;
+
   showModal = false;
 
-  constructor(private sanitizer: DomSanitizer) {}
+  
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -56,18 +55,11 @@ export class DropfileinputComponent {
     this.file = file;
     this.fileChange.emit({ files: [file] });
     
-    // Create a masked preview URL
-    const reader = new FileReader();
-    reader.onload = () => {
-      // Applied a simple blur effect as an example of masking
-      this.previewUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    
   }
 
   removeFile() {
     this.file = null;
-    this.previewUrl = null;
     this.fileChange.emit({files:[]});
   }
 }

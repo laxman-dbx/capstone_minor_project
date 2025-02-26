@@ -19,7 +19,7 @@ const downloadDocument = async (req, res) => {
         const userId = req.userId; 
 
         // Find the document in DB
-        const document = await Document.findOne({ userId, originalName: fileKey });
+        const document = await Document.findOne({ userId, maskedFileName: fileKey });
         if (!document) {
             return res.status(404).json({ error: "File not found" });
         }
@@ -48,7 +48,7 @@ const deleteDocument = async (req, res) => {
         const userId = req.userId;
 
         // Find the document in the database
-        const document = await Document.findOne({ userId, originalName: fileKey });
+        const document = await Document.findOne({ userId, maskedFileName: fileKey });
 
         if (!document) {
             return res.status(404).json({ error: "File not found" });

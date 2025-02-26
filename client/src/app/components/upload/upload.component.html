@@ -1,17 +1,72 @@
 <div class="upload-wrapper">
-    <div class="upload-box">
-      <div class="upload">
-        <div class="header-box">
-          <h4 class="header-content">SELECT YOUR FILES</h4>
-        </div>
-        <div class="upload-content">
-          <app-dropfileinput
-            (fileChange)="onFileChange($event)">
-          </app-dropfileinput>
-          <button class="upload-button" id="upload">
-            UPLOAD
-          </button>
-        </div>
+  <div class="upload-box">
+    <div class="upload">
+      <div class="header-box">
+        <h4 class="header-content">SELECT YOUR FILES</h4>
       </div>
+      
+      <div class="upload-content" *ngIf="!isSuccess">
+        <app-dropfileinput (fileChange)="onFileChange($event)">
+        </app-dropfileinput>
+        
+        <div class="file-list" *ngIf="file">
+          <div class="file-item">
+            <strong>{{ file.name }}</strong>
+            <span> - {{ file.size }} B</span>
+            <button class="remove-button" (click)="removeFile()">×</button>
+            <div class="preview-container" *ngIf="fileUrl">
+              <div class="preview-box">
+                <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
+                <div class="preview-actions"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button 
+          class="upload-button" 
+          [disabled]="!file || isUploading" 
+          (click)="uploadAndFetchMaskedFile()">
+          <span *ngIf="!isUploading">Mask</span>
+          <span *ngIf="isUploading" class="spinner">
+            <span class="spinner-inner"></span>
+          </span>
+        </button>
+      </div>
+      
+      <!-- Success screen after upload -->
+      <!-- Success Screen -->
+      <div class="success-screen" *ngIf="isSuccess">
+        <div class="file-list" *ngIf="file">
+          <div class="file-item">
+            <strong>{{ file.name }}</strong> <span> - {{ file.size }} B</span>
+            <button class="remove-button" (click)="removeFile()">×</button>
+            <div class="preview-container" *ngIf="fileUrl">
+              <div class="preview-box">
+                <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="success-icon">✓</div>
+        <h3>File Masked Successfully!</h3>
+        <p>Your file has been processed and is ready for download.</p>
+
+        <button class="download-button" (click)="downloadMaskedFile()">
+          <span class="download-icon">↓</span> Download Masked File
+        </button>
+
+        <button class="back-button" (click)="removeFile()">
+          Upload Another File
+        </button>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
     </div>
   </div>
+</div>

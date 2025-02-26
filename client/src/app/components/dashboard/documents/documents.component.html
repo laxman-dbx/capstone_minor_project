@@ -1,0 +1,28 @@
+<div class="container">
+  <h2>📄 Manage Documents</h2>
+
+  <!-- Upload Document -->
+  <div class="upload-section">
+    <label for="fileUpload" class="upload-btn" routerLink="/upload">Upload Document</label>
+  </div>
+
+  <!-- Document List -->
+  <div class="document-list">
+    <h3>Your Documents</h3>
+    <div class="document-card" *ngFor="let doc of documents">
+      <div class="doc-info">
+        <span class="doc-name">{{ doc.originalName }}</span>  
+        <span class="doc-date">Uploaded on: {{ doc.uploadedAt | date:'medium' }}</span>
+      </div>
+      <div class="doc-actions">
+        <button class="btn download" (click)="downloadFile(doc.maskedFileName)">⬇ Download</button>
+        <button class="btn delete" (click)="deleteFile(doc.maskedFileName)">🗑 Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Documents Message -->
+  <div class="no-docs" *ngIf="documents.length === 0">
+    <p>No documents uploaded yet.</p>
+  </div>
+</div>

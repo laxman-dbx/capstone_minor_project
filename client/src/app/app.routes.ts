@@ -8,5 +8,7 @@ export const routes: Routes = [
   { path: 'upload', loadComponent: () => import('./components/upload/upload.component').then(m => m.UploadComponent) },
   { path: 'faq', loadComponent: () => import('./components/faq/faq.component').then(m => m.FaqComponent) },
   { path: 'error/:id', loadComponent: () => import('./components/error/error.component').then(m => m.ErrorComponent) },
-  { path: 'profile', loadComponent: ()=> import('./components/profile/profile.component').then(m=>m.ProfileComponent) }
+  { path: 'profile', loadComponent: ()=> import('./components/profile/profile.component').then(m=>m.ProfileComponent) },
+  { path:'mask-text-pii',loadComponent: ()=>import('./components/mask-text/mask-text.component').then(m=>m.MaskTextComponent)},
+  { path:'encrypt-text-pii',loadComponent: ()=>import('./components/encrypt-text/encrypt-text.component').then(m=>m.EncryptTextComponent)}
 ];

@@ -15,8 +15,8 @@ export class NavbarComponent implements OnInit{
     { name: 'Home', href: '/', current: true },
     { name: 'Dashboard', href: '/dashboard', current: false },
     { name: 'Upload', href: '/upload', current: false },
-    { name: 'FAQ', href: '/faq', current: false },
-    { name: 'Privacy Policy', href: '/privacy', current: false },
+    { name: 'Mask-Text PII',href: '/mask-text-pii',current:false},
+    { name: 'Encrypt PII',href:'/encrypt-text-pii',current:false},
   ];
 
   isLogin: boolean = false;

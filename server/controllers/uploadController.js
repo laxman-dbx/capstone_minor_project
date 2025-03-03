@@ -42,7 +42,7 @@ const uploadDocument = async (req, res) => {
         fs.unlinkSync(maskedFilePath);
 
         const newDocument = new Document({
-            userId: req.userId, // Assuming user is authenticated and req.user contains user info
+            userId: req.userId, 
             originalName: req.file.originalname,
             maskedFileName: req.file.filename,
             maskedUrl: result.Location

@@ -2,7 +2,8 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
 const extractTextAndPII = require('./extractText'); 
-const extractQRPii = require('./extractQR'); // Ensure this function is correctly implemented
+const extractQRPii = require('./extractQR'); 
+const extractDataPii = require('./extractDataPii');
 
 async function maskImagePII(imagePath, maskedUploadDir) {
     try {
@@ -10,12 +11,12 @@ async function maskImagePII(imagePath, maskedUploadDir) {
         // Run metadata extraction and PII/QR detection in parallel
         const [metadata, piiLocations, qrLocations] = await Promise.all([
             sharp(imagePath).metadata(),
-            extractTextAndPII(imagePath),
+            extractDataPii(imagePath),
             extractQRPii(imagePath)
         ]);
 
-        console.log('PII Locations:', piiLocations);
-        console.log('QR Locations:', qrLocations);
+        // console.log('PII Locations:', piiLocations);
+        // console.log('QR Locations:', qrLocations);
 
         let allSensitiveLocations = [];
 

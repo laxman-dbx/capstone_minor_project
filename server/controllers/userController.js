@@ -2,12 +2,12 @@ const User = require("../models/User");
 const fs = require("fs");
 const bcrypt=require('bcryptjs')
 const { s3 } = require("../config/aws");
-const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { PutObjectCommand,DeleteObjectCommand } = require("@aws-sdk/client-s3");
 
 //  Get User Profile
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("-password"); // Exclude password
+    const user = await User.findById(req.userId).select("_id name phone email profileImage"); // Exclude password and Keys
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json(user);
@@ -25,7 +25,7 @@ exports.updateUserProfile = async (req, res) => {
       req.userId,
       { name, phone },
       { new: true, runValidators: true }
-    ).select("-password");
+    ).select("_id name phone email profileImage");
 
     res.json(updatedUser);
   } catch (error) {
@@ -33,27 +33,44 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-//  Update Profile Image
+// Update Profile Image
 exports.updateProfileImage = async (req, res) => {
   try {
-
     if (!req.file) return res.status(400).json({ message: "No image uploaded" });
-    console.log("Hello",req.file.path)
+
     const filePath = req.file.path;
     const fileStream = fs.createReadStream(filePath);
     const fileName = `profile-images/${Date.now()}-${req.file.originalname}`;
     const bucketName = process.env.AWS_BUCKET_NAME;
 
-    // Upload to S3
-    const uploadParams = {
-      Bucket: bucketName,
-      Key: fileName,
-      Body: fileStream,
-      ContentType: req.file.mimetype,
-      ACL: "public-read",
-    };
+    // Fetch existing user to get the old profile image URL
+    const user = await User.findById(req.userId).select("profileImage");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    await s3.send(new PutObjectCommand(uploadParams));
+    // Extract old image key from S3 URL
+    if (user.profileImage) {
+      const oldImageKey = user.profileImage.split(".amazonaws.com/")[1];
+      if (oldImageKey) {
+        await s3.send(
+          new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: oldImageKey,
+          })
+        );
+      }
+    }
+
+    // Upload new image to S3
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: fileName,
+        Body: fileStream,
+        ContentType: req.file.mimetype,
+        ACL: "public-read",
+      })
+    );
+
     const profileImageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 
     // Update user profile image URL in database
@@ -76,6 +93,7 @@ exports.updateProfileImage = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 //  Delete User Account
 exports.deleteUserAccount = async (req, res) => {
@@ -103,3 +121,19 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+//user list by ID
+exports.getUsers=async(req, res) => {
+  try {
+    const users = await User.find()
+    .select('id name email profileImage') // Only return these fields
+    .limit(10); // Limit results
+
+    if (!users) {
+        return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(users);
+} catch (error) {
+    res.status(500).json({ error: "Server Error" });
+}
+}

@@ -32,7 +32,7 @@ async function extractTextAndPII(imagePath) {
     });
 
     const { ParsedResults } = response.data;
-    console.log('OCR API Response:', ParsedResults);
+    //console.log('OCR API Response:', ParsedResults);
 
     if (ParsedResults && ParsedResults.length > 0) {
       const text = ParsedResults[0].ParsedText.split('\r\n');
@@ -42,7 +42,7 @@ async function extractTextAndPII(imagePath) {
       const piiPatterns = [
         { label: 'Aadhaar Number', regex: /\d{4}\s?\d{4}\s?\d{4}/g },
         { label: 'PAN Card Number', regex: /[A-Z]{5}\d{4}[A-Z]{1}/g },
-        { label: 'Driving License', regex: /[A-Z]{2}-\d{13}/g }, // Handles various DL formats
+        { label: 'Driving License', regex: /[A-Z]{2}[0-9]{2}[A-Z0-9]{11,13}/g }, // Handles various DL formats
         { label: 'Voter ID Card Number', regex: /[A-Z]{3}\d{7}/g },
         { label: 'Passport Number', regex: /[A-Z]{1}\d{7}/g },
         { label: 'Date of Birth', regex: /\b(0[1-9]|1[0-9]|2[0-9]|3[01])[-/](0[1-9]|1[0-2])[-/]\d{4}\b/g },
@@ -58,7 +58,7 @@ async function extractTextAndPII(imagePath) {
       const piiMap = new Map();
       piiPatterns.forEach(pattern => {
         const matches = ParsedResults[0].ParsedText.match(pattern.regex);
-        console.log('Matches for', pattern.label, ':', matches);
+        //console.log('Matches for', pattern.label, ':', matches);
         if (matches) {
           matches.forEach(match => {
             const matchingIndex = ocrData.Lines.findIndex(line => line.LineText.includes(match));
@@ -67,7 +67,7 @@ async function extractTextAndPII(imagePath) {
               matchingLine = ocrData.Lines[matchingIndex];
               ocrData.Lines.splice(matchingIndex, 1);
             }
-            console.log('Matching Line:', matchingLine);
+            //console.log('Matching Line:', matchingLine);
             if (matchingLine) {
               if (pattern.label === 'Aadhaar Number') {
                 // Reconstruct the Aadhaar number from words
@@ -82,7 +82,7 @@ async function extractTextAndPII(imagePath) {
                 }
                 
                 reconstructedAadhaar = reconstructedAadhaar.trim();
-                console.log('Reconstructed Aadhaar Number:', reconstructedAadhaar);
+                //console.log('Reconstructed Aadhaar Number:', reconstructedAadhaar);
                 if (reconstructedAadhaar === match) {
                   // Now, get the location of the first word and use the total width of the words.
                   if (!piiMap.has(pattern.label)) {
@@ -103,7 +103,7 @@ async function extractTextAndPII(imagePath) {
               } 
               else if (pattern.label === 'Date of Birth') {
                 const isdobMatch = matchingLine.LineText.includes('DOB');
-                console.log(matchingLine.LineText, isdobMatch , 'DOB')
+                //console.log(matchingLine.LineText, isdobMatch , 'DOB')
                 if(isdobMatch || isPan){
                   const dobMatch = /\b(0[1-9]|1[0-9]|2[0-9]|3[01])[-/](0[1-9]|1[0-2])[-/]\d{4}\b/g.exec(match);
                   const dob = dobMatch[0];
@@ -163,7 +163,7 @@ async function extractTextAndPII(imagePath) {
       });
 
       // Display the piiLocations array
-      console.log('PII Locations:', JSON.stringify(piiLocations, null, 2));
+      //console.log('PII Locations:', JSON.stringify(piiLocations, null, 2));
       return piiLocations;
     } else {
       console.log('No text found in the image.');

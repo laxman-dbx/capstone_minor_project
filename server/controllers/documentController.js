@@ -2,9 +2,11 @@ const {DeleteObjectCommand,GetObjectCommand }=require('@aws-sdk/client-s3')
 const { s3 } = require('../config/aws');
 const Document = require('../models/Document');
 
+
+//geting all documents for a single user
 const getUserDocuments = async (req, res) => {
     try {
-        const userId = req.userId; // Assuming authentication middleware sets req.user
+        const userId = req.userId; 
         const documents = await Document.find({ userId });
 
         res.json({ documents });
@@ -13,6 +15,7 @@ const getUserDocuments = async (req, res) => {
     }
 };
 
+//to download image
 const downloadDocument = async (req, res) => {
     try {
         const { fileKey } = req.params;
@@ -41,7 +44,7 @@ const downloadDocument = async (req, res) => {
     }
 };
 
-
+//delete document
 const deleteDocument = async (req, res) => {
     try {
         const { fileKey } = req.params;

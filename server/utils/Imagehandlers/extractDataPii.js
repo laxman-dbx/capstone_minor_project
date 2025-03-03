@@ -2,16 +2,16 @@ const axios=require('axios');
 const fs=require('fs');
 require("dotenv").config();
 
-async function extractQRPii(imagePath){
+async function extractDataPii(imagePath){
     const image = fs.readFileSync(imagePath, {
         encoding: "base64"
     });
     piiLocations=[]
     const response=await axios({
         method: "POST",
-        url: "https://detect.roboflow.com/dataset-lnbi8/1",
+        url: "https://detect.roboflow.com/projectad/6",
         params: {
-            api_key: process.env.QR_API_KEY
+            api_key: "5iYNtCTx136at7zLCkHt"
         },
         data: image,
         headers: {
@@ -40,6 +40,4 @@ async function extractQRPii(imagePath){
     }
 }
 
-module.exports=extractQRPii;
-
-
+module.exports=extractDataPii;

@@ -6,14 +6,60 @@
       </div>
       
       <div class="upload-content" *ngIf="!isSuccess">
-        <app-dropfileinput (fileChange)="onFileChange($event)">
-        </app-dropfileinput>
+        <div class="document-type-wrapper">
+          <label for="documentType" class="label-dropdown flex items-center">
+            Select Document Type:
+            <span class="info-button" (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false" (click)="showTooltip = !showTooltip">
+              ⓘ
+            </span>
+            <span class="tooltip" *ngIf="showTooltip">
+              <pre>Choose the document type you 
+want to upload.</pre>
+              <pre>
+This can enhance the level of 
+masking the data. So, please 
+try to input a valid type.
+              </pre>
+            </span>
+            
+          </label>
+          
+          <select id="documentType" class="document-type-dropdown" [(ngModel)]="selectedDocumentType">
+            <option value="" disabled selected>Select Document Type</option>
+            <option value="adhaar">Adhaar Card</option>
+            <option value="pan">PAN Card</option>
+            <option value="driving_license">Driving License</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        
+        <app-dropfileinput (fileChange)="onFileChange($event)"></app-dropfileinput>
+        
+        <div class="toggle-container">
+          <div class="labelForSwitch">
+            <label class="toggle-label">Save Masked Document?</label>
+            <span class="info-icon" (mouseenter)="showTooltip2 = true" (mouseleave)="showTooltip2 = false" (click)="showTooltip2 = !showTooltip2">
+              ⓘ
+            </span>
+            <span class="tooltip" *ngIf="showTooltip2">
+              <pre>We securely store the masked document 
+with AES-256 encryption in 
+AWS S3 to ensure privacy.</pre>
+            </span>
+          </div>
+          
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="saveMaskedDocument">
+            <span class="slider"></span>
+          </label>
+        </div>
+        
         
         <div class="file-list" *ngIf="file">
           <div class="file-item">
             <strong>{{ file.name }}</strong>
             <span> - {{ file.size }} B</span>
-            <button class="remove-button" (click)="removeFile()">×</button>
+            <button class="remove-button" (click)="removeFile()">&times;</button>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
                 <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
@@ -23,16 +69,14 @@
           </div>
         </div>
         
-        <button 
-          class="upload-button" 
-          [disabled]="!file || isUploading" 
-          (click)="uploadAndFetchMaskedFile()">
+        <button class="upload-button" [disabled]="!file || isUploading" (click)="uploadAndFetchMaskedFile()">
           <span *ngIf="!isUploading">Mask</span>
           <span *ngIf="isUploading" class="spinner">
             <span class="spinner-inner"></span>
           </span>
         </button>
       </div>
+      
       
       <!-- Success screen after upload -->
       <!-- Success Screen -->

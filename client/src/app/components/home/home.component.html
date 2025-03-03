@@ -4,7 +4,8 @@
       <div class="left-content">
         <h1>Giving You the Power of Privacy</h1>
         <p>Our app empowers you to securely share files while safeguarding your privacy.</p>
-        <a routerLink="/sign-in" class="cta-button">Get Started</a>
+        <a [routerLink]="navigate" class="cta-button">Get Started</a>
+
       </div>
       <div class="hero-content">
         <img src="assets/hero_img.png" alt="hero" />
@@ -54,7 +55,7 @@
 
   <section class="get-started-section">
     <div class="feature-cnt">
-      <a routerLink="navigate()" class="cta-button">Get Started</a>
+      <a [routerLink]="navigate" class="cta-button">Get Started</a>
       <p>Share sensitive content confidently, knowing that your data is shielded by the latest advancements in technology.</p>
     </div>
   </section>

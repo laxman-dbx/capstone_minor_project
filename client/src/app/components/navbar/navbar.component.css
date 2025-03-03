@@ -11,7 +11,7 @@
 .container {
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Ensures left and right alignment */
+  justify-content: space-between; 
   width: 100%;
 }
 

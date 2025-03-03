@@ -1,28 +1,57 @@
-<div class="container">
+<div class="container" [class.disabled]="isLoading">
   <h2>📄 Manage Documents</h2>
-
+  
   <!-- Upload Document -->
   <div class="upload-section">
-    <label for="fileUpload" class="upload-btn" routerLink="/upload">Upload Document</label>
+    <p for="fileUpload" class="upload-btn"  routerLink="/upload">Upload Document</p>
   </div>
-
   <!-- Document List -->
   <div class="document-list">
     <h3>Your Documents</h3>
     <div class="document-card" *ngFor="let doc of documents">
       <div class="doc-info">
-        <span class="doc-name">{{ doc.originalName }}</span>  
+        <span class="doc-name">{{ doc.originalName }}</span>
         <span class="doc-date">Uploaded on: {{ doc.uploadedAt | date:'medium' }}</span>
       </div>
       <div class="doc-actions">
-        <button class="btn download" (click)="downloadFile(doc.maskedFileName)">⬇ Download</button>
-        <button class="btn delete" (click)="deleteFile(doc.maskedFileName)">🗑 Delete</button>
+        <button class="btn preview" (click)="openPreviewDialog(doc.maskedFileName)" [disabled]="isLoading">
+          👁 Preview
+        </button>
+        <button class="btn download" (click)="downloadFile(doc.maskedFileName)" [disabled]="isLoading">⬇ Download</button>
+        <button class="btn delete" (click)="deleteFile(doc.maskedFileName)" [disabled]="isLoading">🗑 Delete</button>
       </div>
     </div>
   </div>
-
+  
   <!-- No Documents Message -->
   <div class="no-docs" *ngIf="documents.length === 0">
     <p>No documents uploaded yet.</p>
+  </div>
+</div>
+<!-- Loading Overlay -->
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="loading-content">
+    <div class="spinner"></div>
+    <h3>Loading ...</h3>
+    <p>{{ loadingMessage }}</p>
+  </div>
+</div>
+
+<!-- Preview Dialog -->
+<div class="dialog-overlay" *ngIf="showPreview" (click)="closePreviewDialog($event)">
+  <div class="dialog-content" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3>{{ previewTitle }}</h3>
+      <button class="close-btn" (click)="closePreviewDialog($event)">&times;</button>
+    </div>
+    <div class="dialog-body">
+      <div *ngIf="filePreviewURL" class="file-preview">
+        <img [src]="filePreviewURL" alt="File Preview" class="preview-image">
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn download" (click)="downloadFile(selectedFile)" *ngIf="selectedFile">Download</button>
+      <button class="btn cancel" (click)="closePreviewDialog($event)">Close</button>
+    </div>
   </div>
 </div>

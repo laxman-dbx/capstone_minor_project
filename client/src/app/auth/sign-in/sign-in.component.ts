@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule,Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-sign-in',
@@ -15,7 +16,7 @@ export class SignInComponent {
   enteredPassword = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router,private toastr:ToastrService) {}
 
   async onSubmit() {
     try {
@@ -25,11 +26,11 @@ export class SignInComponent {
       };
 
       const response = await this.authService.signIn(credentials);
-      console.log('Login successful', response);
+      this.toastr.success(response.message,"",{positionClass:"toast-top-center"})
       this.router.navigate(['/dashboard']);
     } catch (error:any) {
       this.errorMessage = error.message || 'Invalid credentials!';
-      console.error('Login error:', error);
+      this.toastr.error(error.message,"",{positionClass:"toast-top-center"})
     }
   }
 }

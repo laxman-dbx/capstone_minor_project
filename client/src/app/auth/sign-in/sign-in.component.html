@@ -30,7 +30,7 @@
                        #passwordCtrl="ngModel">
                 <div *ngIf="passwordCtrl.invalid && passwordCtrl.touched" class="error-text">
                     <span *ngIf="passwordCtrl.errors?.['required']">Password is required.</span>
-                    <span *ngIf="passwordCtrl.errors?.['minlength']">Password must be at least 6 characters.</span>
+                    <span *ngIf="passwordCtrl.errors?.['minlength']">Password must be at least 8 characters.</span>
                 </div>
             </div>
 

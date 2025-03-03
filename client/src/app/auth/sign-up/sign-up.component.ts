@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-sign-up',
@@ -20,7 +21,7 @@ export class SignUpComponent {
   fileError: string = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService,private router:Router) {}
+  constructor(private authService: AuthService,private router:Router,private toastr:ToastrService) {}
 
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
@@ -63,11 +64,11 @@ export class SignUpComponent {
       };
 
       const response = await this.authService.signUp(userData);
-      console.log('Signup successful', response);
+      this.toastr.success(response.message, '', { positionClass: 'toast-top-center' });
       this.router.navigate(['/dashboard']);
     } catch (error:any) {
       this.errorMessage = error.message || 'Signup failed!';
-      console.error('Signup error:', error);
+      this.toastr.error(this.errorMessage, '', { positionClass: 'toast-top-center' });
     }
   }
 }

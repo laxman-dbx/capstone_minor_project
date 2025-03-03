@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from '../../services/user.service';
 import { FormsModule } from '@angular/forms';
+import { ToastrService, provideToastr } from 'ngx-toastr';
+
 
 @Component({
   selector: 'app-profile',
@@ -13,10 +15,13 @@ import { FormsModule } from '@angular/forms';
 export class ProfileComponent implements OnInit {
   user: any = {};
   editMode: boolean = false;
+  peditMode:boolean=false;
   selectedFile: File | null = null;
   imagePreview: string | null = null;
+  enteredPassword:String='';
+  reEnteredPassword:String='';
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService,private toastr:ToastrService) {}
 
   async ngOnInit(): Promise<void> {
     await this.getUserProfile();
@@ -49,10 +54,12 @@ export class ProfileComponent implements OnInit {
 
     try {
       await this.userService.updateProfileImage(this.selectedFile);
+      this.toastr.success('Updated Successfully!', '', { positionClass: 'toast-top-center' });
       await this.getUserProfile(); // Refresh profile data
       this.resetImageState();
     } catch (error) {
       console.error('Error updating profile image:', error);
+      this.toastr.error("Error while updating please try again","",{ positionClass: 'toast-top-center' })
     }
   }
 
@@ -67,26 +74,34 @@ export class ProfileComponent implements OnInit {
 
   async updateProfile(): Promise<void> {
     try {
-      await this.userService.updateUserProfile({
+      const res=await this.userService.updateUserProfile({
         name: this.user.name,
         phone: this.user.phone,
       });
       this.editMode = false;
+      this.toastr.success('Updated Successfully!', '', { positionClass: 'toast-top-center' });
       await this.getUserProfile();
     } catch (error) {
       console.error('Error updating profile:', error);
+      this.toastr.error("Error while updating please try again","",{ positionClass: 'toast-top-center' })
     }
   }
 
   async changePassword(): Promise<void> {
-    const newPassword = prompt('Enter new password:');
-    if (!newPassword) return;
 
     try {
-      await this.userService.changePassword(newPassword);
-      alert('Password changed successfully');
+      if(this.enteredPassword===this.reEnteredPassword){
+        await this.userService.changePassword(this.enteredPassword.toString());
+        this.peditMode=false
+        this.toastr.success('Updated Successfully!', '', { positionClass: 'toast-top-center' });
+        this.enteredPassword='';
+        this.reEnteredPassword='';
+      }else{
+        this.toastr.error('Password Mismatched!', '', { positionClass: 'toast-top-center' });
+      }
     } catch (error) {
       console.error('Error changing password:', error);
+      this.toastr.error("Error while updating please try again","",{ positionClass: 'toast-top-center' })
     }
   }
 }

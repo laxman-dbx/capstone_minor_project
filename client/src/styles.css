@@ -1,6 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
-
+@import 'ngx-toastr/toastr';
 body{
     margin: 0;
     padding: 0;
 }
+
+
+
+.toast-success {
+  background-color: #28a745 !important;
+  position: relative;
+  top : 80px;
+  align-items: center;
+  color: white !important;
+}
+
+.toast-error {
+  background-color: #dc3545 !important;
+  position: relative;
+  top : 80px;
+  align-items: center;
+  color: white !important;
+}
+

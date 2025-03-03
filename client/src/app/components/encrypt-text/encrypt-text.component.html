@@ -1,1 +1,53 @@
-<p>encrypt-text works!</p>
+<div class="container">
+  <h1>Encrypt PII Text</h1>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert error-alert">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Success Alert -->
+  <div *ngIf="encryptedMessage" class="alert success-alert">
+    <p class="font-bold">Text Encrypted Successfully</p>
+    <p class="break-all">{{ encryptedMessage }}</p>
+    <button class="secondary-button" (click)="decrypt(encryptedMessage)">Decrypt</button>
+  </div>
+
+  <!-- Encryption Form -->
+  <form (ngSubmit)="handleEncrypt()">
+    <div class="form-group">
+      <label for="text">Enter Text to Encrypt:</label>
+      <textarea id="text" [(ngModel)]="text" name="text" rows="4" placeholder="Enter sensitive text here..." required></textarea>
+    </div>
+
+    <!-- User Search -->
+    <div class="form-group">
+      <label for="search">Search Recipients:</label>
+      <input type="text" id="search" [(ngModel)]="searchTerm" name="searchTerm" placeholder="Search by name or email..." (input)="fetchUsers()">
+      
+      <!-- User List -->
+      <div *ngIf="filteredUsers.length" class="user-list">
+        <p *ngFor="let user of filteredUsers" (click)="selectUser(user)">
+          {{ user.name }} ({{ user.email }})
+        </p>
+      </div>
+
+      <p *ngIf="!filteredUsers.length && searchTerm" class="text-gray">No users found. Try different search terms.</p>
+      <p *ngIf="loading" class="text-gray">Loading users...</p>
+    </div>
+
+    <!-- Selected Recipient -->
+    <div *ngIf="selectedUser" class="selected-user">
+      <h3>Selected Recipient:</h3>
+      <p>{{ selectedUser.name }} ({{ selectedUser.email }})</p>
+    </div>
+
+    <button type="submit" [disabled]="loading">Encrypt Text</button>
+  </form>
+
+  <!-- Decrypted Messages -->
+  <div *ngIf="decryptedMessage" class="decrypted-message">
+    <h2>Decrypted Message:</h2>
+    <div class="message-box">{{ decryptedMessage }}</div>
+  </div>
+</div>

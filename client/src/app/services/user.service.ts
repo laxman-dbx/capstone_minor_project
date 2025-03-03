@@ -88,4 +88,18 @@ export class UserService {
   }
 
 
+  //get Users By Name
+  async getUsers(){
+    try {
+      const response = await axios.get(`${this.apiUrl}/getUsers`, {
+        headers: { Authorization: `Bearer ${this.getToken()}` }
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      throw error;
+    }
+  }
+
 }

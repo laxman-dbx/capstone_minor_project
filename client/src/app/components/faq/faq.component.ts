@@ -2,11 +2,9 @@ import { Component } from '@angular/core';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { CommonModule } from '@angular/common';
-import { NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
-
 @Component({
   selector: 'app-faq',
-  imports: [CommonModule,NgbAccordionModule],
+  imports: [CommonModule],
   templateUrl: './faq.component.html',
   styleUrl: './faq.component.css'
 })

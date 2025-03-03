@@ -54,8 +54,6 @@ export class DropfileinputComponent {
   handleFile(file: File) {
     this.file = file;
     this.fileChange.emit({ files: [file] });
-    
-    
   }
 
   removeFile() {

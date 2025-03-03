@@ -1,0 +1,22 @@
+
+.parent {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 10px;
+}
+    
+
+.div2 {
+    grid-row: span 2 / span 2;
+}
+
+.div3 {
+    grid-row-start: 4;
+}
+
+.div4 {
+    grid-row: span 2 / span 2;
+    grid-row-start: 5;
+}
+        

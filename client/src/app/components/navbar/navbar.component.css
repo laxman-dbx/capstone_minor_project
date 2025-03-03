@@ -90,3 +90,8 @@
 .sign-in:hover {
   opacity: 0.8;
 }
+
+
+.profile-image{
+  cursor: pointer;
+}

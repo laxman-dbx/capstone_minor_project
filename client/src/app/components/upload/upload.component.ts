@@ -18,7 +18,7 @@ type DocumentType = 'adhaar' | 'pan' | 'driving_license' | 'other' | 'bank';
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css'],
   standalone: true,
-  imports: [CommonModule, DropfileinputComponent,FormsModule]
+  imports: [CommonModule, DropfileinputComponent, FormsModule]
 })
 export class UploadComponent {
   file: File | null = null;
@@ -28,8 +28,9 @@ export class UploadComponent {
   errorMessage = '';
   fileUrl: SafeUrl | null = null;
   maskedBlob: Blob | null = null; 
-  selectedDocumentType: DocumentType='adhaar';  // Assign a default value
+  selectedDocumentType: DocumentType = 'adhaar';  // Assign a default value
   saveMaskedDocument: boolean = true;
+  responseFileType: string | null = null; // Add this to track the file type from response
 
   showTooltip: boolean = false;
   showTooltip2: boolean = false;
@@ -65,6 +66,7 @@ export class UploadComponent {
     this.errorMessage = '';
     this.maskedBlob = null;
     this.fileUrl = null;
+    this.responseFileType = null;
   }
 
   async uploadAndFetchMaskedFile() {
@@ -93,6 +95,8 @@ export class UploadComponent {
           type: response.fileType || this.file.type 
         });
         
+        // Store the file type from response
+        this.responseFileType = response.fileType || null;
         // Store the original filename for later use during download
         this.originalFileName = this.file.name;
       } else {
@@ -100,6 +104,9 @@ export class UploadComponent {
         console.log('Upload successful', response.fileUrl);
         this.maskedBlob = await this.documentService.downloadDocument(response.fileUrl);
         this.originalFileName = this.file.name;
+        
+        // If response contains a file type, store it
+        this.responseFileType = response.fileType || null;
       }
       
       if (!(this.maskedBlob instanceof Blob)) {
@@ -120,7 +127,6 @@ export class UploadComponent {
     }
   }
   
-  // Updated download function with date-based filename
   downloadMaskedFile() {
     if (!this.maskedBlob) {
       this.errorMessage = 'No file available for download.';
@@ -142,12 +148,37 @@ export class UploadComponent {
                      String(now.getMonth() + 1).padStart(2, '0') + 
                      String(now.getDate()).padStart(2, '0');
       
-      // Get original file extension
+      // Get original file information
       const originalName = this.originalFileName || this.file?.name || 'file';
-      const fileExtension = originalName.split('.').pop() || '';
+      const originalBaseName = originalName.split('.')[0];
+      const originalExtension = originalName.split('.').pop() || '';
       
-      // Create new filename with date
-      const newFileName = `${dateStr}_masked_${originalName.split('.')[0]}.${fileExtension}`;
+      // Determine the correct file extension for the download
+      let outputExtension;
+      
+      // If we have explicit response file type, use that to determine extension
+      if (this.responseFileType) {
+        if (this.responseFileType.includes('jpeg') || this.responseFileType.includes('jpg')) {
+          outputExtension = 'jpg';
+        } else if (this.responseFileType.includes('png')) {
+          outputExtension = 'png';
+        } else {
+          // Use the extension from the response content type if possible
+          outputExtension = this.responseFileType.split('/').pop() || originalExtension;
+        }
+      } else {
+        // Handle based on original file type
+        // If PDF was uploaded, backend converts to JPG
+        if (originalExtension.toLowerCase() === 'pdf') {
+          outputExtension = 'jpg';
+        } else {
+          // Keep the same extension for other file types
+          outputExtension = originalExtension;
+        }
+      }
+      
+      // Create the final filename
+      const newFileName = `${dateStr}_masked_${originalBaseName}.${outputExtension}`;
       
       link.href = url;
       link.download = newFileName;
@@ -172,8 +203,3 @@ export class UploadComponent {
   // Add this property to the component class
   originalFileName: string | null = null;
 }
-
-
-// 08712459594
-
-// sbi.05326@sbi.co.in

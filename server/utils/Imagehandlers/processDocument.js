@@ -2,18 +2,44 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
 const extractTextAndPII = require('./extractText'); 
-const extractQRPii = require('./extractQR'); 
+const qrHandler = require('./qrHandler'); 
 const extractDataPii = require('./extractDataPii');
+const adhaarHandler = require('./aadharHandler');
+const DrivingLicenseHandler = require('./drivingLicenceHandler');
+const PANHandler = require('./panHandler');
 
-async function maskImagePII(imagePath, maskedUploadDir) {
+async function maskImagePII(imagePath, maskedUploadDir,documentType) {
     try {
         const startTime=Date.now();
-        // Run metadata extraction and PII/QR detection in parallel
-        const [metadata, piiLocations, qrLocations] = await Promise.all([
-            sharp(imagePath).metadata(),
-            extractDataPii(imagePath),
-            extractQRPii(imagePath)
-        ]);
+        let metadata,piiLocations,qrLocations;
+        if(documentType==='adhaar'){
+            [metadata, piiLocations, qrLocations] = await Promise.all([
+                sharp(imagePath).metadata(),
+                adhaarHandler(imagePath),
+                qrHandler(imagePath)
+            ]);
+        }
+        else if(documentType==='driving_license'){
+            [metadata, piiLocations] = await Promise.all([
+                sharp(imagePath).metadata(),
+                DrivingLicenseHandler(imagePath),
+            ]);
+        }
+        else if(documentType==='pan'){
+            [metadata, piiLocations, qrLocations] = await Promise.all([
+                sharp(imagePath).metadata(),
+                PANHandler(imagePath),
+                qrHandler(imagePath)
+            ]);
+        }
+        else{
+            // Run metadata extraction and PII/QR detection in parallel
+            [metadata, piiLocations, qrLocations] = await Promise.all([
+                sharp(imagePath).metadata(),
+                extractDataPii(imagePath),
+                qrHandler(imagePath)
+            ]);
+        }
 
         // console.log('PII Locations:', piiLocations);
         // console.log('QR Locations:', qrLocations);
@@ -35,25 +61,44 @@ async function maskImagePII(imagePath, maskedUploadDir) {
         }
 
         if (allSensitiveLocations.length > 0) {
-            const maskSvg = `
-                <svg width="${metadata.width}" height="${metadata.height}" xmlns="http://www.w3.org/2000/svg">
-                    ${allSensitiveLocations.map(pii => 
-                        `<rect x="${pii.location.Left}" y="${pii.location.Top}" 
-                               width="${pii.location.Width}" height="${pii.location.Height}" 
-                               fill="black"/>`
-                    ).join('')}
-                </svg>
-            `;
-
-            const image = sharp(imagePath)
-                .composite([{ input: Buffer.from(maskSvg), blend: 'over' }]);
-
-            // Save masked image
-            const maskedFilePath = path.join(maskedUploadDir, `masked_${path.basename(imagePath)}`);
-            await image.toFile(maskedFilePath);
-            console.log('file processing time:',Date.now()-startTime)
-            
-            return maskedFilePath;
+            try {
+                const image = sharp(imagePath);
+                
+                // Prepare blur masks
+                const blurMasks = await Promise.all(allSensitiveLocations.map(async (pii) => {
+                    // Extract the specific region from the original image
+                    const regionBuffer = await sharp(imagePath)
+                        .extract({
+                            left: pii.location.Left,
+                            top: pii.location.Top,
+                            width: pii.location.Width,
+                            height: pii.location.Height
+                        })
+                        .blur(10)  // Apply blur to this specific region
+                        .toBuffer();
+        
+                    return {
+                        input: regionBuffer,
+                        top: pii.location.Top,
+                        left: pii.location.Left,
+                        blend: 'over'
+                    };
+                }));
+        
+                // Composite the blurred masks onto the original image
+                const maskedImage = await image.composite(blurMasks);
+        
+                // Save masked image
+                const maskedFilePath = path.join(maskedUploadDir, `masked_${path.basename(imagePath)}`);
+                await maskedImage.toFile(maskedFilePath);
+                
+                console.log('file processing time:', Date.now() - startTime);
+                
+                return maskedFilePath;
+            } catch (error) {
+                console.error('Error masking image:', error);
+                throw error;
+            }
         }
 
         return imagePath; // Return original path if no masking is needed

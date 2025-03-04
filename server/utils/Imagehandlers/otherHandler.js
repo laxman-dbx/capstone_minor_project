@@ -2,16 +2,16 @@ const axios=require('axios');
 const fs=require('fs');
 require("dotenv").config();
 
-async function extractQRPii(imagePath){
+async function otherHandler(imagePath){
     const image = fs.readFileSync(imagePath, {
         encoding: "base64"
     });
     piiLocations=[]
     const response=await axios({
         method: "POST",
-        url: "https://detect.roboflow.com/dataset-lnbi8/1",
+        url: "https://detect.roboflow.com/projectad/6",
         params: {
-            api_key: process.env.QR_API_KEY
+            api_key: process.env.ROBOFLOW_API_KEY
         },
         data: image,
         headers: {
@@ -40,6 +40,9 @@ async function extractQRPii(imagePath){
     }
 }
 
-module.exports=extractQRPii;
+module.exports=otherHandler;
 
 
+// https://universe.roboflow.com/test-3ilmz/voterid-pmjw8
+
+// https://universe.roboflow.com/demo-rm5r8/kyc-id-detection-text-only

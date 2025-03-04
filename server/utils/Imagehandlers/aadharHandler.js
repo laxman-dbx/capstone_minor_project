@@ -29,7 +29,7 @@ async function adhaarHandler(imagePath) {
             method: "POST",
             url: "https://detect.roboflow.com/priyam-adhar-detect/3",
             params: {
-                api_key: process.env.QR_API_KEY
+                api_key: process.env.ROBOFLOW_API_KEY
             },
             data: image,
             headers: {

@@ -3,33 +3,32 @@ const { s3 } = require('../config/aws');
 const fs = require('fs');
 const maskImagePII = require('../utils/Imagehandlers/processDocument');
 const pdfToJpgConverter = require('../utils/PdfHandlers/pdftojpg');
-const { PutObjectCommand} = require("@aws-sdk/client-s3");
-const Document=require('../models/Document')
-
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const Document = require('../models/Document');
 
 const uploadDocument = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
         const { documentType, isSave } = req.body;
-        console.log({ documentType, isSave });
+
         const filePath = req.file.path;
-        let processedFilePath;
+        let processedFilePath = filePath;
 
         // Convert PDF to JPG before masking
         if (req.file.mimetype === 'application/pdf') {
             const imagePath = await pdfToJpgConverter(filePath);
-            processedFilePath=imagePath[0];
-        } else {
-            processedFilePath = filePath;
+            processedFilePath = imagePath[0];  // Ensure valid image path
         }
 
-        console.log(processedFilePath);
-        // Mask PII Data
-        const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/',documentType);
+        
+        // Mask PII Data (Ensure it's fully completed before proceeding)
+        const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/', documentType);
+
 
         if (isSave === "true" || isSave === true) {
             // Upload masked file to S3
+            const filename=req.file.filename;
             const fileStream = fs.createReadStream(maskedFilePath);
             const uploadParams = {
                 Bucket: process.env.AWS_BUCKET_NAME,
@@ -41,13 +40,7 @@ const uploadDocument = async (req, res) => {
             const command = new PutObjectCommand(uploadParams);
             const result = await s3.send(command);
 
-            // Clean up local files
-            fs.unlinkSync(filePath);
-            if (processedFilePath !== filePath) {
-                fs.unlinkSync(processedFilePath); // Clean up converted file if necessary
-            }
-            fs.unlinkSync(maskedFilePath);
-
+            // Save file info in the database
             const newDocument = new Document({
                 userId: req.userId,
                 documentType,
@@ -55,9 +48,18 @@ const uploadDocument = async (req, res) => {
                 maskedFileName: req.file.filename,
                 maskedUrl: result.Location
             });
-
             await newDocument.save();
-            return res.json({ message: "File uploaded & masked successfully", fileUrl: req.file.filename });
+            
+            // Cleanup local files **AFTER SUCCESS**
+            try {
+                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+                if (processedFilePath !== filePath && fs.existsSync(processedFilePath)) fs.unlinkSync(processedFilePath);
+                if (fs.existsSync(maskedFilePath)) fs.unlinkSync(maskedFilePath);
+            } catch (cleanupErr) {
+                console.error("Error cleaning up files:", cleanupErr);
+            }
+
+            return res.json({ message: "File uploaded & masked successfully", fileUrl: filename });
 
         } else {
             // Read the masked file as a buffer
@@ -67,18 +69,14 @@ const uploadDocument = async (req, res) => {
             // Set response headers for file download
             res.setHeader('Content-Type', contentType);
             res.setHeader('Content-Disposition', `inline; filename="${req.file.filename}"`);
-
-            // Send the image blob
             res.send(fileBuffer);
 
-            // Clean up files after response has been sent
+            // Clean up files **AFTER RESPONSE**
             process.nextTick(() => {
                 try {
-                    fs.unlinkSync(filePath);
-                    if (processedFilePath !== filePath) {
-                        fs.unlinkSync(processedFilePath); // Clean up converted file if necessary
-                    }
-                    fs.unlinkSync(maskedFilePath);
+                    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+                    if (processedFilePath !== filePath && fs.existsSync(processedFilePath)) fs.unlinkSync(processedFilePath);
+                    if (fs.existsSync(maskedFilePath)) fs.unlinkSync(maskedFilePath);
                 } catch (cleanupErr) {
                     console.error('Error cleaning up files:', cleanupErr);
                 }
@@ -86,12 +84,9 @@ const uploadDocument = async (req, res) => {
         }
 
     } catch (err) {
-        console.error(err);
+        console.error("Error in uploadDocument:", err);
         res.status(500).json({ error: err.message });
     }
 };
 
-
-
-
-module.exports = { uploadDocument};
+module.exports = { uploadDocument };

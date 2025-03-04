@@ -18,13 +18,15 @@ const uploadDocument = async (req, res) => {
 
         // Convert PDF to JPG before masking
         if (req.file.mimetype === 'application/pdf') {
-            processedFilePath = await pdfToJpgConverter(filePath);
+            const imagePath = await pdfToJpgConverter(filePath);
+            processedFilePath=imagePath[0];
         } else {
             processedFilePath = filePath;
         }
 
+        console.log(processedFilePath);
         // Mask PII Data
-        const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/');
+        const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/',documentType);
 
         if (isSave === "true" || isSave === true) {
             // Upload masked file to S3
@@ -41,10 +43,14 @@ const uploadDocument = async (req, res) => {
 
             // Clean up local files
             fs.unlinkSync(filePath);
+            if (processedFilePath !== filePath) {
+                fs.unlinkSync(processedFilePath); // Clean up converted file if necessary
+            }
             fs.unlinkSync(maskedFilePath);
 
             const newDocument = new Document({
                 userId: req.userId,
+                documentType,
                 originalName: req.file.originalname,
                 maskedFileName: req.file.filename,
                 maskedUrl: result.Location

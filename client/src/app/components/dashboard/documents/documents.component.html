@@ -10,15 +10,22 @@
     <h3>Your Documents</h3>
     <div class="document-card" *ngFor="let doc of documents">
       <div class="doc-info">
-        <span class="doc-name">{{ doc.originalName }}</span>
+        <div class="doc-header">
+          <span class="doc-name">{{ doc.originalName }}</span>
+          <span class="doc-type">({{ doc.documentType }})</span>
+        </div>
         <span class="doc-date">Uploaded on: {{ doc.uploadedAt | date:'medium' }}</span>
       </div>
       <div class="doc-actions">
         <button class="btn preview" (click)="openPreviewDialog(doc.maskedFileName)" [disabled]="isLoading">
           👁 Preview
         </button>
-        <button class="btn download" (click)="downloadFile(doc.maskedFileName)" [disabled]="isLoading">⬇ Download</button>
-        <button class="btn delete" (click)="deleteFile(doc.maskedFileName)" [disabled]="isLoading">🗑 Delete</button>
+        <button class="btn download" (click)="downloadFile(doc.maskedFileName)" [disabled]="isLoading">
+          ⬇ Download
+        </button>
+        <button class="btn delete" (click)="deleteFile(doc.maskedFileName)" [disabled]="isLoading">
+          🗑 Delete
+        </button>
       </div>
     </div>
   </div>

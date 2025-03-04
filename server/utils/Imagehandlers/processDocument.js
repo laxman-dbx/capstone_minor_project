@@ -2,18 +2,29 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
 const extractTextAndPII = require('./extractText'); 
-const extractQRPii = require('./extractQR'); 
+const qrHandler = require('./qrHandler'); 
 const extractDataPii = require('./extractDataPii');
+const adhaarHandler = require('./aadharHandler');
 
-async function maskImagePII(imagePath, maskedUploadDir) {
+async function maskImagePII(imagePath, maskedUploadDir,documentType) {
     try {
         const startTime=Date.now();
-        // Run metadata extraction and PII/QR detection in parallel
-        const [metadata, piiLocations, qrLocations] = await Promise.all([
-            sharp(imagePath).metadata(),
-            extractDataPii(imagePath),
-            extractQRPii(imagePath)
-        ]);
+
+        if(documentType==='adhaar'){
+            [metadata, piiLocations, qrLocations] = await Promise.all([
+                sharp(imagePath).metadata(),
+                adhaarHandler(imagePath),
+                qrHandler(imagePath)
+            ]);
+        }
+        else{
+            // Run metadata extraction and PII/QR detection in parallel
+            [metadata, piiLocations, qrLocations] = await Promise.all([
+                sharp(imagePath).metadata(),
+                extractDataPii(imagePath),
+                extractQRPii(imagePath)
+            ]);
+        }
 
         // console.log('PII Locations:', piiLocations);
         // console.log('QR Locations:', qrLocations);

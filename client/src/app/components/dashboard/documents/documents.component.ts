@@ -42,6 +42,7 @@ export class DocumentsComponent implements OnInit {
     try {
       const response = await this.documentService.getUserDocuments();
       this.documents = response.documents;
+      this.documents=this.documents.reverse();
       console.log('Fetched documents:', this.documents);
     } catch (error) {
       console.error('Error fetching documents:', error);

@@ -77,6 +77,14 @@ h2 {
   font-size: 14px;
 }
 
+.doc-type {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  color: #555;
+  text-transform: capitalize;
+}
+
 .doc-actions {
   display: flex;
   gap: 10px;

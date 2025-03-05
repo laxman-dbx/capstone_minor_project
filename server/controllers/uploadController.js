@@ -24,6 +24,17 @@ const uploadDocument = async (req, res) => {
         
         // Mask PII Data (Ensure it's fully completed before proceeding)
         const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/', documentType);
+        console.log(maskedFilePath);
+        if (maskedFilePath === processedFilePath) {
+            fs.unlinkSync(processedFilePath);
+            
+            if (isSave === "true" || isSave === true) {
+                return res.status(200).json({ message: "No PII data found, file not uploaded to S3" });
+            } else {
+                return res.status(200).send({ message: "No PII data found, no masked version available" });
+            }
+        }
+        
 
 
         if (isSave === "true" || isSave === true) {

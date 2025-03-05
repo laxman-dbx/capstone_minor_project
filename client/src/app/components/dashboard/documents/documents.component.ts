@@ -43,7 +43,6 @@ export class DocumentsComponent implements OnInit {
       const response = await this.documentService.getUserDocuments();
       this.documents = response.documents;
       this.documents=this.documents.reverse();
-      console.log('Fetched documents:', this.documents);
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
@@ -64,7 +63,6 @@ export class DocumentsComponent implements OnInit {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url); // Clean up
-      console.log('File downloaded:', fileKey);
     } catch (error) {
       console.error('Error downloading file:', error);
     } finally {

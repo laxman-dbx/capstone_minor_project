@@ -56,8 +56,6 @@ export class UploadComponent {
       this.fileUrl = this.sanitizer.bypassSecurityTrustUrl(reader.result as string);
     };
     reader.readAsDataURL(this.file);
-
-    console.log('Selected file:', this.file);
   }
 
   removeFile() {
@@ -84,10 +82,13 @@ export class UploadComponent {
     };
         
     try {
-      console.log(data);
       
       // Upload file and process according to the response type
       const response = await this.documentService.uploadDocument(data);
+      if(response.isNoPII){
+        this.errorMessage=response.message;
+        return;
+      }
       
       if (data.isSave === false) {
         // If not saving to S3, we get the blob directly from the response
@@ -101,7 +102,6 @@ export class UploadComponent {
         this.originalFileName = this.file.name;
       } else {
         // If saving to S3, we need to fetch the file using the returned URL
-        console.log('Upload successful', response.fileUrl);
         this.maskedBlob = await this.documentService.downloadDocument(response.fileUrl);
         this.originalFileName = this.file.name;
         
@@ -117,8 +117,7 @@ export class UploadComponent {
       const objectURL = URL.createObjectURL(this.maskedBlob);
       this.fileUrl = this.sanitizer.bypassSecurityTrustUrl(objectURL);
       this.isSuccess = true;
-      
-      console.log('Masked file preview updated');
+
     } catch (error: any) {
       this.errorMessage = error.message || 'An error occurred during upload.';
       console.error('Upload error:', error);
@@ -191,7 +190,6 @@ export class UploadComponent {
         document.body.removeChild(link);
       }, 100);
       
-      console.log('Masked file downloaded successfully as', newFileName);
     } catch (error) {
       console.error('Download error:', error);
       this.errorMessage = 'Download failed. Please try again.';

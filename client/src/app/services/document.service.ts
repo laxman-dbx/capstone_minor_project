@@ -12,40 +12,45 @@ export class DocumentService {
 
   //  Upload document
   async uploadDocument(data: uploadDocument): Promise<any> {
-    console.log(data);
-    
+
     // Create form data
     const formData = new FormData();
     formData.append('documentType', data.documentType);
     formData.append('file', data.file);
     formData.append('isSave', data.isSave.toString());
-    
-    // If not saving to S3, we need to handle the direct file response
-    if (data.isSave === false) {
-      const response = await axios.post(`${this.apiUrl}/upload`, formData, {
-        headers: { 
-          Authorization: `Bearer ${this.token}`
-        },
-        responseType: 'blob' // Important: This tells axios to expect binary data
-      });
-      
-      // Return an object with the blob directly
-      return {
-        directBlob: response.data,
-        fileType: response.headers['content-type'],
-        fileName: data.file.name // Pass the original filename to help with naming
-      };
-    } else {
-      // Regular JSON response when saving to S3
-      const response = await axios.post(`${this.apiUrl}/upload`, formData, {
-        headers: { 
-          Authorization: `Bearer ${this.token}`
+
+    try {
+        const response = await axios.post(`${this.apiUrl}/upload`, formData, {
+            headers: { Authorization: `Bearer ${this.token}` },
+            responseType: 'blob' // Always request as 'blob' to handle both cases
+        });
+
+        // Convert the blob response to text first to check if it's JSON
+        const textResponse = await response.data.text();
+        try {
+            const jsonData = JSON.parse(textResponse);
+
+            // Handle "No PII Data Found" case
+            if (jsonData?.message?.includes("No PII data found")) {
+                return { message: jsonData.message, isNoPII: true };
+            }
+
+            return jsonData;
+        } catch (error) {
+            // If parsing fails, it's a file response, return as blob
+            return {
+                directBlob: response.data,
+                fileType: response.headers['content-type'],
+                fileName: data.file.name // Preserve filename for download
+            };
         }
-      });
-      
-      return response.data;
+    } catch (error) {
+        console.error("Error in uploadDocument service:", error);
+        throw error;
     }
   }
+
+
 
   //  Get list of user documents
   async getUserDocuments(): Promise<any> {

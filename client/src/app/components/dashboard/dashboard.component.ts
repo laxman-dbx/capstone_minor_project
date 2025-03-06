@@ -9,5 +9,9 @@ import { TextComponent } from './text/text.component';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
+  refreshTrigger = false;
 
+  ngOnInit() {
+    this.refreshTrigger = !this.refreshTrigger; // Toggle to force update
+  }
 }

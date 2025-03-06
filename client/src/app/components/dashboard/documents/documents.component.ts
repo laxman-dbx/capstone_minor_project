@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit ,OnChanges, SimpleChanges } from '@angular/core';
 import { DocumentService } from '../../../services/document.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -13,6 +13,7 @@ import { timeInterval } from 'rxjs';
   styleUrls: ['./documents.component.css']
 })
 export class DocumentsComponent implements OnInit {
+
   documents: any[] = [];
   showPreview: boolean = false;
   filePreviewURL: string | null = null;

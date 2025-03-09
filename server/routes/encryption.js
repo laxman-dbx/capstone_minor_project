@@ -2,7 +2,8 @@ const express = require("express");
 const { PythonShell } = require('python-shell');
 const {encryptText} = require("../controllers/encryption/encrypt-text");
 const authMiddleWare = require("../middlewares/authMiddleware");
-const dataModel = require("../models/data - receiver");  
+const dataModel = require("../models/data - receiver");
+const History = require("../models/user-history");
 const axios = require("axios");
 const user = require("../models/User");
 const crypto = require("crypto");
@@ -79,25 +80,28 @@ router.post("/encrypt-text", authMiddleWare, async (req, res) => {
             indexShift += cipher_text.length - plain_text.length;
         }
 
-        const updatedUser = await user.findByIdAndUpdate(
-            id, 
+        const updatedHistory = await History.findOneAndUpdate(
+            { id: id },
             {
-                $push: {
-                    "data": {
-                        key: hexKey,
-                        indices: newIndicesArray,
-                        encryptedText: modifiedText,
-                        receiverDetails: receivers.map(receiver => ({
-                            receiverId: receiver._id,
-                        }))
-                    }
+              $push: {
+                "data": {
+                  key: hexKey,
+                  indices: newIndicesArray,
+                  encryptedText: modifiedText,
+                  receiverDetails: receivers.map(receiver => ({
+                    receiverId: receiver._id,
+                  }))
                 }
+              }
             },
-            { new: true }
-        );
+            {   
+                new: true,
+                upsert : true
+             }
+          );
         
 
-        if (!updatedUser) {
+        if (!updatedHistory) {
             return res.status(404).json({ error: 'User not found' });
         }
         
@@ -148,14 +152,11 @@ router.post("/encrypt-key", authMiddleWare, async (req, res) => {
     let {receiverIds} = req.body;
 
     try {
-        let senderData = await user.findById(senderId, { data: 1, _id: 0 });
-        if (!senderData || senderData.data.length === 0) {
-            return res.status(404).json({ error: "Sender data not found" });
-        }
+        let senderData = await History.find({id : senderId}, { data: 1, _id: 0 }).sort({createdAt : -1});
 
-        let aesKeyBase64 = senderData.data[0].key;
-        let encryptedText = senderData.data[0].encryptedText;
-        let indices = senderData.data[0].indices;
+        let aesKeyBase64 = senderData[0].data[0].key;
+        let encryptedText = senderData[0].data[0].encryptedText;
+        let indices = senderData[0].data[0].indices;
 
         let receivers = await user.find(
             { _id: { $in: receiverIds } },
@@ -167,7 +168,6 @@ router.post("/encrypt-key", authMiddleWare, async (req, res) => {
         }
 
         let encryptedReceivers = [];
-        console.log(aesKeyBase64 + " " + receivers)
 
         for (let receiver of receivers) {
             let options = {
@@ -179,10 +179,9 @@ router.post("/encrypt-key", authMiddleWare, async (req, res) => {
 
             const results = await PythonShell.run("encrypt-key.py", options);
             const encryptedAesKeyBase64 = results[0];
-
             encryptedReceivers.push({
                 receiverId: receiver._id,
-                key: encryptedAesKeyBase64,
+                encryptedAesKey: encryptedAesKeyBase64,
             });
         }
 

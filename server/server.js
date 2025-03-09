@@ -25,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use('/api/documents',documentRoutes)
 app.use("/api/users", userRoutes);
 app.use("/encrypt", EncryptionRoute);
+app.use("/decrypt", DecryptionRoute);
 
 
 const PORT = process.env.PORT || 5000;

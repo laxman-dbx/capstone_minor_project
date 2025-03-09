@@ -65,7 +65,7 @@ const uploadDocument = async (req, res) => {
                 const filename = req.file.filename;
                 const fileStream = fs.createReadStream(maskedFilePath);
                 const uploadParams = {
-                    Bucket: process.env.AWS_BUCKET_NAME,
+                    Bucket: process.env.AWS_MI_BUCKET_NAME,
                     Key: `masked/${req.file.filename}`,
                     Body: fileStream,
                     ContentType: req.file.mimetype

@@ -4,60 +4,40 @@
             "pattern": "AadharNumber",
             "text": "AadharNumber",
             "location": {
-                "Left": 111,
-                "Top": 752,
-                "Width": 123,
-                "Height": 20
-            }
-        },
-        {
-            "pattern": "AadharUAIDI",
-            "text": "AadharUAIDI",
-            "location": {
-                "Left": 426,
-                "Top": 594,
-                "Width": 185,
-                "Height": 30
-            }
-        },
-        {
-            "pattern": "AadharNumber",
-            "text": "AadharNumber",
-            "location": {
-                "Left": 418,
-                "Top": 751,
-                "Width": 130,
-                "Height": 21
-            }
-        },
-        {
-            "pattern": "AadharNumber",
-            "text": "AadharNumber",
-            "location": {
-                "Left": 128,
-                "Top": 526,
-                "Width": 116,
-                "Height": 19
+                "Left": 227,
+                "Top": 393,
+                "Width": 243,
+                "Height": 34
             }
         },
         {
             "pattern": "AadharGender",
             "text": "AadharGender",
             "location": {
-                "Left": 134,
-                "Top": 669,
-                "Width": 25,
-                "Height": 12
+                "Left": 268,
+                "Top": 258,
+                "Width": 41,
+                "Height": 21
             }
         },
         {
-            "pattern": "AadharAddress",
-            "text": "AadharAddress",
+            "pattern": "AadharDOB",
+            "text": "AadharDOB",
             "location": {
-                "Left": 357,
-                "Top": 703,
-                "Width": 169,
-                "Height": 42
+                "Left": 376,
+                "Top": 235,
+                "Width": 87,
+                "Height": 16
+            }
+        },
+        {
+            "pattern": "AadharName",
+            "text": "AadharName",
+            "location": {
+                "Left": 223,
+                "Top": 211,
+                "Width": 164,
+                "Height": 23
             }
         }
     ]

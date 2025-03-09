@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -7,11 +8,11 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: { type: String },
-    profileImage: { type: String }, // Store image path
+    profileImage: { type: String },
     publicKey:{type:String},
     privateKey:{type:String, select: false},
-    
   },
+
   { timestamps: true }
 );
 

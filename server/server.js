@@ -8,6 +8,11 @@ const authRoutes = require("./routes/authRoutes");
 const documentRoutes=require('./routes/documentRoutes.js')
 const userRoutes = require("./routes/userRoutes");
 
+const EncryptionRoute = require("./routes/encryption.js");
+const DecryptionRoute = require("./routes/decryption.js");
+
+
+
 dotenv.config();
 connectDB();
 
@@ -19,7 +24,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes);
 app.use('/api/documents',documentRoutes)
 app.use("/api/users", userRoutes);
-
+app.use("/encrypt", EncryptionRoute);
 
 
 const PORT = process.env.PORT || 5000;

@@ -11,6 +11,17 @@ const userSchema = new mongoose.Schema(
     profileImage: { type: String },
     publicKey:{type:String},
     privateKey:{type:String, select: false},
+    data: [{
+        key: { type: String },
+        indices: {
+            type: [[Number]],
+            required: true,
+        },
+        encryptedText: { type: String },
+        receiverDetails: [{
+            receiverId : { type: mongoose.Schema.Types.ObjectId, ref : "User"},
+        }],
+    }]
   },
 
   { timestamps: true }

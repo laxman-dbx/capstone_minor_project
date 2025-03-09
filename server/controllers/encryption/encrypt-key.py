@@ -22,9 +22,13 @@ def encrypt_aes_key_with_rsa(aes_key_base64, public_key_pem_base64):
 
     return encrypted_aes_key_base64
 
-aes_key_base64 = sys.argv[1]
-public_key_pem_base64 = sys.argv[2]
+# aes_key_base64 = sys.argv[1]
+# public_key_pem_base64 = sys.argv[2]
+aes_key_base64 = "8ed3533521b1141523622e09c980da28ac6bf3fd54ea2ba8c5674cb333802cd0"
+public_key_pem_base64 = "-----BEGIN PUBLIC KEY----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzg7HO0ucovB3WHOyJ6HjsUWlvACTnLrKJJBJ1y20p9Ziro2GjY+SiiB371MtKLp7gxyvmbqOo/16r+FF5cDOLRj1KbTtLc67uNv4CLUj8MaygVDIOKJDxGHfErPmZdGEagZcL8B9AXY1Lz6EHmfgRuDZfNsT6qV2HKUKUXlrRCJnrYJL6BNlv4/Lwlrn/E94k7OnZXV9gKoImps5H3ZZYj/HF04ui4mxbf8VT5Lu0l/cs6WaMBaDOOi6cSpGo402rO+ZwIvYKRmo8AEukjDB7VYdGWml6uXFVAzm6HRElwidsmc+XbVNZfuoUr2d5uvxXeXcVXoOYsSpACnPr8tG7wIDAQAB-----END PUBLIC KEY-----"
 
 encrypted_aes_key_base64 = encrypt_aes_key_with_rsa(aes_key_base64, public_key_pem_base64)
 
 print(encrypted_aes_key_base64)
+
+

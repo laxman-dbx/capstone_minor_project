@@ -1,8 +1,10 @@
 const express = require("express");
 const { PythonShell } = require('python-shell');
+const {encryptText} = require("../controllers/encryption/encrypt-text");
+const authMiddleWare = require("../middlewares/authMiddleware");
+const dataModel = require("../models/data - receiver");  
 const axios = require("axios");
-const {encryptText} = require("../controllers/encrypt");
-const signup = require("../models/signup");
+const user = require("../models/User");
 const crypto = require("crypto");
 
 const router = express.Router();
@@ -36,19 +38,20 @@ router.post("/detect-pii", async (req, res) => {
     }
 });
 
-router.post("/encrypt-text", async (req, res) => {
-    let {id, receiverIds, text} = req.body;
+router.post("/encrypt-text", authMiddleWare, async (req, res) => {
+    let id = req.userId;
+    let {receiverIds, text} = req.body;
 
     try {
-        const response = await axios.post('http://localhost:3000/encrypt/detect-pii', {
+        const response = await axios.post('http://localhost:5000/encrypt/detect-pii', {
             text: text
         });
-        const receivers = await signup.find({ '_id': { $in: receiverIds } }, 'publicKey');
+
+        const receivers = await user.find({ '_id': { $in: receiverIds } }, 'publicKey');
 
         if (!receivers || receivers.length !== receiverIds.length) {
             return res.status(404).json({ error: 'One or more receivers not found' });
         }
-
 
         const entityEntries = Object.entries(response.data);
         entityEntries.sort((a, b) => a[1].start_index - b[1].start_index);
@@ -67,7 +70,7 @@ router.post("/encrypt-text", async (req, res) => {
             end_index += indexShift;
 
             let plain_text = entityName;
-            let cipher_text = encryptText(plain_text, hexKey);
+            let cipher_text = encryptText(plain_text, hexKey); // Encrypt the detected PII entity
 
             newIndicesArray.push([start_index, start_index + cipher_text.length]);
 
@@ -76,7 +79,7 @@ router.post("/encrypt-text", async (req, res) => {
             indexShift += cipher_text.length - plain_text.length;
         }
 
-        const updatedUser = await signup.findByIdAndUpdate(
+        const updatedUser = await user.findByIdAndUpdate(
             id, 
             {
                 $push: {
@@ -86,7 +89,6 @@ router.post("/encrypt-text", async (req, res) => {
                         encryptedText: modifiedText,
                         receiverDetails: receivers.map(receiver => ({
                             receiverId: receiver._id,
-                            reciverPublicKey: receiver.publicKey
                         }))
                     }
                 }
@@ -98,8 +100,8 @@ router.post("/encrypt-text", async (req, res) => {
         if (!updatedUser) {
             return res.status(404).json({ error: 'User not found' });
         }
-
-        res.json({ encryptedText: modifiedText, newIndex: newIndicesArray});
+        
+        res.json({ encryptedText: modifiedText, newIndex: newIndicesArray });
         
     } catch (error) {
         console.error(error);
@@ -112,7 +114,7 @@ router.post("/replace-chars", async (req, res) => {
     let text = req.body.text;
 
     try {
-        const response = await axios.post('http://localhost:3000/encrypt/detect-pii', {
+        const response = await axios.post('http://localhost:5000/encrypt/detect-pii', {
             text: text
         });
         const entityEntries = Object.entries(response.data);
@@ -141,5 +143,68 @@ router.post("/replace-chars", async (req, res) => {
 });
 
 
+router.post("/encrypt-key", authMiddleWare, async (req, res) => {
+    let senderId = req.userId;
+    let {receiverIds} = req.body;
+
+    try {
+        let senderData = await user.findById(senderId, { data: 1, _id: 0 });
+        if (!senderData || senderData.data.length === 0) {
+            return res.status(404).json({ error: "Sender data not found" });
+        }
+
+        let aesKeyBase64 = senderData.data[0].key;
+        let encryptedText = senderData.data[0].encryptedText;
+        let indices = senderData.data[0].indices;
+
+        let receivers = await user.find(
+            { _id: { $in: receiverIds } },
+            { _id: 1, publicKey: 1 }
+        );
+
+        if (receivers.length === 0) {
+            return res.status(404).json({ error: "No valid receivers found" });
+        }
+
+        let encryptedReceivers = [];
+        console.log(aesKeyBase64 + " " + receivers)
+
+        for (let receiver of receivers) {
+            let options = {
+                pythonPath: "/usr/bin/python3",
+                scriptPath: "./controllers/encryption",
+                args: [aesKeyBase64, receiver.publicKey],
+                pythonOptions: ["-u"],
+            };
+
+            const results = await PythonShell.run("encrypt-key.py", options);
+            const encryptedAesKeyBase64 = results[0];
+
+            encryptedReceivers.push({
+                receiverId: receiver._id,
+                key: encryptedAesKeyBase64,
+            });
+        }
+
+        const newEncryptedData = new dataModel({
+            userId: senderId,
+            indices: indices,  
+            encryptedText: encryptedText,
+            receivers: encryptedReceivers, 
+            createdAt: Date.now(), 
+        });
+
+        await newEncryptedData.save();
+
+        res.status(200).json({
+            message: "Encryption and storage successful",
+            encryptedMessage: newEncryptedData,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+})
 
 module.exports = router;

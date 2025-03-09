@@ -17,6 +17,8 @@ h2 {
 }
 
 .upload-section {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 30px;
 }
 

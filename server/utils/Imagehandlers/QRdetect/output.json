@@ -1,0 +1,14 @@
+{
+    "masked_pii": [
+        {
+            "pattern": "QR",
+            "text": "QR",
+            "location": {
+                "Left": 120,
+                "Top": 99,
+                "Width": 68,
+                "Height": 61
+            }
+        }
+    ]
+}

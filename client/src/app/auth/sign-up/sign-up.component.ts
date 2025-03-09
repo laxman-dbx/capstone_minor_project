@@ -64,7 +64,7 @@ export class SignUpComponent {
       };
 
       const response = await this.authService.signUp(userData);
-      this.toastr.success(response.message, '', { positionClass: 'toast-top-center' });
+      this.toastr.success("SignUp SuccessFul","",{positionClass:"toast-top-center"})
       this.router.navigate(['/dashboard']);
     } catch (error:any) {
       this.errorMessage = error.message || 'Signup failed!';

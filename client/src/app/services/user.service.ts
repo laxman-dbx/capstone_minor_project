@@ -18,7 +18,6 @@ export class UserService {
       const response = await axios.get(`${this.apiUrl}/profile`, {
         headers: { Authorization: `Bearer ${this.getToken()}` }
       });
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -46,13 +45,11 @@ export class UserService {
       if (file) {
         formData.append('file', file);
       }
-      console.log(formData);
       const response = await axios.post(`${this.apiUrl}/update-profile-image`, formData, {
         headers: {
           Authorization: `Bearer ${this.getToken()}`
         }
       });
-      console.log(response);
       return response.data;
     } catch (error) {
       console.error("Error updating profile image:", error);
@@ -94,7 +91,6 @@ export class UserService {
       const response = await axios.get(`${this.apiUrl}/getUsers`, {
         headers: { Authorization: `Bearer ${this.getToken()}` }
       });
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching user profile:", error);

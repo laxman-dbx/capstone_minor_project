@@ -3,7 +3,10 @@ import { DocumentService } from '../../../services/document.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { timeInterval } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeleteComponent } from './confirm-delete/confirm-delete.component';
+import { lastValueFrom } from 'rxjs';
+
 
 @Component({
   selector: 'app-documents',
@@ -13,6 +16,7 @@ import { timeInterval } from 'rxjs';
   styleUrls: ['./documents.component.css']
 })
 export class DocumentsComponent implements OnInit {
+
   documents: any[] = [];
   showPreview: boolean = false;
   filePreviewURL: string | null = null;
@@ -32,7 +36,7 @@ export class DocumentsComponent implements OnInit {
   
   loadingInterval: any;
 
-  constructor(private documentService: DocumentService,private toastrService:ToastrService) {}
+  constructor(private documentService: DocumentService,private toastrService:ToastrService,private dialog: MatDialog) {}
 
   async ngOnInit(): Promise<void> {
     await this.getFiles();
@@ -43,7 +47,6 @@ export class DocumentsComponent implements OnInit {
       const response = await this.documentService.getUserDocuments();
       this.documents = response.documents;
       this.documents=this.documents.reverse();
-      console.log('Fetched documents:', this.documents);
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
@@ -64,7 +67,6 @@ export class DocumentsComponent implements OnInit {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url); // Clean up
-      console.log('File downloaded:', fileKey);
     } catch (error) {
       console.error('Error downloading file:', error);
     } finally {
@@ -72,21 +74,32 @@ export class DocumentsComponent implements OnInit {
     }
   }
 
-  async deleteFile(fileKey: string): Promise<void> {
-    try {
-      // Optional: Add confirmation dialog
-      if (confirm('Are you sure you want to delete this file?')) {
-        this.setLoading(true, 'Deleting document...');
-        await this.documentService.deleteDocument(fileKey);
-        this.toastrService.success('Deleted SuccessFully!','',{positionClass:"toast-top-left",timeOut:2000})
-        await this.getFiles(); // Refresh list after deletion
-      }
-    } catch (error) {
-      console.error('Error deleting file:', error);
-    } finally {
-      this.setLoading(false);
-    }
+
+
+async deleteFile(fileKey: string): Promise<void> {
+  try {
+    const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
+      width: '800px',
+      data: { fileName: fileKey }
+    });
+
+    const confirmed = await lastValueFrom(dialogRef.afterClosed());
+    if (!confirmed) return;
+
+    this.setLoading(true, 'Deleting document...');
+    await this.documentService.deleteDocument(fileKey);
+    this.toastrService.success('Deleted Successfully!', '', {
+      positionClass: "toast-top-left",
+      timeOut: 2000
+    });
+    await this.getFiles(); // Refresh list after deletion
+  } catch (error) {
+    console.error('Error deleting file:', error);
+  } finally {
+    this.setLoading(false);
   }
+}
+
 
   async openPreviewDialog(fileName: string): Promise<void> {
     try {

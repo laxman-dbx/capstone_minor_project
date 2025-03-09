@@ -1,0 +1,14 @@
+{
+    "masked_pii": [
+        {
+            "pattern": "AadharUAIDI",
+            "text": "AadharUAIDI",
+            "location": {
+                "Left": 0,
+                "Top": 70,
+                "Width": 84,
+                "Height": 25
+            }
+        }
+    ]
+}

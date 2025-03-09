@@ -1,11 +1,12 @@
-import { Component, Input, OnInit ,OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { DocumentService } from '../../../services/document.service';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { timeInterval } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteComponent } from './confirm-delete/confirm-delete.component';
+import { lastValueFrom } from 'rxjs';
+
 
 @Component({
   selector: 'app-documents',
@@ -73,25 +74,32 @@ export class DocumentsComponent implements OnInit {
     }
   }
 
-  async deleteFile(fileKey: string): Promise<void> {
-    try {
-        const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
-          width: '800px',
-          data: { fileName: fileKey }
-        });
-    
-        const confirmed = await dialogRef.afterClosed().toPromise();
-        if (!confirmed) return;
-        this.setLoading(true, 'Deleting document...');
-        await this.documentService.deleteDocument(fileKey);
-        this.toastrService.success('Deleted SuccessFully!','',{positionClass:"toast-top-left",timeOut:2000})
-        await this.getFiles(); // Refresh list after deletion
-    } catch (error) {
-      console.error('Error deleting file:', error);
-    } finally {
-      this.setLoading(false);
-    }
+
+
+async deleteFile(fileKey: string): Promise<void> {
+  try {
+    const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
+      width: '800px',
+      data: { fileName: fileKey }
+    });
+
+    const confirmed = await lastValueFrom(dialogRef.afterClosed());
+    if (!confirmed) return;
+
+    this.setLoading(true, 'Deleting document...');
+    await this.documentService.deleteDocument(fileKey);
+    this.toastrService.success('Deleted Successfully!', '', {
+      positionClass: "toast-top-left",
+      timeOut: 2000
+    });
+    await this.getFiles(); // Refresh list after deletion
+  } catch (error) {
+    console.error('Error deleting file:', error);
+  } finally {
+    this.setLoading(false);
   }
+}
+
 
   async openPreviewDialog(fileName: string): Promise<void> {
     try {

@@ -21,8 +21,8 @@ export class ConfirmDeleteComponent {
   ) {}
 
   checkInput(): void {
-    this.isValidInput = this.userInput.trim() === 'DELETE';
-  }
+    this.isValidInput = this.userInput.trim().toUpperCase() === 'DELETE';
+  }  
 
   confirmDelete(): void {
     if (this.isValidInput) {

@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { timeInterval } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDeleteComponent } from './confirm-delete/confirm-delete.component';
 
 @Component({
   selector: 'app-documents',
@@ -33,7 +35,7 @@ export class DocumentsComponent implements OnInit {
   
   loadingInterval: any;
 
-  constructor(private documentService: DocumentService,private toastrService:ToastrService) {}
+  constructor(private documentService: DocumentService,private toastrService:ToastrService,private dialog: MatDialog) {}
 
   async ngOnInit(): Promise<void> {
     await this.getFiles();
@@ -73,13 +75,17 @@ export class DocumentsComponent implements OnInit {
 
   async deleteFile(fileKey: string): Promise<void> {
     try {
-      // Optional: Add confirmation dialog
-      if (confirm('Are you sure you want to delete this file?')) {
+        const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
+          width: '800px',
+          data: { fileName: fileKey }
+        });
+    
+        const confirmed = await dialogRef.afterClosed().toPromise();
+        if (!confirmed) return;
         this.setLoading(true, 'Deleting document...');
         await this.documentService.deleteDocument(fileKey);
         this.toastrService.success('Deleted SuccessFully!','',{positionClass:"toast-top-left",timeOut:2000})
         await this.getFiles(); // Refresh list after deletion
-      }
     } catch (error) {
       console.error('Error deleting file:', error);
     } finally {

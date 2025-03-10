@@ -1,7 +1,7 @@
 const CryptoJS = require("crypto-js");
 require('dotenv').config();
 
-function encryptText(plaintext, secret) {
+function encrypt_text(plaintext, secret) {
     var key = CryptoJS.enc.Utf8.parse(secret);
     let iv = CryptoJS.lib.WordArray.create(key.words.slice(0, 4));
   
@@ -11,7 +11,6 @@ function encryptText(plaintext, secret) {
       padding: CryptoJS.pad.Pkcs7
       });
   return cipherText.toString();
-  }
+}
 
-
-  module.exports = {encryptText};
+  module.exports = {encrypt_text};

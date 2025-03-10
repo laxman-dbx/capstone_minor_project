@@ -12,7 +12,6 @@ const EncryptionRoute = require("./routes/encryption.js");
 const DecryptionRoute = require("./routes/decryption.js");
 
 
-
 dotenv.config();
 connectDB();
 

@@ -1,16 +1,21 @@
 const express = require("express");
-const router = express.Router();
 const axios = require("axios");
+
 const {decrypt} = require("../controllers/decryption/decrypt-text");
-const { PythonShell } = require("python-shell");
 const EncryptedMessage = require("../models/data - receiver");
 const signupDetails = require("../models/User");
+const protect = require("../middlewares/authMiddleware");
 
-router.post("/decrypt-text", async (req, res) => {
-    let { senderId, receiverId } = req.body;
+const { PythonShell } = require("python-shell");
+
+const router = express.Router();
+
+router.post("/decrypt-text", protect, async (req, res) => {
+    let senderId = req.userId;
+    let receiverId = req.body.receiverId;
 
     try {
-        let Details = await encryptedStore.find({ senderId: senderId, "receivers.receiverId": receiverId });
+        let Details = await EncryptedMessage.find({ userId: senderId, "receivers.receiverId": receiverId });
         
         if (Details.length === 0) {
             return res.status(404).json({ error: 'Encrypted message not found for these users' });
@@ -19,7 +24,7 @@ router.post("/decrypt-text", async (req, res) => {
         let encryptedText = Details[0].encryptedText;
         let newIndex = Details[0].indices;
 
-        let decryptedKey = await axios.post('http://localhost:3000/d-key/decrypt-key', {
+        let decryptedKey = await axios.post('http://localhost:5000/decrypt/decrypt-key', {
             senderId: senderId,
             receiverId: receiverId
         });
@@ -56,31 +61,31 @@ router.post("/decrypt-text", async (req, res) => {
 
 
 router.post("/decrypt-key", async (req, res) => {
-    let { senderId, receiverId } = req.body;
+    let {senderId, receiverId} = req.body;
 
     try {
         const encryptedMessage = await EncryptedMessage.findOne({
-            "senderId": senderId,
+            "userId": senderId,
             "receivers.receiverId": receiverId
         }).sort({ createdAt: -1 });
-
+        
         if (!encryptedMessage) {
             return res.status(404).json({ error: "Message not found for this receiver." });
         }
 
         const receiver = encryptedMessage.receivers.find(receiver => receiver.receiverId.toString() === receiverId);
-        const encryptedKey = receiver.key;
+        const encryptedKey = receiver.encryptedAesKey;
 
-        const receiverDetails = await signupDetails.findById(receiverId, { privateKey: 1, _id: 0 });
+        const receiverDetails = await signupDetails.findById(receiverId).select('+privateKey'); 
         if (!receiverDetails) {
             return res.status(404).json({ error: "Receiver not found." });
         }
 
-        const privateKeyBase64 = receiverDetails.privateKey;
+        const privateKeyBase64 = receiverDetails.getDecryptedPrivateKey();
 
         let options = {
             pythonPath: '/usr/bin/python3',
-            scriptPath: './controllers',
+            scriptPath: './controllers/decryption',
             args: [encryptedKey, privateKeyBase64],
             pythonOptions: ['-u'],
         };
@@ -94,6 +99,11 @@ router.post("/decrypt-key", async (req, res) => {
             { $pull: { receivers: { receiverId: receiverId } } }
         );
 
+        const updatedDoc = await EncryptedMessage.findOne({ _id: encryptedMessage._id });
+
+        if (updatedDoc && updatedDoc.receivers.length === 0) {
+            await EncryptedMessage.deleteOne({ _id: encryptedMessage._id });
+        }
         
         res.status(200).json({decryptedAesKeyBase64});
 
@@ -102,12 +112,6 @@ router.post("/decrypt-key", async (req, res) => {
         res.status(400).json({ error: error.message || "Internal server error" });
     }
 });
-
-
-
-
-
-
 
 
 module.exports = router;

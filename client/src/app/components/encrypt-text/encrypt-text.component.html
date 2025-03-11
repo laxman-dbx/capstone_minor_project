@@ -1,53 +1,81 @@
 <div class="container">
-  <h1>Encrypt PII Text</h1>
-
-  <!-- Error Alert -->
-  <div *ngIf="error" class="alert error-alert">
-    <p>{{ error }}</p>
-  </div>
-
-  <!-- Success Alert -->
-  <div *ngIf="encryptedMessage" class="alert success-alert">
-    <p class="font-bold">Text Encrypted Successfully</p>
-    <p class="break-all">{{ encryptedMessage }}</p>
-    <button class="secondary-button" (click)="decrypt(encryptedMessage)">Decrypt</button>
-  </div>
-
-  <!-- Encryption Form -->
-  <form (ngSubmit)="handleEncrypt()">
-    <div class="form-group">
-      <label for="text">Enter Text to Encrypt:</label>
-      <textarea id="text" [(ngModel)]="text" name="text" rows="4" placeholder="Enter sensitive text here..." required></textarea>
-    </div>
-
+  <!-- Left Section - Encryption -->
+  <div class="encrypt-section">
+    <h2>Encrypt Message</h2>
+    
     <!-- User Search -->
-    <div class="form-group">
-      <label for="search">Search Recipients:</label>
-      <input type="text" id="search" [(ngModel)]="searchTerm" name="searchTerm" placeholder="Search by name or email..." (input)="fetchUsers()">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (input)="filterUsers()" 
+        placeholder="Search users (max 3 recipients)..."
+        class="search-input"
+      >
       
-      <!-- User List -->
-      <div *ngIf="filteredUsers.length" class="user-list">
-        <p *ngFor="let user of filteredUsers" (click)="selectUser(user)">
-          {{ user.name }} ({{ user.email }})
-        </p>
+      <div class="users-list" *ngIf="searchTerm && filteredUsers.length > 0">
+        <div 
+          *ngFor="let user of filteredUsers" 
+          (click)="selectUser(user)"
+          class="user-item"
+          [class.disabled]="selectedUsers.length >= maxRecipients"
+        >
+          <span>{{user.name}}</span>
+          <small>{{user.email}}</small>
+        </div>
       </div>
-
-      <p *ngIf="!filteredUsers.length && searchTerm" class="text-gray">No users found. Try different search terms.</p>
-      <p *ngIf="loading" class="text-gray">Loading users...</p>
     </div>
 
-    <!-- Selected Recipient -->
-    <div *ngIf="selectedUser" class="selected-user">
-      <h3>Selected Recipient:</h3>
-      <p>{{ selectedUser.name }} ({{ selectedUser.email }})</p>
+    <!-- Selected Users -->
+    <div class="selected-users" *ngIf="selectedUsers.length > 0">
+      <h3>Selected Recipients:</h3>
+      <div class="selected-user-chips">
+        <div class="user-chip" *ngFor="let user of selectedUsers">
+          <span>{{user.name}}</span>
+          <button class="remove-user" (click)="removeUser(user)">×</button>
+        </div>
+      </div>
     </div>
 
-    <button type="submit" [disabled]="loading">Encrypt Text</button>
-  </form>
+    <!-- Message Input -->
+    <div class="message-box">
+      <textarea 
+        [(ngModel)]="text" 
+        placeholder="Enter your message..."
+        rows="4"
+      ></textarea>
+      
+      <button 
+        (click)="handleEncrypt()" 
+        [disabled]="!text || selectedUsers.length === 0 || loading"
+        class="encrypt-btn"
+      >
+        {{loading ? 'Encrypting...' : 'Encrypt Message'}}
+      </button>
+    </div>
 
-  <!-- Decrypted Messages -->
-  <div *ngIf="decryptedMessage" class="decrypted-message">
-    <h2>Decrypted Message:</h2>
-    <div class="message-box">{{ decryptedMessage }}</div>
+    <!-- Error Message -->
+    <div class="error-message" *ngIf="error">
+      {{error}}
+    </div>
+
+    <!-- Encrypted Result -->
+    <div class="result-box" *ngIf="encryptedMessage">
+      <h3>Encrypted Message:</h3>
+      <p class="encrypted-text">{{encryptedMessage}}</p>
+      <button 
+        (click)="decrypt(encryptedMessage)"
+        [disabled]="loading"
+        class="decrypt-btn"
+      >
+        Decrypt
+      </button>
+    </div>
+
+    <!-- Decrypted Result -->
+    <div class="result-box" *ngIf="decryptedMessage">
+      <h3>Decrypted Message:</h3>
+      <p class="decrypted-text">{{decryptedMessage}}</p>
+    </div>
   </div>
 </div>

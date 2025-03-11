@@ -13,6 +13,10 @@ const adminRoutes = require("./routes/adminRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 
 
+const EncryptionRoute = require("./routes/encryption.js");
+const DecryptionRoute = require("./routes/decryption.js");
+
+
 dotenv.config();
 connectDB();
 
@@ -30,12 +34,14 @@ const io = socketIO(server, {
 // Socket.io setup
 require('./socket')(io);
 
-app.use("/uploads", express.static("uploads")); // Serve uploaded images
+app.use("/uploads", express.static("uploads"));
 app.use("/api/auth", authRoutes);
 app.use('/api/documents',documentRoutes)
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use('/api/tickets', ticketRoutes);
+app.use('/encrypt',EncryptionRoute);
+app.use('/decrypt',DecryptionRoute);
 
 
 

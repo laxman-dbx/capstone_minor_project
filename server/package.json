@@ -13,10 +13,10 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
     "@aws-sdk/credential-providers": "^3.750.0",
-    "@tensorflow/tfjs-node": "^4.22.0",
-    "axios": "^1.7.9",
+    "axios": "^1.8.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "form-data": "^4.0.2",

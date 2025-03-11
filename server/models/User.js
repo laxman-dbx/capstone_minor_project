@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     profileImage: { type: String },
     publicKey:{type:String},
     privateKey:{type:String, select: false}
+    
   },
 
   { timestamps: true }

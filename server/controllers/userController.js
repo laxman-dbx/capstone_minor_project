@@ -125,9 +125,10 @@ exports.changePassword = async (req, res) => {
 //user list by ID
 exports.getUsers=async(req, res) => {
   try {
-    const users = await User.find()
-    .select('id name email profileImage') // Only return these fields
-    .limit(10); // Limit results
+
+    const users = await User.find({ _id: { $ne: req.userId } })
+    .select('id name email profileImage')
+    .limit(10); 
 
     if (!users) {
         return res.status(404).json({ message: "User not found" });

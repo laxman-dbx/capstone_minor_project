@@ -29,7 +29,7 @@ export class MaskTextComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.http.post<any>('http://localhost:3000/encrypt/replace-chars', {
+    this.http.post<any>('http://localhost:5000/encrypt/replace-chars', {
       text: this.inputText
     }).subscribe({
       next: (response) => {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EncryptTextService } from '../../services/encrypt-text.service';
 import { User } from '../../models/user.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-encrypt-text',
@@ -13,17 +14,20 @@ import { User } from '../../models/user.model';
 })
 export class EncryptTextComponent implements OnInit {
   text = '';
-  receiverId = '';
   searchTerm = '';
   users: User[] = [];
   filteredUsers: User[] = [];
-  selectedUser: User | null = null;
+  selectedUsers: User[] = [];
   encryptedMessage = '';
   decryptedMessage = '';
   loading = false;
   error = '';
+  maxRecipients = 3;
 
-  constructor(private encryptTextService: EncryptTextService) {}
+  constructor(
+    private encryptTextService: EncryptTextService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit() {
     this.fetchUsers();
@@ -32,12 +36,12 @@ export class EncryptTextComponent implements OnInit {
   fetchUsers() {
     this.loading = true;
     this.encryptTextService.getUsers().subscribe({
-      next: (users: User[]) => {
+      next: (users) => {
         this.users = users;
         this.filterUsers();
         this.loading = false;
       },
-      error: (err: any) => {
+      error: (err) => {
         this.error = 'Failed to fetch users: ' + (err.error?.message || err.message);
         this.loading = false;
       }
@@ -54,33 +58,49 @@ export class EncryptTextComponent implements OnInit {
   }
 
   selectUser(user: User) {
-    this.receiverId = user._id;
-    this.selectedUser = user;
+    if (this.selectedUsers.length >= this.maxRecipients) {
+      this.toastr.warning(`Maximum ${this.maxRecipients} recipients allowed`);
+      return;
+    }
+    
+    if (!this.selectedUsers.find(u => u._id === user._id)) {
+      this.selectedUsers.push(user);
+    }
+    this.searchTerm = '';
+    this.filterUsers();
+  }
+
+  removeUser(user: User) {
+    this.selectedUsers = this.selectedUsers.filter(u => u._id !== user._id);
   }
 
   handleEncrypt() {
     if (!this.text) {
-      this.error = 'Please enter text to encrypt';
+      this.toastr.error('Please enter text to encrypt');
       return;
     }
 
-    if (!this.receiverId) {
-      this.error = 'Please select a recipient';
+    if (this.selectedUsers.length === 0) {
+      this.toastr.error('Please select at least one recipient');
       return;
     }
 
     this.loading = true;
     this.error = '';
-    const id = localStorage.getItem('userId') || 'currentUserId';
+    const userId = localStorage.getItem('userId') || '';
+    const receiverIds = this.selectedUsers.map(user => user._id);
 
-    this.encryptTextService.encryptText(id, this.receiverId, this.text).subscribe({
-      next: (response: { encryptedText: string }) => {
+    this.encryptTextService.encryptText(userId, receiverIds, this.text).subscribe({
+      next: response => {
         this.encryptedMessage = response.encryptedText;
         this.loading = false;
+        this.text = '';
+        this.toastr.success('Message encrypted successfully');
       },
-      error: (err: any) => {
+      error: err => {
         this.error = 'Encryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
+        this.toastr.error(this.error);
       }
     });
   }
@@ -89,13 +109,15 @@ export class EncryptTextComponent implements OnInit {
     this.loading = true;
 
     this.encryptTextService.decryptText(encryptedText).subscribe({
-      next: (response: { decryptedText: string }) => {
+      next: response => {
         this.decryptedMessage = response.decryptedText;
         this.loading = false;
+        this.toastr.success('Message decrypted successfully');
       },
-      error: (err: any) => {
+      error: err => {
         this.error = 'Decryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
+        this.toastr.error(this.error);
       }
     });
   }

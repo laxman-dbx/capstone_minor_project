@@ -1,9 +1,11 @@
 const detectPii = require("./detectPii")
 const user = require("../models/User");
+const mongoose = require("mongoose");
 const History = require("../models/user-history");
 const crypto = require("crypto");
 const {encrypt_text} = require("../utils/encryption/encrypt-text");
 const {encryptKey} = require("./encryptKey");
+const {ObjectId}=mongoose.Types;
 
 exports.encryptText = async (req, res) => {
     let id = req.userId;
@@ -11,9 +13,9 @@ exports.encryptText = async (req, res) => {
 
     try {
         const response = await detectPii(text);
-        const receivers = await user.find({ '_id': { $in: receiverIds } }, 'publicKey');
+        const receivers = await user.find({ '_id': { $in:receiverIds}},'publicKey');
 
-        if (!receivers || receivers.length !== receiverIds.length) {
+        if (!receivers) {
             return res.status(404).json({ error: 'One or more receivers not found' });
         }
 

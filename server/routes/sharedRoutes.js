@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const authMiddleWare = require("../middlewares/authMiddleware");
-const {sharedByMe} = require("../controllers/sharedByMe");
+const { sharedByMe } = require("../controllers/sharedByMe");
+const { sharedToMe } = require("../controllers/sharedToMe");
 
-//share by me
-//shared with me
 
-router.get("/byMe", authMiddleWare, sharedByMe);
+router.get("/by-me", authMiddleWare, sharedByMe);
+router.get("/to-me", authMiddleWare, sharedToMe);
 
 module.exports = router;

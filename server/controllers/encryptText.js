@@ -3,6 +3,7 @@ const user = require("../models/User");
 const History = require("../models/user-history");
 const crypto = require("crypto");
 const {encrypt_text} = require("../utils/encryption/encrypt-text");
+const {encryptKey} = require("./encryptKey");
 
 exports.encryptText = async (req, res) => {
     let id = req.userId;
@@ -10,7 +11,6 @@ exports.encryptText = async (req, res) => {
 
     try {
         const response = await detectPii(text);
-
         const receivers = await user.find({ '_id': { $in: receiverIds } }, 'publicKey');
 
         if (!receivers || receivers.length !== receiverIds.length) {
@@ -63,11 +63,10 @@ exports.encryptText = async (req, res) => {
              }
           );
         
-
-        if (!updatedHistory) {
+          if (!updatedHistory) {
             return res.status(404).json({ error: 'User not found' });
-        }
-        
+          }
+          await encryptKey(id, receiverIds);        
         res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray });
         
     } catch (error) {

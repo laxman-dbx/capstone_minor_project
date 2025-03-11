@@ -2,11 +2,11 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
 const extractTextAndPII = require('./extractText'); 
-const qrHandler = require('./qrHandler'); 
+const qrHandler = require('./QRdetect/qrHandler'); 
 const extractDataPii = require('./extractDataPii');
-const adhaarHandler = require('./aadharHandler');
+const adhaarHandler = require('./AdhaarPII/aadharHandler');
 const DrivingLicenseHandler = require('./drivingLicenceHandler');
-const PANHandler = require('./panHandler');
+const PANHandler = require('./PanPII/panHandler');
 
 async function maskImagePII(imagePath, maskedUploadDir,documentType) {
     try {
@@ -59,6 +59,7 @@ async function maskImagePII(imagePath, maskedUploadDir,documentType) {
         else{
              allSensitiveLocations = [...piiLocations, ...qrLocations];
         }
+        console.log(allSensitiveLocations);
 
         if (allSensitiveLocations.length > 0) {
             try {

@@ -22,7 +22,6 @@ export class HomeComponent implements OnInit{
   }
 
   get navigate(){
-    console.log(this.isLogin);
     return this.isLogin?"/dashboard":"/signin";
   }
 }

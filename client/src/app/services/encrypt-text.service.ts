@@ -7,29 +7,32 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class EncryptTextService {
-  token=localStorage.getItem("authToken");
-
-  private baseUrl = 'http://localhost:3000';
+  private token = localStorage.getItem("authToken");
+  private baseUrl = 'http://localhost:5000';
 
   constructor(private http: HttpClient) {}
 
-  encryptText(id: string, receiverId: string, text: string): Observable<{ encryptedText: string }> {
+  encryptText(id: string, receiverIds: string[], text: string): Observable<{ encryptedText: string }> {
     return this.http.post<{ encryptedText: string }>(`${this.baseUrl}/encrypt/encrypt-text`, {
       id,
-      receiverId,
+      receiverIds,
       text
+    }, {
+      headers: { Authorization: `Bearer ${this.token}` }
     });
   }
 
   decryptText(encryptedText: string): Observable<{ decryptedText: string }> {
     return this.http.post<{ decryptedText: string }>(`${this.baseUrl}/encrypt/decrypt-text`, {
       encryptedText
+    }, {
+      headers: { Authorization: `Bearer ${this.token}` }
     });
   }
 
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`http://localhost:5000/api/users/getUsers`,{
-      headers:{Authorization:`Bearer ${this.token}`}
+    return this.http.get<User[]>(`${this.baseUrl}/api/users/getUsers`, {
+      headers: { Authorization: `Bearer ${this.token}` }
     });
   }
 }

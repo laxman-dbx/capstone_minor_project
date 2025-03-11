@@ -30,7 +30,7 @@ const downloadDocument = async (req, res) => {
         const maskedFilename=document.maskedFileName;
         // Retrieve file from S3
         const getCommand = new GetObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
+            Bucket: process.env.AWS_MI_BUCKET_NAME,
             Key: `masked/${maskedFilename}`
         });
 

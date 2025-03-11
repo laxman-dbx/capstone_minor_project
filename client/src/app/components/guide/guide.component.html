@@ -1,0 +1,52 @@
+<div class="dialog-overlay" *ngIf="show" (click)="closeDialog()">
+    <div class="dialog-content" (click)="$event.stopPropagation()">
+      <button class="close-button" (click)="closeDialog()">×</button>
+      
+      <div class="dialog-header">
+        <h2>Document Upload Guide</h2>
+        <div class="step-indicator">
+          Step {{ currentStep }} of {{ totalSteps }}
+        </div>
+      </div>
+  
+      <div class="dialog-body">
+        <div class="step-content">
+          <h3>{{ steps[currentStep - 1].title }}</h3>
+          <p>{{ steps[currentStep - 1].content }}</p>
+          <div class="step-image">
+            <img [src]="steps[currentStep - 1].image" [alt]="steps[currentStep - 1].title">
+          </div>
+        </div>
+      </div>
+  
+      <div class="dialog-footer">
+        <button 
+          class="nav-button" 
+          [class.disabled]="currentStep === 1"
+          (click)="prevStep()">
+          Previous
+        </button>
+        
+        <div class="step-dots">
+          <span 
+            *ngFor="let step of steps; let i = index" 
+            class="dot"
+            [class.active]="currentStep === i + 1">
+          </span>
+        </div>
+        
+        <button 
+          class="nav-button"
+          *ngIf="currentStep < totalSteps"
+          (click)="nextStep()">
+          Next
+        </button>
+        <button 
+          class="nav-button complete"
+          *ngIf="currentStep === totalSteps"
+          (click)="closeDialog()">
+          Got it!
+        </button>
+      </div>
+    </div>
+  </div>

@@ -2,7 +2,11 @@
   <div class="upload-box">
     <div class="upload">
       <div class="header-box">
-        <h4 class="header-content">SELECT YOUR FILES</h4>
+        <h4 class="header-content" *ngIf="!isSuccess">SELECT YOUR FILES</h4>
+        <button *ngIf="!isSuccess" class="help-button" (click)="showGuide = true">
+          <i class="fas fa-question-circle"></i> Help
+        </button>
+        <h4 class="header-content" *ngIf="isSuccess">MASKED IMAGE</h4>
       </div>
       
       <div class="upload-content" *ngIf="!isSuccess">
@@ -13,15 +17,11 @@
               ⓘ
             </span>
             <span class="tooltip" *ngIf="showTooltip">
-              <pre>Choose the document type you 
-want to upload.</pre>
-              <pre>
-This can enhance the level of 
-masking the data. So, please 
-try to input a valid type.
-              </pre>
+              <pre>Choose the document type 
+you want to upload.</pre>
+              <pre>This can enhance the level 
+of masking the data.</pre>
             </span>
-            
           </label>
           
           <select id="documentType" class="document-type-dropdown" [(ngModel)]="selectedDocumentType">
@@ -35,16 +35,14 @@ try to input a valid type.
         
         <app-dropfileinput (fileChange)="onFileChange($event)"></app-dropfileinput>
         
-        <div class="toggle-container">
+        <div class="toggle-container" *ngIf="isLogin">
           <div class="labelForSwitch">
             <label class="toggle-label">Save Masked Document?</label>
             <span class="info-icon" (mouseenter)="showTooltip2 = true" (mouseleave)="showTooltip2 = false" (click)="showTooltip2 = !showTooltip2">
               ⓘ
             </span>
             <span class="tooltip" *ngIf="showTooltip2">
-              <pre>We securely store the masked document 
-with AES-256 encryption in 
-AWS S3 to ensure privacy.</pre>
+              <pre>We securely store the masked document with AES-256 encryption.</pre>
             </span>
           </div>
           
@@ -54,7 +52,6 @@ AWS S3 to ensure privacy.</pre>
           </label>
         </div>
         
-        
         <div class="file-list" *ngIf="file">
           <div class="file-item">
             <strong>{{ file.name }}</strong>
@@ -63,7 +60,6 @@ AWS S3 to ensure privacy.</pre>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
                 <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
-                <div class="preview-actions"></div>
               </div>
             </div>
           </div>
@@ -77,13 +73,11 @@ AWS S3 to ensure privacy.</pre>
         </button>
       </div>
       
-      
-      <!-- Success screen after upload -->
-      <!-- Success Screen -->
       <div class="success-screen" *ngIf="isSuccess">
         <div class="file-list" *ngIf="file">
           <div class="file-item">
-            <strong>{{ file.name }}</strong> <span> - {{ file.size }} B</span>
+            <strong>{{ file.name }}</strong>
+            <span> - {{ file.size }} B</span>
             <button class="remove-button" (click)="removeFile()">×</button>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
@@ -106,11 +100,14 @@ AWS S3 to ensure privacy.</pre>
         </button>
       </div>
 
-      <!-- Error Message -->
       <div class="error-message" *ngIf="errorMessage">
         {{ errorMessage }}
       </div>
-
     </div>
   </div>
+
+  <app-guide
+    [show]="showGuide"
+    (close)="closeGuide()">
+  </app-guide>
 </div>

@@ -1,0 +1,23 @@
+.analytics-container {
+    padding: 20px;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+  }
+  
+  .loading, .error {
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .error {
+    color: #dc3545;
+  }

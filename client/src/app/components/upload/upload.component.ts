@@ -52,9 +52,9 @@ export class UploadComponent implements OnInit {
   isLogin: boolean = false;
   ngOnInit() {
     // Show guide dialog when component loads
-    // setTimeout(() => {
-    //   this.showGuide = true;
-    // }, 500);
+    setTimeout(() => {
+      this.showGuide = true;
+    }, 500);
 
     // Subscribe to AuthService changes
     this.authService.isLoggedIn$.subscribe((status) => {

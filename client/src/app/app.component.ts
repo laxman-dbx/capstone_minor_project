@@ -14,10 +14,11 @@ export class AppComponent {
   title = 'DMS';
 
   isErrorPage: boolean = false;
-
+  isAdmin:boolean=false;
   constructor(private router: Router) {
     this.router.events.subscribe(() => {
       this.isErrorPage = this.router.url.startsWith('/error');
+      this.isAdmin=this.router.url.startsWith('/admin');
     });
   }
 }

@@ -1,0 +1,101 @@
+<div class="user-ticket-container">
+  <div class="tickets-section">
+    <h2>Support Tickets</h2>
+    
+    <!-- Create New Ticket Form -->
+    <div class="create-ticket">
+      <h3>Create New Ticket</h3>
+      <div class="form-group">
+        <textarea 
+          [(ngModel)]="newTicket.issue" 
+          placeholder="Describe your issue..."
+          rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Priority:</label>
+        <select [(ngModel)]="newTicket.priority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <button (click)="createTicket()" [disabled]="!newTicket.issue.trim()">
+        Submit Ticket
+      </button>
+    </div>
+  
+    <!-- Tickets List -->
+    <div class="tickets-list">
+      <h3>Your Tickets</h3>
+      <div *ngIf="loading" class="loading">Loading tickets...</div>
+      <div *ngIf="error" class="error-message">{{ error }}</div>
+      
+      <div *ngFor="let ticket of tickets" 
+           class="ticket-item"
+           [class.selected]="selectedTicket?._id === ticket._id"
+           (click)="selectTicket(ticket)">
+        <div class="ticket-header">
+          <span class="ticket-id">#{{ ticket._id }}</span>
+          <span class="ticket-status" [class]="getStatusClass(ticket.status)">
+            {{ ticket.status }}
+          </span>
+        </div>
+        <div class="ticket-issue">{{ ticket.issue }}</div>
+        <div class="ticket-footer">
+          <span class="ticket-priority" [class]="getPriorityClass(ticket.priority)">
+            {{ ticket.priority }}
+          </span>
+          <span class="ticket-date">
+            {{ ticket.createdAt | date:'short' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Section -->
+  <div class="chat-section" *ngIf="selectedTicket">
+    <div class="chat-header">
+      <h3>Chat Support</h3>
+      <div class="ticket-info">
+        <span>Ticket #{{ selectedTicket._id }}</span>
+        <span class="status" [class]="getStatusClass(selectedTicket.status)">
+          {{ selectedTicket.status }}
+        </span>
+      </div>
+      <div *ngIf="isTicketResolved()" class="resolved-message">
+        This ticket has been resolved. Chat is disabled.
+      </div>
+    </div>
+
+    <div class="messages" #messageContainer>
+      <div *ngIf="selectedTicket.messages.length === 0" class="no-messages">
+        No messages yet
+      </div>
+      
+      <div *ngFor="let message of selectedTicket.messages"
+           class="message"
+           [class.user-message]="message.sender === 'user'"
+           [class.admin-message]="message.sender === 'admin'">
+        <div class="message-content">
+          <span class="sender-label">{{ message.sender === 'user' ? 'You' : 'Support' }}</span>
+          {{ message.message }}
+        </div>
+        <div class="message-time">{{ message.timestamp | date:'short' }}</div>
+      </div>
+    </div>
+
+    <div class="message-input" [class.disabled]="isTicketResolved()">
+      <input type="text" 
+             [(ngModel)]="newMessage" 
+             (keyup.enter)="sendMessage()"
+             [placeholder]="isTicketResolved() ? 'Chat disabled - Ticket resolved' : 'Type your message...'"
+             [disabled]="isTicketResolved()">
+      <button 
+        (click)="sendMessage()" 
+        [disabled]="!newMessage.trim() || isTicketResolved()">
+        Send
+      </button>
+    </div>
+  </div>
+</div>

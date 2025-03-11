@@ -14,7 +14,7 @@ body, h1, h2, h3, p {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 150px 0;
+    padding: 80px 0;
   }
   
   .header-content {
@@ -71,7 +71,7 @@ body, h1, h2, h3, p {
   }
   /* Feature sections */
   .feature-section {
-    padding: 50px 0;
+    padding: 20px 0;
     text-align: center;
     display: flex;
     flex-wrap: wrap;
@@ -114,6 +114,7 @@ body, h1, h2, h3, p {
   .get-started-section {
     padding: 80px 0;
     text-align: center;
+    justify-content: center;
     background-color: #3e80c3;
     color: white;
   }
@@ -121,7 +122,5 @@ body, h1, h2, h3, p {
     margin-top:20px;
     font-size: 18px; 
   }
-  .feature-cnt{
-    margin-left: 100px;
-  }
+
   

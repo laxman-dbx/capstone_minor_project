@@ -21,6 +21,8 @@
 }
 
 .header-box {
+  display:flex;
+  align-items: center;
   margin-bottom: 20px;
   text-align: center;
 }
@@ -29,7 +31,10 @@
   font-size: 20px;
   font-weight: 600;
   color: #333;
+  justify-content: center;
   margin: 0;
+  padding-left: 170px;
+  padding-right: 80px;
 }
 
 .upload-content {
@@ -404,3 +409,27 @@ input:checked + .slider:before {
  justify-content: space-between;
  margin-bottom: 50px;
 }
+
+.help-button {
+  background-color: #1f2937;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.help-button:hover {
+  background-color: #374151;
+}
+
+.help-button i {
+  font-size: 16px;
+}
+
+/* Add this to your existing CSS */

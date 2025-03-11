@@ -9,8 +9,6 @@ const authMiddleWare = require("../middlewares/authMiddleware");
 router.post("/replace-chars", replaceChars);
 router.post("/encrypt-text", authMiddleWare, encryptText);
 
-//share by me
-//shared with me
 
 
 module.exports = router;

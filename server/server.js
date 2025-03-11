@@ -10,6 +10,7 @@ const userRoutes = require("./routes/userRoutes");
 
 const EncryptionRoute = require("./routes/encryption.js");
 const DecryptionRoute = require("./routes/decryption.js");
+const sharedDataRoute = require("./routes/sharedRoutes.js");
 
 
 dotenv.config();
@@ -25,6 +26,8 @@ app.use('/api/documents',documentRoutes)
 app.use("/api/users", userRoutes);
 app.use("/encrypt", EncryptionRoute);
 app.use("/decrypt", DecryptionRoute);
+app.use("/sharedData", sharedDataRoute);
+
 
 
 const PORT = process.env.PORT || 5000;

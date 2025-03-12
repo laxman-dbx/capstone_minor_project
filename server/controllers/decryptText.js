@@ -2,8 +2,7 @@ const EncryptedMessage = require("../models/data - receiver");
 const { decryptKey } = require("./decryptKey");
 const {decrypt} = require("../utils/decryption/decrypt-text");
 
-//deletion remove
-// receiverId, dataId, - decryption
+
 // sharedwithme -> encrypted msgs, data id, senderName, time stamp
 // sharedbyme -> receivers names, encrypted msgs, time stamp
 //deletion of encrypted message with only senderId , dataId

@@ -1,18 +1,20 @@
-const History = require("../models/user-history");
+const EncryptedMessages = require("../models/data - receiver");
 
-exports.sharedByMe = async (req, res)=>{
-    let senderId = req.userId
-    try{
-        const myHistory = await History.find({id : senderId}, {data : 1, _id : 0});
+exports.sharedByMe = async (req, res) => {
+    let senderId = req.userId;
 
-        if(!myHistory){
-            return res.status(200).send({success : true, message : "no data is sent by you"});
+    try {
+        const mySharedFiles = await EncryptedMessages.find({ userId: senderId })
+            .select("_id encryptedText createdAt"); 
+
+        if (mySharedFiles.length === 0) {
+            return res.status(200).send({ success: true, message: "No data is sent by you" });
         }
 
-        res.status(200).send({success : true, data : myHistory});
+        res.status(200).send({ success: true, data: mySharedFiles });
 
+    } catch (error) {
+        console.error(error);
+        res.status(400).send({ error: error.message });
     }
-    catch(error){
-        res.status(400).send({error : error});
-    }
-}
+};

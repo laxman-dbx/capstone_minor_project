@@ -1,7 +1,6 @@
 const EncryptedMessage = require("../models/data - receiver");
 const signupDetails = require("../models/User");
 const {PythonShell} = require("python-shell")
-const mongoose = require("mongoose");
 
 async function decryptKey(dataId, receiverId){
     try {

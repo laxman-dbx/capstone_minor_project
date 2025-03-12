@@ -11,6 +11,7 @@ const userRoutes = require("./routes/userRoutes");
 const EncryptionRoute = require("./routes/encryption.js");
 const DecryptionRoute = require("./routes/decryption.js");
 const sharedDataRoute = require("./routes/sharedRoutes.js");
+const senderRoute = require("./routes/senderRoutes.js");
 
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use("/api/users", userRoutes);
 app.use("/encrypt", EncryptionRoute);
 app.use("/decrypt", DecryptionRoute);
 app.use("/sharedData", sharedDataRoute);
+app.use("/sender",senderRoute);
 
 
 

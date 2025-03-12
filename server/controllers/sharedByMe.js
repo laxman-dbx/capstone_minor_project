@@ -1,11 +1,13 @@
 const EncryptedMessages = require("../models/data - receiver");
+const { encryptText } = require("./encryptText");
 
 exports.sharedByMe = async (req, res) => {
     let senderId = req.userId;
 
     try {
-        const mySharedFiles = await EncryptedMessages.find({ userId: senderId })
-            .select("_id encryptedText createdAt"); 
+
+        const mySharedFiles = await EncryptedMessages.find({ userId: senderId },{_id : 1, encryptedText : 1, createdAt : 1}).populate("userId", "name")
+
 
         if (mySharedFiles.length === 0) {
             return res.status(200).send({ success: true, message: "No data is sent by you" });

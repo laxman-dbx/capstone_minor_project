@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
@@ -23,7 +23,7 @@ export class EncryptTextService {
   }
 
   decryptText(encryptedText: string): Observable<{ decryptedText: string }> {
-    return this.http.post<{ decryptedText: string }>(`${this.baseUrl}/encrypt/decrypt-text`, {
+    return this.http.post<{ decryptedText: string }>(`${this.baseUrl}/decrypt/decrypt-text`, {
       encryptedText
     }, {
       headers: { Authorization: `Bearer ${this.token}` }
@@ -33,6 +33,18 @@ export class EncryptTextService {
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.baseUrl}/api/users/getUsers`, {
       headers: { Authorization: `Bearer ${this.token}` }
+    });
+  }
+
+  getSharedByMe(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/sharedData/by-me`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${this.token}` })
+    });
+  }
+
+  getSharedWithMe(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/sharedData/to-me`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${this.token}` })
     });
   }
 }

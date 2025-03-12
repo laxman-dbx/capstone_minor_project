@@ -10,5 +10,6 @@ export const routes: Routes = [
   { path: 'error/:id', loadComponent: () => import('./components/error/error.component').then(m => m.ErrorComponent) },
   { path: 'profile', loadComponent: ()=> import('./components/profile/profile.component').then(m=>m.ProfileComponent) },
   { path:'mask-text-pii',loadComponent: ()=>import('./components/mask-text/mask-text.component').then(m=>m.MaskTextComponent)},
-  { path:'encrypt-text-pii',loadComponent: ()=>import('./components/encrypt-text/encrypt-text.component').then(m=>m.EncryptTextComponent)}
+  { path:'encrypt-text-pii',loadComponent: ()=>import('./components/encrypt-text/encrypt-text.component').then(m=>m.EncryptTextComponent)},
+  { path:'decrypt-text',loadComponent: ()=>import('./components/decrypt-text/decrypt-text.component').then(m=>m.DecryptTextComponent)}
 ];

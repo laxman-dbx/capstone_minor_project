@@ -68,9 +68,8 @@ exports.encryptText = async (req, res) => {
           if (!updatedHistory) {
             return res.status(404).json({ error: 'User not found' });
           }
-          receiverIds.push(id);
-          await encryptKey(id, receiverIds);        
-        res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray });
+          let encKey = await encryptKey(id, receiverIds);        
+        res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray, encryptedMessageId : encKey.encryptedMessage._id});
         
     } catch (error) {
         console.error(error);

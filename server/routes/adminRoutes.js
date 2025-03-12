@@ -11,5 +11,6 @@ router.get('/analytics/documents', adminAuthMiddleware, adminController.getDocum
 router.get('/tickets', adminAuthMiddleware, adminController.getSupportTickets);
 router.post('/tickets/:ticketId/reply', adminAuthMiddleware, adminController.replyToTicket);
 router.put('/tickets/:ticketId/status', adminAuthMiddleware, adminController.updateTicketStatus);
+router.post('/verifyUserPii',adminAuthMiddleware,adminController.verifyUserPii)
 
 module.exports = router;

@@ -5,6 +5,7 @@ import { DocumentAnalyticsComponent } from '../document-analytics/document-analy
 import { AdminService } from '../../../services/admin.service';
 import { Router } from '@angular/router';
 import { SupportTicketComponent } from "../support-ticket/support-ticket.component";
+import { VerifyUserPiiComponent } from "../verify-user-pii/verify-user-pii.component";
 
 
 @Component({
@@ -13,7 +14,8 @@ import { SupportTicketComponent } from "../support-ticket/support-ticket.compone
   imports: [
     CommonModule,
     DocumentAnalyticsComponent,
-    SupportTicketComponent
+    SupportTicketComponent,
+    VerifyUserPiiComponent
 ],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']

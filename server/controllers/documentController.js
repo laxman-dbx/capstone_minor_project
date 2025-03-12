@@ -60,7 +60,7 @@ const deleteDocument = async (req, res) => {
         const maskedFilename=document.maskedFileName;
         // Delete the file from S3
         const deleteCommand = new DeleteObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME,
+            Bucket: process.env.AWS_MI_BUCKET_NAME,
             Key: `masked/${maskedFilename}`
         });
 

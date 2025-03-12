@@ -49,7 +49,7 @@ const uploadDocument = async (req, res) => {
 
             // Mask PII Data
             console.log(processedFilePath);
-            const maskedFilePath = await maskImagePII(processedFilePath, 'masked_uploads/', documentType);
+            const {maskedFilePath,piiHash} = await maskImagePII(processedFilePath, 'masked_uploads/', documentType);
             console.log(maskedFilePath);
             
             if (maskedFilePath === processedFilePath) {
@@ -80,7 +80,7 @@ const uploadDocument = async (req, res) => {
                     documentType,
                     originalName: req.file.originalname,
                     maskedFileName: req.file.filename,
-                    maskedUrl: result.Location
+                    piiHash
                 });
                 await newDocument.save();
 

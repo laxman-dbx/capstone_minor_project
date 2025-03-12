@@ -7,9 +7,49 @@ const extractDataPii = require('./extractDataPii');
 const adhaarHandler = require('./AdhaarPII/aadharHandler');
 const DrivingLicenseHandler = require('./drivingLPII/drivingLicenceHandler.js');
 const PANHandler = require('./PanPII/panHandler');
+const { createWorker } = require('tesseract.js');
+const crypto = require('crypto');
+
+
+async function extractAndHashAadharNumber(imagePath, piiLoc) {
+  
+  if (!piiLoc) {
+    console.error("pii location not found!");
+    return;
+  }
+
+  const { Left, Top, Width, Height } = piiLoc.location;
+
+  const worker = await createWorker();
+
+  const { data } = await worker.recognize(imagePath, 'eng');
+  const filteredWords = data.words.filter(word => {
+    const { x0, y0, x1, y1 } = word.bbox; // Bounding box of detected word
+    return (
+      x0 >= Left && x1 <= Left + Width && // X-axis within range
+      y0 >= Top && y1 <= Top + Height     // Y-axis within range
+    );
+  });
+
+  // Extract and clean Aadhaar Number text
+  console.log("Extracted Aadhaar Number:", filteredWords);
+  let piiNumber = filteredWords.map(word => word.text).join('')// Keep only digits
+
+  console.log("Extracted Aadhaar Number:", piiNumber);
+  await worker.terminate();
+
+  const piiHash = crypto.createHash('sha256').update(piiNumber).digest('hex');
+
+  console.log("Hashed Aadhaar Number:", piiHash);
+  return piiHash;
+}
+
 
 async function maskImagePII(imagePath, maskedUploadDir,documentType) {
     try {
+        const worker= await createWorker();
+        const {data}=await worker.recognize(imagePath);
+        console.log(data.text);
         const startTime=Date.now();
         let metadata,piiLocations,qrLocations;
         if(documentType==='adhaar'){
@@ -41,6 +81,13 @@ async function maskImagePII(imagePath, maskedUploadDir,documentType) {
             ]);
         }
 
+        //AaDdharNumber
+        //dl_no
+        //panCard
+
+        
+
+
         // console.log('PII Locations:', piiLocations);
         // console.log('QR Locations:', qrLocations);
 
@@ -61,7 +108,32 @@ async function maskImagePII(imagePath, maskedUploadDir,documentType) {
         }
         console.log(allSensitiveLocations);
 
+        //process for generating Hashes for the pii data
+        //AaDdharNumber
+        //dl_no
+        //panCard
+
         if (allSensitiveLocations.length > 0) {
+
+            let piiHash='';
+            if(documentType==='adhaar'){
+                const piiLoc = allSensitiveLocations.find(loc => loc.pattern === 'AadharNumber');
+                piiHash=await extractAndHashAadharNumber(imagePath, piiLoc)
+                        
+                console.log("Aadhar Hash:",piiHash);
+            }
+            else if(documentType==='driving_license'){
+                const piiLoc = allSensitiveLocations.find(loc => loc.pattern === 'dl_no');
+                piiHash=await extractAndHashAadharNumber(imagePath, piiLoc)
+
+                console.log("DL Hash:",piiHash);
+            }
+            else if(documentType==='pan'){
+                const piiLoc = allSensitiveLocations.find(loc => loc.pattern === 'panCard');
+                piiHash=await extractAndHashAadharNumber(imagePath, piiLoc)
+                console.log("pan Hash:",piiHash);
+            }
+
             try {
                 const image = sharp(imagePath);
                 
@@ -92,17 +164,17 @@ async function maskImagePII(imagePath, maskedUploadDir,documentType) {
                 // Save masked image
                 const maskedFilePath = path.join(maskedUploadDir, `masked_${path.basename(imagePath)}`);
                 await maskedImage.toFile(maskedFilePath);
-                
+                console.log("adhar hash:",piiHash);
                 console.log('file processing time:', Date.now() - startTime);
                 
-                return maskedFilePath;
+                return {maskedFilePath,piiHash};
             } catch (error) {
                 console.error('Error masking image:', error);
                 throw error;
             }
         }
 
-        return imagePath; // Return original path if no masking is needed
+        return {imagePath,piiHash}; // Return original path if no masking is needed
 
     } catch (error) {
         console.error('Error masking image:', error);

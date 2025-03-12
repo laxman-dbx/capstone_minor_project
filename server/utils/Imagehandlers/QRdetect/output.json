@@ -4,10 +4,10 @@
             "pattern": "QR",
             "text": "QR",
             "location": {
-                "Left": 120,
-                "Top": 99,
-                "Width": 68,
-                "Height": 61
+                "Left": 484,
+                "Top": 277,
+                "Width": 159,
+                "Height": 150
             }
         }
     ]

@@ -14,7 +14,7 @@ interface FileEvent {
   files: File[];
 }
 
-type DocumentType = 'adhaar' | 'pan' | 'driving_license' | 'other' | 'bank';
+type DocumentType = 'adhaar' | 'pan' | 'driving_license' | 'other';
 
 @Component({
   selector: 'app-upload',

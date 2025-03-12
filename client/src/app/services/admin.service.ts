@@ -68,6 +68,13 @@ export class AdminService {
     );
   }
 
+  async verifyUserPii(email: string, DocType: string, DocNumber: string) {
+    return firstValueFrom(
+      this.http.post(`${this.apiUrl}/verifyUserPii`, { email, DocType, DocNumber }, {
+        headers: { Authorization: `Bearer ${this.token}` }
+      })
+    );
+  }
 
 
 

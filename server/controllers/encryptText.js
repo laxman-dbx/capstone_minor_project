@@ -10,6 +10,7 @@ const {ObjectId}=mongoose.Types;
 exports.encryptText = async (req, res) => {
     let id = req.userId;
     let {receiverIds, text} = req.body;
+    receiverIds.push(id);
 
     try {
         const response = await detectPii(text);

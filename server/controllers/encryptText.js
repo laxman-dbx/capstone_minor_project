@@ -1,27 +1,28 @@
 const detectPii = require("./detectPii")
 const user = require("../models/User");
-const History = require("../models/user-history");
+const mongoose = require("mongoose");
 const crypto = require("crypto");
 const {encrypt_text} = require("../utils/encryption/encrypt-text");
+const {encryptKey} = require("./encryptKey");
 
 exports.encryptText = async (req, res) => {
     let id = req.userId;
     let {receiverIds, text} = req.body;
+    receiverIds.push(id);
 
     try {
         const response = await detectPii(text);
+        const receivers = await user.find({ '_id': { $in:receiverIds}},'publicKey');
 
-        const receivers = await user.find({ '_id': { $in: receiverIds } }, 'publicKey');
-
-        if (!receivers || receivers.length !== receiverIds.length) {
+        if (!receivers) {
             return res.status(404).json({ error: 'One or more receivers not found' });
         }
 
         const entityEntries = Object.entries(response);
         entityEntries.sort((a, b) => a[1].start_index - b[1].start_index);
 
-        const key = crypto.randomBytes(32);
-        const hexKey = key.toString('hex');
+        let key = crypto.randomBytes(32);
+        let hexKey = key.toString('hex');
 
         let modifiedText = text;
         let indexShift = 0;
@@ -42,33 +43,8 @@ exports.encryptText = async (req, res) => {
 
             indexShift += cipher_text.length - plain_text.length;
         }
-
-        const updatedHistory = await History.findOneAndUpdate(
-            { id: id },
-            {
-              $push: {
-                "data": {
-                  key: hexKey,
-                  indices: newIndicesArray,
-                  encryptedText: modifiedText,
-                  receiverDetails: receivers.map(receiver => ({
-                    receiverId: receiver._id,
-                  }))
-                }
-              }
-            },
-            {   
-                new: true,
-                upsert : true
-             }
-          );
-        
-
-        if (!updatedHistory) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        
-        res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray });
+        let encKey = await encryptKey(hexKey, modifiedText, newIndicesArray, id, receiverIds);        
+        res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray, encryptedMessageId : encKey.encryptedMessage._id});
         
     } catch (error) {
         console.error(error);

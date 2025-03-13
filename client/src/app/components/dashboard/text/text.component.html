@@ -1,16 +1,71 @@
+<div class="container">
+  <div class="content">
+    <!-- Shared With Me Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3 class="section-title">Shared With Me</h3>
+        <div class="pagination">
+          <button class="btn" (click)="prevPage('sharedWithMe')" [disabled]="sharedWithMePage === 1">
+            Previous
+          </button>
+          <button class="btn" (click)="nextPage('sharedWithMe')" 
+                  [disabled]="sharedWithMePage * itemsPerPage >= sharedWithMe.length">
+            Next
+          </button>
+        </div>
+      </div>
 
-<div class="parent">
-    <div class="div1">
-        <h3>Shared With Me!</h3>
+      <ul class="share-list">
+        <li *ngFor="let item of getPaginatedSharedWithMe()" class="share-item">
+          <div class="share-details">
+            <div class="share-info">
+              <p><strong>Shared By:</strong> {{ item.userId.name }}</p>
+              <p class="meta-info">{{ item.createdAt | date:'short' }}</p>
+            </div>
+            <div class="share-actions">
+              <button class="btn btn-primary" routerLink="/decrypt-text" [disabled]="loading">
+                {{ 'Decrypt' }}
+              </button>
+            </div>
+          </div>
+          <div class="result-box" *ngIf="decryptedMessage">
+            <p><strong>Decrypted Text:</strong> {{ decryptedMessage }}</p>
+          </div>
+        </li>
+      </ul>
     </div>
-    <div class="div2">
-        
-    </div>
-    <div class="div3">
-        <h3>Shared By Me!</h3>
-    </div>
-    <div class="div4">
 
+    <!-- Shared By Me Section -->
+    <div class="section">
+      <div class="section-header">
+        <h3 class="section-title">Shared By Me</h3>
+        <div class="pagination">
+          <button class="btn" (click)="prevPage('sharedByMe')" [disabled]="sharedByMePage === 1">
+            Previous
+          </button>
+          <button class="btn" (click)="nextPage('sharedByMe')" 
+                  [disabled]="sharedByMePage * itemsPerPage >= sharedByMe.length">
+            Next
+          </button>
+        </div>
+      </div>
+
+      <ul class="share-list">
+        <li *ngFor="let item of getPaginatedSharedByMe()" class="share-item">
+          <div class="share-details">
+            <div class="share-info">
+              <p><strong>Encrypted Text:</strong> {{ item.encryptedText }}</p>
+              <div class="receivers-list">
+                <strong>Shared With:</strong>
+                <div *ngFor="let receiver of item.receivers">
+                  <li>{{ receiver.receiverId.name }}</li>
+                </div>
+              </div>
+              <p class="meta-info">{{ item.createdAt | date:'short' }}</p>
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
+  </div>
 </div>
-    

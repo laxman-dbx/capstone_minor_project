@@ -2,29 +2,27 @@ const EncryptedMessage = require("../models/data - receiver");
 const { decryptKey } = require("./decryptKey");
 const {decrypt} = require("../utils/decryption/decrypt-text");
 
+
 exports.decryptText = async (req, res)=>{
 
-    let senderId = req.userId;
-    let receiverId = req.body.receiverId;
+    let receiverId = req.userId;
+    let dataId = req.body.dataId;
 
     try {
-        let Details = await EncryptedMessage.find({ userId: senderId, "receivers.receiverId": receiverId });
+        let Details = await EncryptedMessage.findById(dataId);
         
         if (Details.length === 0) {
             return res.status(404).json({ error: 'Encrypted message not found for these users' });
         }
 
-        let encryptedText = Details[0].encryptedText;
-        let newIndex = Details[0].indices;
-
-        let decryptedKey = await decryptKey(senderId, receiverId);
-
+        let encryptedText = Details.encryptedText;
+        let newIndex = Details.indices;
+        let decryptedKey = await decryptKey(dataId, receiverId);
         let key = decryptedKey.decryptedAesKeyBase64;
         let modifiedText = encryptedText;
         let indexShift = 0;
         for (let i = 0; i < newIndex.length; i++) {
-            let [start_index, end_index] = newIndex[i];
-
+            let [start_index, end_index] = newIndex[i];           
             start_index += indexShift;
             end_index += indexShift;
 

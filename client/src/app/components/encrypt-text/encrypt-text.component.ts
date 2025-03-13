@@ -16,6 +16,7 @@ export class EncryptTextComponent implements OnInit {
   text = '';
   searchTerm = '';
   users: User[] = [];
+  selectedUser: User={_id:'',name:'',email:''};
   filteredUsers: User[] = [];
   selectedUsers: User[] = [];
   encryptedMessage = '';
@@ -23,7 +24,7 @@ export class EncryptTextComponent implements OnInit {
   loading = false;
   error = '';
   maxRecipients = 3;
-
+  encryptedMessageId='';
   constructor(
     private encryptTextService: EncryptTextService,
     private toastr: ToastrService
@@ -93,6 +94,7 @@ export class EncryptTextComponent implements OnInit {
     this.encryptTextService.encryptText(userId, receiverIds, this.text).subscribe({
       next: response => {
         this.encryptedMessage = response.encryptedText;
+        this.encryptedMessageId=response.encryptedMessageId;
         this.loading = false;
         this.text = '';
         this.toastr.success('Message encrypted successfully');
@@ -105,12 +107,12 @@ export class EncryptTextComponent implements OnInit {
     });
   }
 
-  decrypt(encryptedText: string) {
+  decrypt() {
     this.loading = true;
 
-    this.encryptTextService.decryptText(encryptedText).subscribe({
+    this.encryptTextService.decryptText(this.encryptedMessageId).subscribe({
       next: response => {
-        this.decryptedMessage = response.decryptedText;
+        this.decryptedMessage = response.text;
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },

@@ -22,9 +22,9 @@ export class EncryptTextService {
     });
   }
 
-  decryptText(encryptedText: string): Observable<{ decryptedText: string }> {
-    return this.http.post<{ decryptedText: string }>(`${this.baseUrl}/decrypt/decrypt-text`, {
-      encryptedText
+  decryptText(dataId: string): Observable<{ text: string }> {
+    return this.http.post<{ text: string }>(`${this.baseUrl}/decrypt/decrypt-text`, {
+      dataId
     }, {
       headers: { Authorization: `Bearer ${this.token}` }
     });

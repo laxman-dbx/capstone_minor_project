@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { EncryptTextService } from '../../../services/encrypt-text.service';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-text',
@@ -13,8 +14,10 @@ import { Observable } from 'rxjs';
 export class TextComponent implements OnInit {
   sharedWithMe: any[] = [];
   sharedByMe: any[] = [];
-
-  constructor(private encryptService: EncryptTextService) {}
+  decryptedMessage: string = '';
+  error = '';
+  loading = false;
+  constructor(private encryptService: EncryptTextService,private toastr:ToastrService) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -39,5 +42,20 @@ export class TextComponent implements OnInit {
       },
       error => console.error('Error fetching shared files (By Me):', error)
     );
+  }
+  decrypt(encryptedTextId: string) {
+    this.loading = true;
+    this.encryptService.decryptText(encryptedTextId).subscribe({
+      next: response => {
+        this.decryptedMessage = response.text;
+        this.loading = false;
+        this.toastr.success('Message decrypted successfully');
+      },
+      error: err => {
+        this.error = 'Decryption failed: ' + (err.error?.message || err.message);
+        this.loading = false;
+        this.toastr.error(this.error);
+      }
+    });
   }
 }

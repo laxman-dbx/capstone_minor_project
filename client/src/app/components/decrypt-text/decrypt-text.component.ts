@@ -28,23 +28,24 @@ export class DecryptTextComponent {
       next: response => {
         if (response?.success) {
           this.sharedWithMe = response.sharedFiles || [];
+          console.log(this.sharedWithMe);
         }
       },
       error: err => console.error('Error fetching shared files:', err)
     });
   }
 
-  selectMessage(encryptedText: string) {
-    this.selectedMessage = encryptedText;
+  selectMessage(encryptedTextId: string) {
+    this.selectedMessage = encryptedTextId;
     this.decryptedMessage = ''; // Reset previous decryption result
     this.error = '';
   }
 
-  decrypt(encryptedText: string) {
+  decrypt(encryptedTextId: string) {
     this.loading = true;
-    this.encryptService.decryptText(encryptedText).subscribe({
+    this.encryptService.decryptText(encryptedTextId).subscribe({
       next: response => {
-        this.decryptedMessage = response.decryptedText;
+        this.decryptedMessage = response.text;
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },

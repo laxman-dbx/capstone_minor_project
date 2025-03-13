@@ -110,7 +110,7 @@ export class EncryptTextComponent implements OnInit {
 
     this.encryptTextService.decryptText(encryptedText).subscribe({
       next: response => {
-        this.decryptedMessage = response.decryptedText;
+        this.decryptedMessage = response.text;
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },

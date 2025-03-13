@@ -5,10 +5,17 @@
         <div class="div1">
           <h3>Shared With Me</h3>
           <ul>
-            <li *ngFor="let file of sharedWithMe">
-              <div *ngFor="let item of file.data">
-                <p><strong>Encrypted Text:</strong> {{ item.encryptedText }}</p>
-                <p><strong>Created At:</strong> {{ item.createdAt | date:'short' }}</p>
+            <li *ngFor="let item of sharedWithMe">
+              <div>
+                <!-- <p><strong>Encrypted Text:</strong> {{ item.encryptedText }}</p> -->
+                <p><strong>Shared By:</strong> {{ item.userId.name }}</p>
+                <p><strong>Created At:</strong> {{ item.createdAt | date:'short' }}</p><span><button (click)="decrypt(item._id)" [disabled]="loading" class="decrypt-btn">
+                  Decrypt
+                </button></span>
+              </div>
+              <!-- Encrypted Result -->
+              <div class="result-box" *ngIf="decryptedMessage">
+                <p><strong>Decrypted Text:</strong> {{ decryptedMessage }}</p>
               </div>
             </li>
           </ul>

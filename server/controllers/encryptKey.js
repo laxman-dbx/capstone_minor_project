@@ -1,22 +1,13 @@
-const History = require("../models/user-history");
 const user = require("../models/User");
 const dataModel = require("../models/data - receiver");
 const {PythonShell} = require("python-shell");
-const mongoose = require("mongoose");
 
 
-    async function encryptKey(senderId, receiverIds){
+    async function encryptKey(key, enc, ind, senderId, receiverIds){
         try {
-            let senderData = await History.find({id : new mongoose.Types.ObjectId(senderId)}, { data: 1, _id: 0 });
-            let data;
-            if (senderData.length > 0) {
-                let sortedData = senderData[0].data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                data = sortedData[0];
-            }
-    
-            let aesKeyBase64 = data.key;
-            let encryptedText = data.encryptedText;
-            let indices = data.indices;
+            let aesKeyBase64 = key
+            let encryptedText = enc
+            let indices = ind
     
             let receivers = await user.find(
                 { _id: { $in: receiverIds } },
@@ -64,7 +55,7 @@ const mongoose = require("mongoose");
             console.error(error);
             return { error: "Internal server error" };
         }
-}
+}   
 
 
 

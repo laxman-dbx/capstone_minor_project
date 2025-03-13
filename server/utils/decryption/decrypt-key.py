@@ -17,8 +17,9 @@ def decrypt_aes_key_with_rsa(encrypted_aes_key_base64, private_key_pem_base64):
             label=None
         )
     )
-
+        
     return decrypted_aes_key.decode("utf-8")
+
 
 encrypted_aes_key_base64 = sys.argv[1]
 private_key_pem_base64 = base64.b64encode(sys.argv[2].encode('utf-8')).decode('utf-8')

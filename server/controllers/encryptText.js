@@ -1,11 +1,9 @@
 const detectPii = require("./detectPii")
 const user = require("../models/User");
 const mongoose = require("mongoose");
-const History = require("../models/user-history");
 const crypto = require("crypto");
 const {encrypt_text} = require("../utils/encryption/encrypt-text");
 const {encryptKey} = require("./encryptKey");
-const {ObjectId}=mongoose.Types;
 
 exports.encryptText = async (req, res) => {
     let id = req.userId;
@@ -23,8 +21,8 @@ exports.encryptText = async (req, res) => {
         const entityEntries = Object.entries(response);
         entityEntries.sort((a, b) => a[1].start_index - b[1].start_index);
 
-        const key = crypto.randomBytes(32);
-        const hexKey = key.toString('hex');
+        let key = crypto.randomBytes(32);
+        let hexKey = key.toString('hex');
 
         let modifiedText = text;
         let indexShift = 0;
@@ -45,31 +43,7 @@ exports.encryptText = async (req, res) => {
 
             indexShift += cipher_text.length - plain_text.length;
         }
-
-        const updatedHistory = await History.findOneAndUpdate(
-            { id: id },
-            {
-              $push: {
-                "data": {
-                  key: hexKey,
-                  indices: newIndicesArray,
-                  encryptedText: modifiedText,
-                  receiverDetails: receivers.map(receiver => ({
-                    receiverId: receiver._id,
-                  }))
-                }
-              }
-            },
-            {   
-                new: true,
-                upsert : true
-             }
-          );
-        
-          if (!updatedHistory) {
-            return res.status(404).json({ error: 'User not found' });
-          }
-          let encKey = await encryptKey(id, receiverIds);        
+        let encKey = await encryptKey(hexKey, modifiedText, newIndicesArray, id, receiverIds);        
         res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray, encryptedMessageId : encKey.encryptedMessage._id});
         
     } catch (error) {

@@ -3,11 +3,6 @@ const { decryptKey } = require("./decryptKey");
 const {decrypt} = require("../utils/decryption/decrypt-text");
 
 
-// sharedwithme -> encrypted msgs, data id, senderName, time stamp
-// sharedbyme -> receivers names, encrypted msgs, time stamp
-//deletion of encrypted message with only senderId , dataId
-// decryption for sender
-
 exports.decryptText = async (req, res)=>{
 
     let receiverId = req.userId;
@@ -22,14 +17,12 @@ exports.decryptText = async (req, res)=>{
 
         let encryptedText = Details.encryptedText;
         let newIndex = Details.indices;
-
         let decryptedKey = await decryptKey(dataId, receiverId);
         let key = decryptedKey.decryptedAesKeyBase64;
         let modifiedText = encryptedText;
         let indexShift = 0;
         for (let i = 0; i < newIndex.length; i++) {
-            let [start_index, end_index] = newIndex[i];
-
+            let [start_index, end_index] = newIndex[i];           
             start_index += indexShift;
             end_index += indexShift;
 

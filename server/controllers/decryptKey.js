@@ -8,10 +8,9 @@ async function decryptKey(dataId, receiverId){
         if (!encryptedMessage) {
             return { error: "Message not found for this receiver." };
         }
-
         const receiver = encryptedMessage.receivers.find(receiver => receiver.receiverId.toString() === receiverId);
         const encryptedKey = receiver.encryptedAesKey;
-
+        
         const receiverDetails = await signupDetails.findById(receiverId).select('+privateKey'); 
         if (!receiverDetails) {
             return { error: "Receiver not found." };

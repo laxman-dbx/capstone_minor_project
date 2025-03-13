@@ -12,8 +12,8 @@ export class EncryptTextService {
 
   constructor(private http: HttpClient) {}
 
-  encryptText(id: string, receiverIds: string[], text: string): Observable<{ encryptedText: string }> {
-    return this.http.post<{ encryptedText: string }>(`${this.baseUrl}/encrypt/encrypt-text`, {
+  encryptText(id: string, receiverIds: string[], text: string): Observable<{ encryptedText: string, encryptedMessageId: string }> {
+    return this.http.post<{ encryptedText: string ,encryptedMessageId:string}>(`${this.baseUrl}/encrypt/encrypt-text`, {
       id,
       receiverIds,
       text

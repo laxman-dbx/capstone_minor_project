@@ -1,43 +1,43 @@
 {
     "masked_pii": [
         {
-            "pattern": "fatherName",
-            "text": "fatherName",
-            "location": {
-                "Left": 1,
-                "Top": 146,
-                "Width": 77,
-                "Height": 16
-            }
-        },
-        {
             "pattern": "name",
             "text": "name",
             "location": {
-                "Left": 1,
-                "Top": 133,
-                "Width": 51,
-                "Height": 12
-            }
-        },
-        {
-            "pattern": "panCard",
-            "text": "panCard",
-            "location": {
-                "Left": 56,
-                "Top": 112,
-                "Width": 55,
-                "Height": 12
+                "Left": 19,
+                "Top": 43,
+                "Width": 82,
+                "Height": 18
             }
         },
         {
             "pattern": "dob",
             "text": "dob",
             "location": {
-                "Left": 0,
-                "Top": 173,
-                "Width": 30,
-                "Height": 10
+                "Left": 22,
+                "Top": 89,
+                "Width": 56,
+                "Height": 16
+            }
+        },
+        {
+            "pattern": "fatherName",
+            "text": "fatherName",
+            "location": {
+                "Left": 20,
+                "Top": 65,
+                "Width": 64,
+                "Height": 18
+            }
+        },
+        {
+            "pattern": "panCard",
+            "text": "panCard",
+            "location": {
+                "Left": 21,
+                "Top": 110,
+                "Width": 71,
+                "Height": 16
             }
         }
     ]

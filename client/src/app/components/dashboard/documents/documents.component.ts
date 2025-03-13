@@ -7,7 +7,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDeleteComponent } from './confirm-delete/confirm-delete.component';
 import { lastValueFrom } from 'rxjs';
 
-
 @Component({
   selector: 'app-documents',
   standalone: true,
@@ -16,7 +15,6 @@ import { lastValueFrom } from 'rxjs';
   styleUrls: ['./documents.component.css']
 })
 export class DocumentsComponent implements OnInit {
-
   documents: any[] = [];
   showPreview: boolean = false;
   filePreviewURL: string | null = null;
@@ -24,6 +22,10 @@ export class DocumentsComponent implements OnInit {
   isLoading: boolean = false;
   loadingMessage: string = '';
   previewTitle: string = 'Document Preview';
+  
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 8;
   
   // Loading messages for the interactive experience
   loadingMessages: string[] = [
@@ -36,7 +38,11 @@ export class DocumentsComponent implements OnInit {
   
   loadingInterval: any;
 
-  constructor(private documentService: DocumentService,private toastrService:ToastrService,private dialog: MatDialog) {}
+  constructor(
+    private documentService: DocumentService,
+    private toastrService: ToastrService,
+    private dialog: MatDialog
+  ) {}
 
   async ngOnInit(): Promise<void> {
     await this.getFiles();
@@ -45,13 +51,33 @@ export class DocumentsComponent implements OnInit {
   async getFiles(): Promise<void> {
     try {
       const response = await this.documentService.getUserDocuments();
-      this.documents = response.documents;
-      this.documents=this.documents.reverse();
+      this.documents = response.documents.reverse();
     } catch (error) {
       console.error('Error fetching documents:', error);
+      this.toastrService.error('Failed to fetch documents');
     }
   }
 
+  get paginatedDocuments(): any[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    return this.documents.slice(startIndex, startIndex + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.documents.length / this.itemsPerPage);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
 
   async downloadFile(fileKey: string): Promise<void> {
     if (!fileKey) return;
@@ -66,74 +92,66 @@ export class DocumentsComponent implements OnInit {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(url); // Clean up
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading file:', error);
+      this.toastrService.error('Failed to download file');
     } finally {
       this.setLoading(false);
     }
   }
 
+  async deleteFile(fileKey: string): Promise<void> {
+    try {
+      const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
+        width: '800px',
+        data: { fileName: fileKey }
+      });
 
+      const confirmed = await lastValueFrom(dialogRef.afterClosed());
+      if (!confirmed) return;
 
-async deleteFile(fileKey: string): Promise<void> {
-  try {
-    const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
-      width: '800px',
-      data: { fileName: fileKey }
-    });
-
-    const confirmed = await lastValueFrom(dialogRef.afterClosed());
-    if (!confirmed) return;
-
-    this.setLoading(true, 'Deleting document...');
-    await this.documentService.deleteDocument(fileKey);
-    this.toastrService.success('Deleted Successfully!', '', {
-      positionClass: "toast-top-left",
-      timeOut: 2000
-    });
-    await this.getFiles(); // Refresh list after deletion
-  } catch (error) {
-    console.error('Error deleting file:', error);
-  } finally {
-    this.setLoading(false);
+      this.setLoading(true, 'Deleting document...');
+      await this.documentService.deleteDocument(fileKey);
+      this.toastrService.success('Deleted Successfully!', '', {
+        positionClass: "toast-top-left",
+        timeOut: 2000
+      });
+      await this.getFiles();
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      this.toastrService.error('Failed to delete file');
+    } finally {
+      this.setLoading(false);
+    }
   }
-}
-
 
   async openPreviewDialog(fileName: string): Promise<void> {
     try {
       this.selectedFile = fileName;
-      
-      // Set loading state with cycling messages
       this.setLoading(true);
       this.startLoadingAnimation();
       
-      // Find the document to get the original name for the title
       const document = this.documents.find(doc => doc.maskedFileName === fileName);
       this.previewTitle = document?.originalName || 'Document Preview';
       
-      // Simulate a slight delay to enhance the experience (optional)
-      // This could be removed if your actual document loading is already slow enough
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       const blob = await this.documentService.downloadDocument(fileName);
       const url = window.URL.createObjectURL(blob);
       this.filePreviewURL = url;
       
-      // Stop loading and show the preview
       this.setLoading(false);
       this.showPreview = true;
     } catch (error) {
       console.error('Error opening preview:', error);
+      this.toastrService.error('Failed to preview file');
       this.setLoading(false);
     }
   }
 
   closePreviewDialog(event: Event): void {
     this.showPreview = false;
-    
-    // Clean up resources
     if (this.filePreviewURL) {
       window.URL.revokeObjectURL(this.filePreviewURL);
       this.filePreviewURL = null;
@@ -143,13 +161,9 @@ async deleteFile(fileKey: string): Promise<void> {
   
   setLoading(isLoading: boolean, message?: string): void {
     this.isLoading = isLoading;
-    
-    if (!isLoading) {
-      // Clear the loading interval when loading is done
-      if (this.loadingInterval) {
-        clearInterval(this.loadingInterval);
-        this.loadingInterval = null;
-      }
+    if (!isLoading && this.loadingInterval) {
+      clearInterval(this.loadingInterval);
+      this.loadingInterval = null;
     } else if (message) {
       this.loadingMessage = message;
     }
@@ -157,11 +171,7 @@ async deleteFile(fileKey: string): Promise<void> {
   
   startLoadingAnimation(): void {
     let messageIndex = 0;
-    
-    // Set initial message
     this.loadingMessage = this.loadingMessages[messageIndex];
-    
-    // Cycle through loading messages every 1.5 seconds
     this.loadingInterval = setInterval(() => {
       messageIndex = (messageIndex + 1) % this.loadingMessages.length;
       this.loadingMessage = this.loadingMessages[messageIndex];
@@ -169,11 +179,9 @@ async deleteFile(fileKey: string): Promise<void> {
   }
   
   ngOnDestroy(): void {
-    // Clean up on component destruction
     if (this.loadingInterval) {
       clearInterval(this.loadingInterval);
     }
-    
     if (this.filePreviewURL) {
       window.URL.revokeObjectURL(this.filePreviewURL);
     }

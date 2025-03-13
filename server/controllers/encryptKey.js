@@ -5,9 +5,9 @@ const {PythonShell} = require("python-shell");
 
     async function encryptKey(key, enc, ind, senderId, receiverIds){
         try {
-            let aesKeyBase64 = key
-            let encryptedText = enc
-            let indices = ind
+            let aesKeyBase64 = key;
+            let encryptedText = enc;
+            let indices = ind;
     
             let receivers = await user.find(
                 { _id: { $in: receiverIds } },

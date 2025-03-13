@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const recieverSchema = new mongoose.Schema({
-    receiverId : {type : String, required : true},
+    receiverId : {type :  mongoose.Schema.Types.ObjectId, ref : "User", required : true},
     encryptedAesKey : {type : String, required : true}
 })
 

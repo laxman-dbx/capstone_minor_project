@@ -1,40 +1,67 @@
 <footer class="footer">
-    <div class="container">
-      <!-- Left Column -->
-      <div class="footer-column">
-        <div class="footer-title">Contact Us</div>
-        <a class="footer-link" href="tel:1234567890">+91 93926 50460</a>
-        <a class="footer-link" href="mailto:info@example.com">info{{'@'}}example.com</a>
-      </div>
-  
-      <!-- Center Column -->
-      <div class="footer-column">
-        <div class="footer-title">Follow Us</div>
-        <a class="footer-link" href="#!">Facebook</a>
-        <a class="footer-link" href="#!">Twitter</a>
-        <a class="footer-link" href="#!">Instagram</a>
-      </div>
-  
-      <!-- Right Column -->
-      <div class="footer-column">
-        <div class="footer-title">Legal</div>
-        <a class="footer-link" href="#!">Terms of Service</a>
-        <a class="footer-link" href="#!">Privacy Policy</a>
-        <a class="footer-link" href="#!">Cookie Policy</a>
-      </div>
-    </div>
-  
-    <!-- Bottom -->
-    <div class="footer-bottom">
-      <div class="footer-text">© 2025 DBOX. All Rights Reserved.</div>
-      <div class="social-icons">
-        <a href="/" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-        <a href="/" class="social-icon"><i class="fab fa-twitter"></i></a>
-        <a href="/" class="social-icon"><i class="fab fa-youtube"></i></a>
-        <a href="/" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-        <a href="/" class="social-icon"><i class="fab fa-instagram"></i></a>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <img src="assets/logo.png" alt="DMS Logo" class="footer-logo-img" />
+        <div class="footer-tagline">
+          <h3>Secure Document Management System</h3>
+          <p>Protecting your data with advanced encryption</p>
+        </div>
       </div>
       
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/support">Support</a></li>
+            <li><a href="/guide">Guide</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h4>Tools</h4>
+          <ul>
+            <li><a href="/encrypt-text-pii">Encrypt Text</a></li>
+            <li><a href="/decrypt-text-pii">Decrypt Text</a></li>
+            <li><a href="/mask-text-pii">Mask Text</a></li>
+            <li><a href="/upload">Upload Documents</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/faq">FAQ</a></li>
+            <li><a href="/guide">User Guide</a></li>
+            <li><a href="/support">Get Support</a></li>
+            <li><a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub <i class="fas fa-external-link-alt"></i></a></li>
+          </ul>
+        </div>
+      </div>
     </div>
-  </footer>
+    
+    <div class="footer-bottom">
+      <div class="social-links">
+        <a href="#" class="social-link tooltip" aria-label="Twitter">
+          <i class="fab fa-twitter"></i>
+          <span class="tooltip-text">Twitter</span>
+        </a>
+        <a href="#" class="social-link tooltip" aria-label="LinkedIn">
+          <i class="fab fa-linkedin"></i>
+          <span class="tooltip-text">LinkedIn</span>
+        </a>
+        <a href="#" class="social-link tooltip" aria-label="GitHub">
+          <i class="fab fa-github"></i>
+          <span class="tooltip-text">GitHub</span>
+        </a>
+      </div>
+      
+      <div class="copyright">
+        &copy; {{ currentYear }} Document Management System. All rights reserved.
+      </div>
+    </div>
+  </div>
+</footer>
   

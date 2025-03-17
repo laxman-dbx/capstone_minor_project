@@ -25,7 +25,7 @@ export class DocumentsComponent implements OnInit {
   
   // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 8;
+  itemsPerPage: number = 9;
   
   // Loading messages for the interactive experience
   loadingMessages: string[] = [
@@ -51,7 +51,7 @@ export class DocumentsComponent implements OnInit {
   async getFiles(): Promise<void> {
     try {
       const response = await this.documentService.getUserDocuments();
-      this.documents = response.documents.reverse();
+      this.documents = response.documents ? response.documents.reverse() : [];
     } catch (error) {
       console.error('Error fetching documents:', error);
       this.toastrService.error('Failed to fetch documents');
@@ -185,5 +185,10 @@ export class DocumentsComponent implements OnInit {
     if (this.filePreviewURL) {
       window.URL.revokeObjectURL(this.filePreviewURL);
     }
+  }
+
+  // Method to show document actions (missing in original code)
+  showDocumentActions(doc: any): void {
+    doc.showActions = !doc.showActions;
   }
 }

@@ -1,4 +1,4 @@
-const EncryptedMessages = require("../models/data - receiver");
+const EncryptedMessages = require("../models/dataReceiver");
 const { encryptText } = require("./encryptText");
 
 exports.sharedToMe = async (req, res) => {

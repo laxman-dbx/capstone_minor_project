@@ -1,9 +1,9 @@
-const encryptedMessage = require("../models/data - receiver");
+const encryptedMessage = require("../models/dataReceiver");
 const mongoose = require("mongoose");
 
 exports.senderDeletion = async(req, res)=>{
     let senderId = req.userId;
-    let {dataId} = req.body;
+    let {dataId} = req.params.messageId;
 
     let dataid = new mongoose.Types.ObjectId(dataId);
 

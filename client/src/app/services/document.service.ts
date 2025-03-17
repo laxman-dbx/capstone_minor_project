@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { uploadDocument } from '../models/document.model';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
-  private apiUrl = 'http://localhost:5000/api/documents';
+  private apiUrl = `${environment.apiUrl}/api/documents`;
   token = localStorage.getItem("authToken");
 
   constructor(private toastr: ToastrService) {}

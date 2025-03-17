@@ -1,6 +1,7 @@
-const EncryptedMessage = require("../models/data - receiver");
+const EncryptedMessage = require("../models/dataReceiver");
 const { decryptKey } = require("./decryptKey");
 const {decrypt} = require("../utils/decryption/decrypt-text");
+const { logActivity } = require('../utils/activityLogger');
 
 
 exports.decryptText = async (req, res)=>{
@@ -37,6 +38,21 @@ exports.decryptText = async (req, res)=>{
 
             indexShift += plainText.length - cipherText.length;
         }
+
+        // Log the decryption activity
+        await logActivity(
+            receiverId,
+            'decrypt',
+            `Decrypted shared text`,
+            {
+                textId: dataId,
+                metadata: {
+                    encryptedEntities: newIndex.length,
+                    textLength: modifiedText.length
+                }
+            }
+        );
+
         res.json({ text: modifiedText });
 
     } catch (error) {

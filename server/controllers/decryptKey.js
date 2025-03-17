@@ -1,4 +1,4 @@
-const EncryptedMessage = require("../models/data - receiver");
+const EncryptedMessage = require("../models/dataReceiver");
 const signupDetails = require("../models/User");
 const {PythonShell} = require("python-shell")
 

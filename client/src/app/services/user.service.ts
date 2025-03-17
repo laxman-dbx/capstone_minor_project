@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
-import axios from 'axios';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5000/api/users';
+  private apiUrl = `${environment.apiUrl}/api/users`;
 
+  constructor(private http: HttpClient) {}
   // Get updated token for each request
   private getToken(): string | null {
     return localStorage.getItem("authToken");
@@ -15,10 +18,10 @@ export class UserService {
   // Get user profile
   async getUserProfile() {
     try {
-      const response = await axios.get(`${this.apiUrl}/profile`, {
+      const response = await firstValueFrom(this.http.get(`${this.apiUrl}/profile`, {
         headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      }));
+      return response;
     } catch (error) {
       console.error("Error fetching user profile:", error);
       throw error;
@@ -28,10 +31,10 @@ export class UserService {
   // Update user profile
   async updateUserProfile(userData: any) {
     try {
-      const response = await axios.put(`${this.apiUrl}/profile`, userData, {
+      const response = await firstValueFrom(this.http.put(`${this.apiUrl}/profile`, userData, {
         headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      }));
+      return response;
     } catch (error) {
       console.error("Error updating profile:", error);
       throw error;
@@ -45,12 +48,12 @@ export class UserService {
       if (file) {
         formData.append('file', file);
       }
-      const response = await axios.post(`${this.apiUrl}/update-profile-image`, formData, {
+      const response = await firstValueFrom(this.http.post(`${this.apiUrl}/update-profile-image`, formData, {
         headers: {
           Authorization: `Bearer ${this.getToken()}`
         }
-      });
-      return response.data;
+      }));
+      return response;
     } catch (error) {
       console.error("Error updating profile image:", error);
       throw error;
@@ -61,10 +64,10 @@ export class UserService {
   // Change password
   async changePassword(newPassword: string) {
     try {
-      const response = await axios.post(`${this.apiUrl}/change-password`, { password: newPassword }, {
+      const response = await firstValueFrom(this.http.post(`${this.apiUrl}/change-password`, { password: newPassword }, {
         headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      }));
+      return response;
     } catch (error) {
       console.error("Error changing password:", error);
       throw error;
@@ -74,10 +77,10 @@ export class UserService {
   // Delete user account
   async deleteUser() {
     try {
-      const response = await axios.delete(`${this.apiUrl}/delete`, {
+      const response = await firstValueFrom(this.http.delete(`${this.apiUrl}/delete`, {
         headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      }));
+      return response;
     } catch (error) {
       console.error("Error deleting user:", error);
       throw error;

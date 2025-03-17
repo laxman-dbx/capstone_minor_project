@@ -1,92 +1,177 @@
-import { Component, OnInit } from '@angular/core';
-import { EncryptTextService } from '../../../services/encrypt-text.service';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
-import { ToastrService } from 'ngx-toastr';
 import { RouterModule } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { EncryptTextService } from '../../../services/encrypt-text.service';
 
 @Component({
   selector: 'app-text',
   standalone: true,
-  imports: [CommonModule,RouterModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+  ],
   templateUrl: './text.component.html',
   styleUrls: ['./text.component.css']
 })
-export class TextComponent implements OnInit {
+export class TextComponent implements OnInit, OnDestroy {
+  Math = Math;
+  
+  loadingSharedWithMe = true;
+  loadingSharedByMe = true;
   sharedWithMe: any[] = [];
   sharedByMe: any[] = [];
-  decryptedMessage: string = '';
+  sharedWithMeCurrentPage = 1;
+  sharedByMeCurrentPage = 1;
+  itemsPerPage = 2;
+  decryptedMessages: { [id: string]: string } = {}; // Store decrypted text per item
+  errorMessages: { [id: string]: string } = {};
   error = '';
   loading = false;
-  constructor(private encryptService: EncryptTextService,private toastr:ToastrService) {}
+
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private textService: EncryptTextService,
+    private dialog: MatDialog,
+    private encryptService: EncryptTextService,
+    private toastr:ToastrService
+  ) { }
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadSharedWithMe();
+    this.loadSharedByMe();
   }
-  // Pagination properties
-  sharedWithMePage = 1;
-  sharedByMePage = 1;
-  itemsPerPage = 2;
+  
+  
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+  
+  loadSharedWithMe(): void {
+    this.loadingSharedWithMe = true;
 
-  loadData(): void {
-    // Fetch shared data with error handling
-    this.encryptService.getSharedWithMe().subscribe(
-      response => {
-        if (response?.success) {
-          this.sharedWithMe = (response.sharedFiles || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());;
+    const sub = this.textService.getSharedWithMe().subscribe({
+      next: (data) => {
+        this.sharedWithMe = (data.sharedFiles || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        this.loadingSharedWithMe = false;
+        console.log(this.sharedWithMe);
+      },
+      error: (error) => {
+        console.error('Error loading shared messages:', error);
+        this.toastr.error('Could not load messages shared with you.');
+        this.loadingSharedWithMe = false;
+      }
+    });
+
+    this.subscriptions.push(sub);
+  }
+
+  loadSharedByMe(): void {
+    this.loadingSharedByMe = true;
+
+    const sub = this.textService.getSharedByMe().subscribe({
+      next: (data) => {
+        this.sharedByMe = (data.data || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());;
+        this.loadingSharedByMe = false;
+      },
+      error: (error) => {
+        console.error('Error loading your shared messages:', error);
+        this.toastr.error('Could not load messages you have shared.');
+        this.loadingSharedByMe = false;
+      }
+    });
+
+    this.subscriptions.push(sub);
+  }
+  
+  refreshMessages(): void {
+    this.loadSharedWithMe();
+    this.loadSharedByMe();
+  }
+  
+  deleteText(id: string, messageType: 'received' | 'sent'): void {
+    const deleteSub = this.textService.deleteSharedMessage(id).subscribe({
+      next: () => {
+        this.toastr.success('Message deleted successfully.');
+        
+        if (messageType === 'received') {
+          this.sharedWithMe = this.sharedWithMe.filter(item => item._id !== id);
+        } else {
+          this.sharedByMe = this.sharedByMe.filter(item => item._id !== id);
         }
       },
-      error => console.error('Error fetching shared files (With Me):', error)
-    );
-
-    this.encryptService.getSharedByMe().subscribe(
-      response => {
-        if (response?.success) {
-          this.sharedByMe = (response.data || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());;
-        }
-      },
-      error => console.error('Error fetching shared files (By Me):', error)
-    );
+      error: (error) => {
+        console.error('Error deleting message:', error);
+        this.toastr.error('Could not delete message. Please try again.');
+      }
+    });
   }
+  
+  openEncryption(): void {
+    window.location.href = '/encrypt-text';
+  }
+  
   decrypt(encryptedTextId: string) {
+    this.decryptedMessages={};
     this.loading = true;
     this.encryptService.decryptText(encryptedTextId).subscribe({
       next: response => {
-        this.decryptedMessage = response.text;
+        this.decryptedMessages[encryptedTextId] = response.text; 
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },
       error: err => {
-        this.error = 'Decryption failed: ' + (err.error?.message || err.message);
+        this.errorMessages[encryptedTextId] = 'Decryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
         this.toastr.error(this.error);
       }
     });
   }
-  // Pagination methods
-  getPaginatedSharedWithMe() {
-    const startIndex = (this.sharedWithMePage - 1) * this.itemsPerPage;
+  
+  updateSharedWithMePage(offset: number): void {
+    const newPage = this.sharedWithMeCurrentPage + offset;
+    const maxPage = Math.ceil(this.sharedWithMe.length / this.itemsPerPage);
+
+    if (newPage >= 1 && newPage <= maxPage) {
+      this.sharedWithMeCurrentPage = newPage;
+    }
+  }
+  
+  updateSharedByMePage(offset: number): void {
+    const newPage = this.sharedByMeCurrentPage + offset;
+    const maxPage = Math.ceil(this.sharedByMe.length / this.itemsPerPage);
+
+    if (newPage >= 1 && newPage <= maxPage) {
+      this.sharedByMeCurrentPage = newPage;
+    }
+  }
+  
+  getPaginatedSharedWithMe(): any[] {
+    const startIndex = (this.sharedWithMeCurrentPage - 1) * this.itemsPerPage;
     return this.sharedWithMe.slice(startIndex, startIndex + this.itemsPerPage);
   }
-
-  getPaginatedSharedByMe() {
-    const startIndex = (this.sharedByMePage - 1) * this.itemsPerPage;
+  
+  getPaginatedSharedByMe(): any[] {
+    const startIndex = (this.sharedByMeCurrentPage - 1) * this.itemsPerPage;
     return this.sharedByMe.slice(startIndex, startIndex + this.itemsPerPage);
   }
-
-  nextPage(type: 'sharedWithMe' | 'sharedByMe') {
-    if (type === 'sharedWithMe' && this.sharedWithMePage * this.itemsPerPage < this.sharedWithMe.length) {
-      this.sharedWithMePage++;
-    } else if (type === 'sharedByMe' && this.sharedByMePage * this.itemsPerPage < this.sharedByMe.length) {
-      this.sharedByMePage++;
-    }
+  
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleString();
   }
+  
+  getUserInitials(name: string): string {
+    if (!name) return '?';
 
-  prevPage(type: 'sharedWithMe' | 'sharedByMe') {
-    if (type === 'sharedWithMe' && this.sharedWithMePage > 1) {
-      this.sharedWithMePage--;
-    } else if (type === 'sharedByMe' && this.sharedByMePage > 1) {
-      this.sharedByMePage--;
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
     }
+
+    return name.substring(0, 2).toUpperCase();
   }
 }

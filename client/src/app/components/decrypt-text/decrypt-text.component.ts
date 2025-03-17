@@ -21,7 +21,7 @@ export class DecryptTextComponent implements OnInit {
   copySuccess: boolean = false;
   // Pagination properties
   sharedWithMePage: number = 1;
-  itemsPerPage: number = 5;
+  itemsPerPage: number = 4;
 
   constructor(private encryptService: EncryptTextService, private toastr: ToastrService) {}
 

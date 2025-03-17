@@ -27,7 +27,7 @@ export class SignInComponent {
 
       const response = await this.authService.signIn(credentials);
       this.toastr.success("SignIn SuccessFul","",{positionClass:"toast-top-center"})
-      this.router.navigate(['/dashboard']);
+      window.location.href = '/dashboard'; // Force full page reload
     } catch (error:any) {
       this.errorMessage = error.message || 'Invalid credentials!';
       this.toastr.error(error.message,"",{positionClass:"toast-top-center"})

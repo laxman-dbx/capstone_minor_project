@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { DropfileinputComponent } from './dropfileinput/dropfileinput.component';
 import { DocumentService } from '../../services/document.service';
 import { FormsModule } from '@angular/forms';
 import { uploadDocument } from '../../models/document.model';
 import { ToastrService } from 'ngx-toastr';
-import { GuideComponent } from '../guide/guide.component';
 import { AuthService } from '../../services/auth.service';
 
 interface FileEvent {
@@ -21,7 +20,7 @@ type DocumentType = 'adhaar' | 'pan' | 'driving_license' | 'other';
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css'],
   standalone: true,
-  imports: [CommonModule, DropfileinputComponent, FormsModule, GuideComponent]
+  imports: [CommonModule, DropfileinputComponent, FormsModule, RouterModule]
 })
 export class UploadComponent implements OnInit {
   file: File | null = null;
@@ -37,7 +36,6 @@ export class UploadComponent implements OnInit {
   showTooltip: boolean = false;
   showTooltip2: boolean = false;
   uploadProgress: number = 0;
-  showGuide: boolean = false;
   originalFileName: string | null = null;
 
   constructor(
@@ -51,19 +49,10 @@ export class UploadComponent implements OnInit {
 
   isLogin: boolean = false;
   ngOnInit() {
-    // Show guide dialog when component loads
-    setTimeout(() => {
-      this.showGuide = true;
-    }, 500);
-
     // Subscribe to AuthService changes
     this.authService.isLoggedIn$.subscribe((status) => {
       this.isLogin = status;
     });
-  }
-
-  closeGuide() {
-    this.showGuide = false;
   }
 
   validateFile(file: File): string | null {

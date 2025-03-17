@@ -4,7 +4,7 @@ const authMiddleware = require("../middlewares/authMiddleware"); // Ensure the u
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
 const { uploadDocument, publicUploadDocument } = require("../controllers/uploadController");
 
-const router = express.Router();
+const router = express();
 
 router.post('/upload', authMiddleware, uploadMiddleware, uploadDocument);
 router.get("/user-docs", authMiddleware, getUserDocuments);

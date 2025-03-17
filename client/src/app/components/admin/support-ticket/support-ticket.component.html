@@ -5,32 +5,26 @@
     
     <div class="tickets-list">
       <div *ngIf="loading" class="loading">Loading tickets...</div>
-      <div *ngIf="error" class="error-message">{{ error }}</div>
 
       <div *ngFor="let ticket of tickets" 
-           class="ticket-item"
+           class="ticket-list-item"
            [class.selected]="selectedTicket?._id === ticket._id"
+           [class.resolved]="ticket.status === 'resolved'"
            (click)="selectTicket(ticket)">
         <div class="ticket-header">
-          <span class="ticket-id">#{{ ticket._id }}</span>
-          <span class="ticket-status" [class]="getStatusClass(ticket.status)">
-            {{ ticket.status }}
-          </span>
+          <span class="ticket-id">#{{ticket._id.substring(0, 8)}}</span>
+          <span [class]="getPriorityClass(ticket.priority)" >{{ticket.priority}}</span>
         </div>
-        <div class="ticket-user">
-          <strong>{{ ticket.userId.name }}</strong>
-          <span class="user-email">({{ ticket.userId.email }})</span>
+        <div class="ticket-content">
+          <p class="ticket-issue">{{ticket.issue}}</p>
+          <p class="ticket-user">{{displayUserInfo(ticket)}}</p>
         </div>
-        <div class="ticket-issue">{{ ticket.issue }}</div>
         <div class="ticket-footer">
-          <span class="ticket-priority" [class]="getPriorityClass(ticket.priority)">
-            {{ ticket.priority }}
-          </span>
-          <span class="ticket-date">
-            {{ ticket.createdAt | date:'short' }}
-          </span>
+          <span class="ticket-date">{{ticket.createdAt | date:'short'}}</span>
+          <span [class]="'status-badge status-' + ticket.status">{{ticket.status}}</span>
         </div>
       </div>
+      <hr>
     </div>
   </div>
 
@@ -40,8 +34,7 @@
       <div class="ticket-info">
         <h3>Ticket #{{ selectedTicket._id }}</h3>
         <div class="user-info">
-          <span class="user-name">{{ selectedTicket.userId.name }}</span>
-          <span class="user-email">({{ selectedTicket.userId.email }})</span>
+          {{ displayUserInfo(selectedTicket) }}
         </div>
         <div class="status-controls">
           <span class="current-status" [class]="getStatusClass(selectedTicket.status)">
@@ -69,7 +62,7 @@
            [class.user-message]="message.sender === 'user'"
            [class.admin-message]="message.sender === 'admin'">
         <div class="message-content">
-          <span class="sender-label">{{ message.sender === 'user' ? selectedTicket.userId.name : 'Admin' }}</span>
+          <span class="sender-label">{{ message.sender === 'user' ? getUserName(selectedTicket) : 'Admin' }}</span>
           {{ message.message }}
         </div>
         <div class="message-time">{{ message.timestamp | date:'short' }}</div>

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { VerifyUserPiiComponent } from './verify-user-pii.component';
+import { ActivityLogsComponent } from './activity-logs.component';
 
-describe('VerifyUserPiiComponent', () => {
-  let component: VerifyUserPiiComponent;
-  let fixture: ComponentFixture<VerifyUserPiiComponent>;
+describe('ActivityLogsComponent', () => {
+  let component: ActivityLogsComponent;
+  let fixture: ComponentFixture<ActivityLogsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VerifyUserPiiComponent]
+      imports: [ActivityLogsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(VerifyUserPiiComponent);
+    fixture = TestBed.createComponent(ActivityLogsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

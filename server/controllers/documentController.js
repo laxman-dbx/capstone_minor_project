@@ -1,6 +1,7 @@
 const {DeleteObjectCommand,GetObjectCommand }=require('@aws-sdk/client-s3')
 const { s3 } = require('../config/aws');
 const Document = require('../models/Document');
+const { logActivity } = require('../utils/activityLogger');
 
 
 //geting all documents for a single user
@@ -36,6 +37,20 @@ const downloadDocument = async (req, res) => {
 
         const { Body } = await s3.send(getCommand);
 
+        // Log the download activity
+        await logActivity(
+            userId,
+            'download',
+            `Downloaded document: ${document.originalName}`,
+            {
+                documentId: document._id,
+                metadata: {
+                    documentType: document.documentType,
+                    originalName: document.originalName
+                }
+            }
+        );
+
         // Set original file name for download
         res.attachment(document.originalName); 
         Body.pipe(res);
@@ -65,6 +80,20 @@ const deleteDocument = async (req, res) => {
         });
 
         await s3.send(deleteCommand);
+
+        // Log the delete activity
+        await logActivity(
+            userId,
+            'delete',
+            `Deleted document: ${document.originalName}`,
+            {
+                documentId: document._id,
+                metadata: {
+                    documentType: document.documentType,
+                    originalName: document.originalName
+                }
+            }
+        );
 
         // Remove document entry from MongoDB
         await Document.deleteOne({ _id: document._id });

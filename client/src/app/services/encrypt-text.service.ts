@@ -2,18 +2,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EncryptTextService {
   private token = localStorage.getItem("authToken");
-  private baseUrl = 'http://localhost:5000';
+  private baseUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
   encryptText(id: string, receiverIds: string[], text: string): Observable<{ encryptedText: string, encryptedMessageId: string }> {
-    return this.http.post<{ encryptedText: string ,encryptedMessageId:string}>(`${this.baseUrl}/encrypt/encrypt-text`, {
+    return this.http.post<{ encryptedText: string ,encryptedMessageId:string}>(`${this.baseUrl}/api/users/encrypt-text`, {
       id,
       receiverIds,
       text
@@ -23,7 +24,7 @@ export class EncryptTextService {
   }
 
   decryptText(dataId: string): Observable<{ text: string }> {
-    return this.http.post<{ text: string }>(`${this.baseUrl}/decrypt/decrypt-text`, {
+    return this.http.post<{ text: string }>(`${this.baseUrl}/api/users/decrypt-text`, {
       dataId
     }, {
       headers: { Authorization: `Bearer ${this.token}` }
@@ -37,14 +38,21 @@ export class EncryptTextService {
   }
 
   getSharedByMe(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/sharedData/by-me`, {
+    return this.http.get<any>(`${this.baseUrl}/api/users/shared-by-me`, {
       headers: new HttpHeaders({ Authorization: `Bearer ${this.token}` })
     });
   }
 
   getSharedWithMe(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/sharedData/to-me`, {
+    return this.http.get<any>(`${this.baseUrl}/api/users/shared-to-me`, {
       headers: new HttpHeaders({ Authorization: `Bearer ${this.token}` })
     });
   }
+
+  deleteSharedMessage(messageId: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/api/users/deleteEntry/${messageId}`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${this.token}` })
+    });
+  }
+
 }

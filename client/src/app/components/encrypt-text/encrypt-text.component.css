@@ -1,11 +1,13 @@
 .container {
-  max-width: 1200px;
+  max-width: 1168px;
   margin: 0 auto;
   padding: 20px;
+  height: 80vh;
 }
 
 .encrypt-section {
   background: white;
+  max-width: 1168px;
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -39,7 +41,7 @@ h3 {
 }
 
 .search-input:focus {
-  border-color: #4a90e2;
+  border-color: var(--primary-600);
   outline: none;
 }
 
@@ -142,7 +144,7 @@ textarea:focus {
 
 /* Button Styles */
 .encrypt-btn, .decrypt-btn {
-  background: #4a90e2;
+  background: var(--primary-800);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -154,7 +156,7 @@ textarea:focus {
 }
 
 .encrypt-btn:hover, .decrypt-btn:hover {
-  background: #357abd;
+  background: var(--primary-700);
 }
 
 .encrypt-btn:disabled, .decrypt-btn:disabled {

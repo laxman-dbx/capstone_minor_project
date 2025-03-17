@@ -5,6 +5,7 @@ const Ticket = require('../models/Ticket');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const ActivityLog = require('../models/ActivityLog');
 // Admin Login
 exports.login = async (req, res) => {
   try {
@@ -61,8 +62,16 @@ exports.getDocumentAnalytics = async (req, res) => {
 exports.getSupportTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
-      .populate('userId', 'name email')
+      .populate('user', 'name email')
       .sort({ createdAt: -1 });
+    
+    console.log('Fetched tickets:', tickets.map(t => ({
+      id: t._id,
+      user: t.user,
+      userId: t.userId,
+      issue: t.issue
+    })));
+    
     res.status(200).json(tickets);
   } catch (error) {
     console.error('Error fetching tickets:', error);
@@ -76,7 +85,7 @@ exports.replyToTicket = async (req, res) => {
     const { ticketId } = req.params;
     const { message } = req.body;
 
-    const ticket = await SupportTicket.findById(ticketId);
+    const ticket = await Ticket.findById(ticketId);
     if (!ticket) {
       return res.status(404).json({ message: 'Ticket not found' });
     }
@@ -103,7 +112,7 @@ exports.updateTicketStatus = async (req, res) => {
     const { ticketId } = req.params;
     const { status } = req.body;
 
-    const ticket = await SupportTicket.findByIdAndUpdate(
+    const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       { status, updatedAt: new Date() },
       { new: true }
@@ -120,35 +129,12 @@ exports.updateTicketStatus = async (req, res) => {
   }
 };
 
-exports.verifyUserPii = async (req, res) => {
-  try {
-    const { email, DocType, DocNumber } = req.body;
-
-    // 1. Find the user by email
-    const user = await User.findOne({ email }); // Fix: Use findOne() and await
-    if (!user) {
-      return res.status(404).send({ message: "User not found!" });
-    }
-
-    // 2. Find the document linked to the user
-    const document = await Document.findOne({ userId: user._id, documentType: DocType });
-    console.log(document);
-    if (!document) {
-      return res.status(404).send({ message: "No Document Found in Database" });
-    }
-
-    // 3. Hash the provided DocNumber and compare with stored piiHash
-    console.log(typeof(DocNumber));
-    const piiHash = crypto.createHash('sha256').update(DocNumber).digest('hex');
-    console.log(piiHash,document.piiHash)
-    if (piiHash === document.piiHash) {
-      return res.status(200).send({ message: "User verified Successfully!" });
-    } else {
-      return res.status(401).send({ message: "User is Not Verified!" });
-    }
-
-  } catch (err) {
-    console.error("Error verifying user PII:", err);
+exports.usersLogs=async(req,res)=>{
+  try{
+    const userslog=await ActivityLog.find();
+    res.status(200).json(userslog);
+  }catch(error){
+    console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Server error' });
   }
-};
+}

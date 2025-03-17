@@ -1,16 +1,20 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-guide',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './guide.component.html',
   styleUrls: ['./guide.component.css']
 })
-export class GuideComponent {
+export class GuideComponent implements OnInit {
   @Input() show = false;
   @Output() close = new EventEmitter<void>();
+
+  // Flag to determine if component is used as a standalone page
+  isStandalonePage = false;
 
   currentStep = 1;
   totalSteps = 5;
@@ -43,6 +47,23 @@ export class GuideComponent {
     }
   ];
 
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    // Check if component is being used as a standalone page
+    this.isStandalonePage = this.route.snapshot.url.length > 0;
+    
+    // If it's a standalone page, always show the content
+    if (this.isStandalonePage) {
+      this.show = true;
+    }
+    
+    console.log('Guide component initialized. Standalone mode:', this.isStandalonePage);
+  }
+
   nextStep() {
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
@@ -56,7 +77,24 @@ export class GuideComponent {
   }
 
   closeDialog() {
-    this.close.emit();
-    this.currentStep = 1;
+    // Only emit close event if not in standalone mode
+    if (!this.isStandalonePage) {
+      this.close.emit();
+      this.currentStep = 1;
+    }
+  }
+
+  navigateToHome() {
+    this.router.navigate(['/']);
+  }
+
+  completeGuide() {
+    if (this.isStandalonePage) {
+      // In standalone page mode, navigate to home
+      this.navigateToHome();
+    } else {
+      // In dialog mode, close the dialog
+      this.closeDialog();
+    }
   }
 }

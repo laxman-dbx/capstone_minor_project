@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const crypto = require("crypto");
 const {encrypt_text} = require("../utils/encryption/encrypt-text");
 const {encryptKey} = require("./encryptKey");
+const { logActivity } = require('../utils/activityLogger');
 
 exports.encryptText = async (req, res) => {
     let id = req.userId;
@@ -43,7 +44,23 @@ exports.encryptText = async (req, res) => {
 
             indexShift += cipher_text.length - plain_text.length;
         }
-        let encKey = await encryptKey(hexKey, modifiedText, newIndicesArray, id, receiverIds);        
+        let encKey = await encryptKey(hexKey, modifiedText, newIndicesArray, id, receiverIds);
+
+        // Log the encryption activity
+        await logActivity(
+            id,
+            'encrypt',
+            `Encrypted text shared with ${receiverIds.length - 1} users`,
+            {
+                textId: encKey.encryptedMessage._id,
+                metadata: {
+                    receiverCount: receiverIds.length - 1,
+                    textLength: text.length,
+                    entitiesEncrypted: entityEntries.length
+                }
+            }
+        );
+        
         res.status(200).json({ encryptedText: modifiedText, newIndex: newIndicesArray, encryptedMessageId : encKey.encryptedMessage._id});
         
     } catch (error) {

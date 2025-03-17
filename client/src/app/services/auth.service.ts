@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5000/api/auth'; // Replace with your backend URL
-
+  private apiUrl = `${environment.apiUrl}/api/auth`; 
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.checkLoginStatus());
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
   

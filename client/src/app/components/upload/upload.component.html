@@ -1,11 +1,16 @@
 <div class="upload-wrapper">
+  <div class="page-header">
+    <h1 class="page-title">Document Masking</h1>
+    <p class="page-description">Upload and mask sensitive information in your documents securely</p>
+  </div>
+
   <div class="upload-box">
     <div class="upload">
       <div class="header-box">
         <h4 class="header-content" *ngIf="!isSuccess">SELECT YOUR FILES</h4>
-        <button *ngIf="!isSuccess" class="help-button" (click)="showGuide = true">
-          <i class="fas fa-question-circle"></i> Help
-        </button>
+        <a routerLink="/guide" class="guide-link" *ngIf="!isSuccess">
+          <i class="fas fa-book"></i> View Upload Guide
+        </a>
         <h4 class="header-content" *ngIf="isSuccess">MASKED IMAGE</h4>
       </div>
       
@@ -14,7 +19,7 @@
           <label for="documentType" class="label-dropdown flex items-center">
             Select Document Type:
             <span class="info-button" (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false" (click)="showTooltip = !showTooltip">
-              ⓘ
+              <i class="fas fa-info-circle"></i>
             </span>
             <span class="tooltip" *ngIf="showTooltip">
               <pre>Choose the document type 
@@ -38,8 +43,8 @@ of masking the data.</pre>
         <div class="toggle-container" *ngIf="isLogin">
           <div class="labelForSwitch">
             <label class="toggle-label">Save Masked Document?</label>
-            <span class="info-icon" (mouseenter)="showTooltip2 = true" (mouseleave)="showTooltip2 = false" (click)="showTooltip2 = !showTooltip2">
-              ⓘ
+            <span class="info-icon" (mouseenter)="showTooltip2" (mouseleave)="showTooltip2 = false" (click)="showTooltip2 = !showTooltip2">
+              <i class="fas fa-info-circle"></i>
             </span>
             <span class="tooltip" *ngIf="showTooltip2">
               <pre>We securely store the masked document with AES-256 encryption.</pre>
@@ -54,9 +59,16 @@ of masking the data.</pre>
         
         <div class="file-list" *ngIf="file">
           <div class="file-item">
-            <strong>{{ file.name }}</strong>
-            <span> - {{ file.size }} B</span>
-            <button class="remove-button" (click)="removeFile()">&times;</button>
+            <div class="file-info">
+              <i class="fas fa-file-alt file-icon"></i>
+              <div class="file-details">
+                <strong>{{ file.name }}</strong>
+                <span class="file-size">{{ (file.size / 1024).toFixed(2) }} KB</span>
+              </div>
+            </div>
+            <button class="remove-button" (click)="removeFile()">
+              <i class="fas fa-times"></i>
+            </button>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
                 <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
@@ -66,7 +78,8 @@ of masking the data.</pre>
         </div>
         
         <button class="upload-button" [disabled]="!file || isUploading" (click)="uploadAndFetchMaskedFile()">
-          <span *ngIf="!isUploading">Mask</span>
+          <i class="fas fa-mask" *ngIf="!isUploading"></i>
+          <span *ngIf="!isUploading">Mask Document</span>
           <span *ngIf="isUploading" class="spinner">
             <span class="spinner-inner"></span>
           </span>
@@ -76,9 +89,16 @@ of masking the data.</pre>
       <div class="success-screen" *ngIf="isSuccess">
         <div class="file-list" *ngIf="file">
           <div class="file-item">
-            <strong>{{ file.name }}</strong>
-            <span> - {{ file.size }} B</span>
-            <button class="remove-button" (click)="removeFile()">×</button>
+            <div class="file-info">
+              <i class="fas fa-file-alt file-icon"></i>
+              <div class="file-details">
+                <strong>{{ file.name }}</strong>
+                <span class="file-size">{{ (file.size / 1024).toFixed(2) }} KB</span>
+              </div>
+            </div>
+            <button class="remove-button" (click)="removeFile()">
+              <i class="fas fa-times"></i>
+            </button>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
                 <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
@@ -87,27 +107,24 @@ of masking the data.</pre>
           </div>
         </div>
 
-        <div class="success-icon">✓</div>
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
         <h3>File Masked Successfully!</h3>
         <p>Your file has been processed and is ready for download.</p>
 
         <button class="download-button" (click)="downloadMaskedFile()">
-          <span class="download-icon">↓</span> Download Masked File
+          <i class="fas fa-download"></i> Download Masked File
         </button>
 
         <button class="back-button" (click)="removeFile()">
-          Upload Another File
+          <i class="fas fa-arrow-left"></i> Upload Another File
         </button>
       </div>
 
       <div class="error-message" *ngIf="errorMessage">
-        {{ errorMessage }}
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
       </div>
     </div>
   </div>
-
-  <app-guide
-    [show]="showGuide"
-    (close)="closeGuide()">
-  </app-guide>
 </div>

@@ -1,5 +1,5 @@
 const user = require("../models/User");
-const dataModel = require("../models/data - receiver");
+const dataModel = require("../models/dataReceiver");
 const {PythonShell} = require("python-shell");
 
 

@@ -2,44 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import axios from 'axios';
-
-export interface DocumentTypeCount {
-  _id: string;
-  count: number;
-}
-
-export interface DocumentAnalytics {
-  total: number;
-  byType: DocumentTypeCount[];
-}
-
-export interface DocumentAnalyticsResponse {
-  documents: DocumentAnalytics;
-}
-
-export interface User{
-  email:string,
-  name:string,
-  _id:string
-}
-
-export interface Ticket {
-  _id: string;
-  user: string;
-  issue: string;
-  status: 'open' | 'in-progress' | 'resolved';
-  priority: 'low' | 'medium' | 'high';
-  createdAt: Date,
-  messages :any[],
-  updatedAt:Date,
-  userId:User,
-}
-
+import { FullAnalyticsResponse, ActivityLogsResponse } from '../models/analtics.models';
+import { environment } from '../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
+
 export class AdminService {
-  private apiUrl = 'http://localhost:5000/api/admin';
+  private apiUrl = `${environment.apiUrl}/api/admin`;
   private token = localStorage.getItem('authToken');
 
   constructor(private http: HttpClient) {}
@@ -54,38 +24,41 @@ export class AdminService {
 
   async updateTicketStatus(ticketId: string, status: 'open' | 'in-progress' | 'resolved') {
     return firstValueFrom(
-      this.http.put<{ success: boolean }>(`${this.apiUrl}/tickets/${ticketId}`, { status }, {
+      this.http.put<{ success: boolean }>(`${this.apiUrl}/tickets/${ticketId}/status`,{status},{
         headers: { Authorization: `Bearer ${this.token}` }
       })
     );
   }
 
-  async getDocumentAnalytics(): Promise<DocumentAnalyticsResponse> {
+
+  async getFullAnalytics(): Promise<FullAnalyticsResponse> {
     return firstValueFrom(
-      this.http.get<DocumentAnalyticsResponse>(`${this.apiUrl}/analytics/documents`, {
+      this.http.get<FullAnalyticsResponse>(`${environment.apiUrl}/api/analytics/admin/analytics/full`, {
         headers: { Authorization: `Bearer ${this.token}` }
       })
     );
   }
 
-  async verifyUserPii(email: string, DocType: string, DocNumber: string) {
+  async getActivityLogs(page: number = 1, limit: number = 20, userId?: string): Promise<ActivityLogsResponse> {
+    let url = `${environment.apiUrl}/api/analytics/admin/analytics/activity-logs?page=${page}&limit=${limit}`;
+    
+    if (userId) {
+      url += `&email=${userId}`;
+    }
+    
     return firstValueFrom(
-      this.http.post(`${this.apiUrl}/verifyUserPii`, { email, DocType, DocNumber }, {
+      this.http.get<ActivityLogsResponse>(url, {
         headers: { Authorization: `Bearer ${this.token}` }
       })
     );
   }
-
-
-
-  //admin-auth
 
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.checkLoginStatus());
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
   
 
 
-  // Signin Method
+  // Admin Signin Method
   async signIn(credentials: { email: string; password: string }) {
     try {
       const response = await axios.post(`${this.apiUrl}/signin`, credentials);

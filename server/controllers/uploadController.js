@@ -1,10 +1,10 @@
-
 const { s3 } = require('../config/aws');
 const fs = require('fs');
 const maskImagePII = require('../utils/Imagehandlers/processDocument');
 const pdfToJpgConverter = require('../utils/PdfHandlers/pdftojpg');
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const Document = require('../models/Document');
+const { logActivity } = require('../utils/activityLogger');
 
 const uploadDocument = async (req, res) => {
     try {
@@ -83,6 +83,21 @@ const uploadDocument = async (req, res) => {
                     piiHash
                 });
                 await newDocument.save();
+
+                // Log the upload activity
+                await logActivity(
+                    req.userId,
+                    'upload',
+                    `Uploaded and masked ${documentType} document: ${req.file.originalname}`,
+                    {
+                        documentId: newDocument._id,
+                        metadata: {
+                            documentType,
+                            originalName: req.file.originalname,
+                            fileSize: req.file.size
+                        }
+                    }
+                );
 
                 // Cleanup files
                 cleanup([filePath, processedFilePath, maskedFilePath]);

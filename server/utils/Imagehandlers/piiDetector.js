@@ -1,4 +1,4 @@
-const { createWorker } = require('tesseract.js');
+const { createWorker } = require("tesseract.js");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 class PiiDetector {
@@ -24,17 +24,17 @@ class PiiDetector {
     try {
       // Get PII from pattern matching
       const patternPII = this.isPotentialPII(text);
-      
+
       // Get PII from Gemini API
       const geminiResults = await this.detectPIIWithGemini(text);
-      
+
       // Combine all results
       return {
         patterns: patternPII || {},
-        gemini: geminiResults || []
+        gemini: geminiResults || [],
       };
     } catch (error) {
-      console.error('Error in detectPII:', error);
+      console.error("Error in detectPII:", error);
       return { patterns: {}, gemini: [] };
     }
   }
@@ -42,10 +42,11 @@ class PiiDetector {
   async detectPIIWithGemini(text) {
     const geminiModel = this.googleAI.getGenerativeModel({
       model: "gemini-2.0-flash",
-      systemInstruction: "You are a PII detection assistant. Your job is to identify all personally identifiable information in text.",
+      systemInstruction:
+        "You are a PII detection assistant. Your job is to identify all personally identifiable information in text.",
       ...this.geminiConfig,
     });
-     
+
     try {
       const prompt = `Analyze the following text and identify all instances of Personally Identifiable Information (PII). 
 
@@ -78,29 +79,32 @@ Example JSON Output (if PII is found):
 ]
 
 Example JSON Output (if no PII is found):`;
-      
+
       const result = await geminiModel.generateContent(prompt);
       const response = result.response;
       const responseText = response.text();
-      
+
       console.log("Gemini response:", responseText);
-      
+
       // Try to parse JSON from the response
       try {
         // Extract JSON if it's wrapped in code blocks or other text
-        const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
-                          responseText.match(/```\n([\s\S]*?)\n```/) ||
-                          responseText.match(/\[[\s\S]*\]/);
-                          
+        const jsonMatch =
+          responseText.match(/```json\n([\s\S]*?)\n```/) ||
+          responseText.match(/```\n([\s\S]*?)\n```/) ||
+          responseText.match(/\[[\s\S]*\]/);
+
         const jsonStr = jsonMatch ? jsonMatch[1] || jsonMatch[0] : responseText;
         console.log(JSON.parse(jsonStr));
         return JSON.parse(jsonStr);
       } catch (jsonError) {
         console.log("Failed to parse JSON from Gemini response:", jsonError);
-        return [{
-          type: "gemini_raw_response",
-          text: responseText
-        }];
+        return [
+          {
+            type: "gemini_raw_response",
+            text: responseText,
+          },
+        ];
       }
     } catch (error) {
       console.log("Gemini API error:", error);
@@ -120,7 +124,7 @@ Example JSON Output (if no PII is found):`;
       dateOfBirth: /\b(0[1-9]|[12]\d|3[01])[-/](0[1-9]|1[012])[-/]\d{4}\b/,
       pincode: /\b\d{6}\b/,
       bankAccount: /\b\d{9,18}\b/,
-      ifsc: /[A-Z]{4}[0-9]{7}/
+      ifsc: /[A-Z]{4}[0-9]{7}/,
     };
 
     const detectedPII = {};
@@ -128,9 +132,9 @@ Example JSON Output (if no PII is found):`;
       const matches = text.match(pattern);
       if (matches) {
         // Store all matches with their positions
-        detectedPII[type] = matches.map(match => ({
+        detectedPII[type] = matches.map((match) => ({
           value: match,
-          position: text.indexOf(match)
+          position: text.indexOf(match),
         }));
       }
     }
@@ -148,11 +152,11 @@ Example JSON Output (if no PII is found):`;
       if (data && data.text) {
         const fullText = data.text;
         console.log("Extracted text from image:", fullText);
-        
+
         // Process the full text to get all PII
         const piiResults = await this.detectPII(fullText);
-        console.log("Pii Res",piiResults);
-        
+        console.log("Pii Res", piiResults);
+
         // Process individual words with pattern matching
         if (data.words && Array.isArray(data.words)) {
           for (const word of data.words) {
@@ -172,40 +176,42 @@ Example JSON Output (if no PII is found):`;
                       Width: Math.abs(word.bbox.x1 - word.bbox.x0),
                       Height: Math.abs(word.bbox.y1 - word.bbox.y0),
                     },
-                    source: "pattern"
+                    source: "pattern",
                   });
                 }
               }
             }
           }
         }
-        
+
         // Add Gemini results
         if (piiResults.gemini && Array.isArray(piiResults.gemini)) {
           for (const geminiEntity of piiResults.gemini) {
-            console.log("Entity",geminiEntity);
+            console.log("Entity", geminiEntity);
             // Skip if this is just the raw response
             if (geminiEntity.type === "gemini_raw_response") continue;
-            
+
             const entityText = geminiEntity.text;
             if (!entityText) continue;
-            
+
             const startIndex = fullText.indexOf(entityText);
             if (startIndex !== -1) {
               const endIndex = startIndex + entityText.length;
-              
-              console.log(startIndex,endIndex)
+
+              console.log(startIndex, endIndex);
               // Find words that overlap with this entity
-              const matchingWords = data.words.filter(word => {
+              const matchingWords = data.words.filter((word) => {
                 if (!word.text) return false;
                 const wordStartIndex = fullText.indexOf(word.text);
-                return wordStartIndex >= startIndex && wordStartIndex < endIndex;
+                return (
+                  wordStartIndex >= startIndex && wordStartIndex < endIndex
+                );
               });
               if (matchingWords.length > 0) {
                 const firstWord = matchingWords[0];
                 const lastWord = matchingWords[matchingWords.length - 1];
-                console.log("first",firstWord.bbox);
-                console.log("last",lastWord.bbox);
+                console.log("first", firstWord.bbox);
+                console.log("last", lastWord.bbox);
                 piiLocations.push({
                   pattern: geminiEntity.category || geminiEntity.type,
                   text: entityText,
@@ -214,9 +220,11 @@ Example JSON Output (if no PII is found):`;
                     Left: firstWord.bbox.x0,
                     Top: firstWord.bbox.y0,
                     Width: Math.abs(lastWord.bbox.x1 - firstWord.bbox.x0),
-                    Height: Math.max(...matchingWords.map(w => w.bbox.y1)) - firstWord.bbox.y0,
+                    Height:
+                      Math.max(...matchingWords.map((w) => w.bbox.y1)) -
+                      firstWord.bbox.y0,
                   },
-                  source: "gemini"
+                  source: "gemini",
                 });
               }
             }
@@ -228,42 +236,52 @@ Example JSON Output (if no PII is found):`;
       // Remove duplicates by checking for overlapping locations
       return piiLocations;
     } catch (error) {
-      console.error('Error in PII detection:', error);
+      console.error("Error in PII detection:", error);
       throw error;
     }
   }
-  
+
   removeDuplicateLocations(locations) {
-    const uniqueLocations =[];
-    
+    const uniqueLocations = [];
+
     for (const location of locations) {
       // Check if this location significantly overlaps with any existing ones
-      const isOverlapping = uniqueLocations.some(existing => {
+      const isOverlapping = uniqueLocations.some((existing) => {
         const existingRect = existing.location;
         const currentRect = location.location;
-        
+
         // Calculate overlap
-        const xOverlap = Math.max(0, Math.min(existingRect.left + existingRect.width, 
-                                            currentRect.left + currentRect.width) - 
-                                Math.max(existingRect.left, currentRect.left));
-                                
-        const yOverlap = Math.max(0, Math.min(existingRect.top + existingRect.height, 
-                                            currentRect.top + currentRect.height) - 
-                                Math.max(existingRect.top, currentRect.top));
-                                
+        const xOverlap = Math.max(
+          0,
+          Math.min(
+            existingRect.left + existingRect.width,
+            currentRect.left + currentRect.width,
+          ) - Math.max(existingRect.left, currentRect.left),
+        );
+
+        const yOverlap = Math.max(
+          0,
+          Math.min(
+            existingRect.top + existingRect.height,
+            currentRect.top + currentRect.height,
+          ) - Math.max(existingRect.top, currentRect.top),
+        );
+
         const overlapArea = xOverlap * yOverlap;
-        const smallerArea = Math.min(existingRect.width * existingRect.height, 
-                                    currentRect.width * currentRect.height);
-                                    
+        const smallerArea = Math.min(
+          existingRect.width * existingRect.height,
+          currentRect.width * currentRect.height,
+        );
+
         // If overlap is more than 50% of the smaller rectangle, consider it a duplicate
         return overlapArea > 0.5 * smallerArea;
       });
-      
+
       if (!isOverlapping) {
         uniqueLocations.push(location);
       }
     }
-    
+
     return uniqueLocations;
   }
 
@@ -276,4 +294,3 @@ Example JSON Output (if no PII is found):`;
 }
 
 module.exports = new PiiDetector();
-

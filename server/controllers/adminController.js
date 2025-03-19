@@ -1,29 +1,29 @@
-const Admin = require('../models/Admin');
-const Document = require('../models/Document');
-const Ticket = require('../models/Ticket');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const ActivityLog = require('../models/ActivityLog');
+const Admin = require("../models/Admin");
+const Document = require("../models/Document");
+const Ticket = require("../models/Ticket");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const ActivityLog = require("../models/ActivityLog");
 // Admin Login
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    const admin = await Admin.findOne({email});
+
+    const admin = await Admin.findOne({ email });
     if (!admin) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-    const hashedPassword=admin.password;
+    const hashedPassword = admin.password;
     const isMatch = await bcrypt.compare(password, hashedPassword);
-    console.log("1",hashedPassword);
+    console.log("1", hashedPassword);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(
-      { id: admin._id, role: 'admin' },
+      { id: admin._id, role: "admin" },
       process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: "1d" },
     );
 
     res.json({
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -41,40 +41,42 @@ exports.getDocumentAnalytics = async (req, res) => {
     // Document statistics
     const totalDocuments = await Document.countDocuments();
     const documentTypes = await Document.aggregate([
-      { $group: { _id: '$documentType', count: { $sum: 1 } } }
+      { $group: { _id: "$documentType", count: { $sum: 1 } } },
     ]);
 
     res.json({
       documents: {
         total: totalDocuments,
-        byType: documentTypes
-      }
+        byType: documentTypes,
+      },
     });
   } catch (error) {
-    console.error('Error fetching document analytics:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching document analytics:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
-
 
 // Get Support Tickets
 exports.getSupportTickets = async (req, res) => {
   try {
     const tickets = await Ticket.find()
-      .populate('user', 'name email')
+      .populate("user", "name email")
       .sort({ createdAt: -1 });
-    
-    console.log('Fetched tickets:', tickets.map(t => ({
-      id: t._id,
-      user: t.user,
-      userId: t.userId,
-      issue: t.issue
-    })));
-    
+
+    console.log(
+      "Fetched tickets:",
+      tickets.map((t) => ({
+        id: t._id,
+        user: t.user,
+        userId: t.userId,
+        issue: t.issue,
+      })),
+    );
+
     res.status(200).json(tickets);
   } catch (error) {
-    console.error('Error fetching tickets:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching tickets:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -86,22 +88,22 @@ exports.replyToTicket = async (req, res) => {
 
     const ticket = await Ticket.findById(ticketId);
     if (!ticket) {
-      return res.status(404).json({ message: 'Ticket not found' });
+      return res.status(404).json({ message: "Ticket not found" });
     }
 
     ticket.messages.push({
-      sender: 'admin',
+      sender: "admin",
       message,
-      timestamp: new Date()
+      timestamp: new Date(),
     });
-    ticket.status = 'in-progress';
+    ticket.status = "in-progress";
     ticket.updatedAt = new Date();
 
     await ticket.save();
     res.status(200).json(ticket);
   } catch (error) {
-    console.error('Error replying to ticket:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error replying to ticket:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -114,26 +116,26 @@ exports.updateTicketStatus = async (req, res) => {
     const ticket = await Ticket.findByIdAndUpdate(
       ticketId,
       { status, updatedAt: new Date() },
-      { new: true }
+      { new: true },
     );
 
     if (!ticket) {
-      return res.status(404).json({ message: 'Ticket not found' });
+      return res.status(404).json({ message: "Ticket not found" });
     }
 
     res.status(200).json(ticket);
   } catch (error) {
-    console.error('Error updating ticket status:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating ticket status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-exports.usersLogs=async(req,res)=>{
-  try{
-    const userslog=await ActivityLog.find();
+exports.usersLogs = async (req, res) => {
+  try {
+    const userslog = await ActivityLog.find();
     res.status(200).json(userslog);
-  }catch(error){
-    console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Server error' });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Server error" });
   }
-}
+};

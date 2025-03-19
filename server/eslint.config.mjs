@@ -10,8 +10,8 @@ export default [
       sourceType: "commonjs",
       globals: {
         ...globals.node,
-        ...globals.express
-      }
+        ...globals.express,
+      },
     },
     rules: {
       // Error prevention
@@ -20,26 +20,24 @@ export default [
       "no-undef": "error",
       "no-var": "error",
       "prefer-const": "warn",
-      
+
       // Best practices
-      "eqeqeq": ["error", "always"],
+      eqeqeq: ["error", "always"],
       "no-throw-literal": "error",
       "handle-callback-err": "error",
-      
-      
+
       // Node.js specific
       "global-require": "error",
-      
+
       // ES6+ features
       "no-duplicate-imports": "error",
       "no-useless-constructor": "error",
-      
+
       // Error handling
       "no-await-in-loop": "warn",
       "require-await": "error",
       "no-return-await": "error",
-      
-    }
+    },
   },
-  pluginJs.configs.recommended
+  pluginJs.configs.recommended,
 ];

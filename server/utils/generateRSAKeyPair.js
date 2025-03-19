@@ -16,7 +16,7 @@ const generateRSAKeyPair = () => {
         } else {
           resolve({ publicKey, privateKey });
         }
-      }
+      },
     );
   });
 };

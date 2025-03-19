@@ -1,8 +1,8 @@
-const Document = require('../models/Document');
-const mongoose = require('mongoose');
+const Document = require("../models/Document");
+const mongoose = require("mongoose");
 const User = require("../models/User");
-const dataModel = require('../models/dataReceiver');
-const ActivityLog = require('../models/ActivityLog');
+const dataModel = require("../models/dataReceiver");
+const ActivityLog = require("../models/ActivityLog");
 
 /**
  * @desc    Get document usage metrics for the current user
@@ -20,7 +20,7 @@ exports.getDocumentMetrics = async (req, res) => {
   // Get documents uploaded this month
   const documentsThisMonth = await Document.countDocuments({
     userId,
-    uploadedAt: { $gte: currentMonthStart }
+    uploadedAt: { $gte: currentMonthStart },
   });
 
   // Get document uploads per month (12 values for current year)
@@ -30,45 +30,45 @@ exports.getDocumentMetrics = async (req, res) => {
         userId: new mongoose.Types.ObjectId(userId),
         uploadedAt: {
           $gte: new Date(currentYear, 0, 1), // Start of the current year
-          $lt: new Date(currentYear + 1, 0, 1) // Start of next year
-        }
-      }
+          $lt: new Date(currentYear + 1, 0, 1), // Start of next year
+        },
+      },
     },
     {
       $group: {
         _id: { month: { $month: "$uploadedAt" } },
-        count: { $sum: 1 }
-      }
-    }
+        count: { $sum: 1 },
+      },
+    },
   ]);
   console.log(documentUploadsPerMonth);
   // Convert aggregation result to a 12-element array with 0s where necessary
   const documentDate = Array(12).fill(0);
-  documentUploadsPerMonth.forEach(doc => {
+  documentUploadsPerMonth.forEach((doc) => {
     documentDate[doc._id.month - 1] = doc.count; // Months are 1-based, so subtract 1 for zero-based index
   });
-console.log(documentDate);
+  console.log(documentDate);
   // Get document type distribution
   const documentTypes = await Document.aggregate([
     { $match: { userId: new mongoose.Types.ObjectId(userId) } },
-    { $group: { _id: "$documentType", count: { $sum: 1 } } }
+    { $group: { _id: "$documentType", count: { $sum: 1 } } },
   ]);
 
   const documentsProcessed = {
     adhaar: 0,
     pan: 0,
     driving_license: 0,
-    other: 0
+    other: 0,
   };
 
-  documentTypes.forEach(doc => {
+  documentTypes.forEach((doc) => {
     documentsProcessed[doc._id] = doc.count || 0;
   });
 
   // Placeholder values for saved vs direct downloads (Assuming these are tracked in another way)
   const savedVsDirectDownloads = {
     saved: 0, // This should be fetched from relevant tracking data
-    directDownloads: 0 // This should be fetched from relevant tracking data
+    directDownloads: 0, // This should be fetched from relevant tracking data
   };
 
   // Placeholder for total storage used (assuming document sizes are tracked elsewhere)
@@ -80,11 +80,9 @@ console.log(documentDate);
     documentDate, // Now correctly represents 12 months
     documentsProcessed,
     savedVsDirectDownloads,
-    totalStorageUsed
+    totalStorageUsed,
   });
 };
-
-
 
 /**
  * @desc    Get admin analytics data for documents
@@ -98,21 +96,21 @@ exports.getAdminAnalytics = async (req, res) => {
 
     // Get document type distribution
     const documentTypes = await Document.aggregate([
-      { $group: { _id: "$documentType", count: { $sum: 1 } } }
+      { $group: { _id: "$documentType", count: { $sum: 1 } } },
     ]);
 
     // Format the response to match the expected client format
     const response = {
       documents: {
         total: totalDocuments,
-        byType: documentTypes
-      }
+        byType: documentTypes,
+      },
     };
 
     res.status(200).json(response);
   } catch (error) {
-    console.error('Error in getAdminAnalytics:', error);
-    res.status(500).json({ message: 'Server error while fetching analytics' });
+    console.error("Error in getAdminAnalytics:", error);
+    res.status(500).json({ message: "Server error while fetching analytics" });
   }
 };
 
@@ -124,86 +122,86 @@ exports.getAdminAnalytics = async (req, res) => {
 exports.getFullAdminAnalytics = async (req, res) => {
   // Total users
   const totalUsers = await User.countDocuments();
-  
+
   // Total documents
   const totalDocuments = await Document.countDocuments();
-  
+
   // Total masked documents (count where maskedFileName is not null)
   const maskedDocuments = await Document.countDocuments();
-  
+
   // Total shared texts
   const sharedTexts = await dataModel.countDocuments();
-  
+
   // Total encrypted texts
   const encryptedTexts = await dataModel.countDocuments();
-  
+
   // User growth (last 6 months)
   const sixMonthsAgo = new Date();
   sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  
+
   const userGrowth = await User.aggregate([
     {
       $match: {
-        createdAt: { $gte: sixMonthsAgo }
-      }
+        createdAt: { $gte: sixMonthsAgo },
+      },
     },
     {
       $group: {
-        _id: { 
-          month: { $month: "$createdAt" }, 
-          year: { $year: "$createdAt" } 
+        _id: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
         },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
-    { $sort: { "_id.year": 1, "_id.month": 1 } }
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
-  
+
   // Document uploads (last 6 months)
   const documentUploads = await Document.aggregate([
     {
       $match: {
-        createdAt: { $gte: sixMonthsAgo }
-      }
+        createdAt: { $gte: sixMonthsAgo },
+      },
     },
     {
       $group: {
-        _id: { 
-          month: { $month: "$createdAt" }, 
-          year: { $year: "$createdAt" } 
+        _id: {
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
         },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
-    { $sort: { "_id.year": 1, "_id.month": 1 } }
+    { $sort: { "_id.year": 1, "_id.month": 1 } },
   ]);
 
   // Document type distribution
   const documentTypes = await Document.aggregate([
-    { $group: { _id: "$documentType", count: { $sum: 1 } } }
+    { $group: { _id: "$documentType", count: { $sum: 1 } } },
   ]);
 
   // Daily document uploads (last 30 days)
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-  
+
   const dailyDocumentUploads = await Document.aggregate([
     {
       $match: {
-        createdAt: { $gte: thirtyDaysAgo }
-      }
+        createdAt: { $gte: thirtyDaysAgo },
+      },
     },
     {
       $group: {
-        _id: { 
+        _id: {
           day: { $dayOfMonth: "$createdAt" },
-          month: { $month: "$createdAt" }, 
-          year: { $year: "$createdAt" } 
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
         },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
-    { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }
+    { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
   ]);
 
   // User activity by hour of day
@@ -211,16 +209,16 @@ exports.getFullAdminAnalytics = async (req, res) => {
     {
       $group: {
         _id: { hour: { $hour: "$createdAt" } },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
-    { $sort: { "_id.hour": 1 } }
+    { $sort: { "_id.hour": 1 } },
   ]);
 
   // Masked vs Unmasked documents ratio
   const maskedVsUnmaskedRatio = {
     masked: maskedDocuments,
-    unmasked: totalDocuments - maskedDocuments
+    unmasked: totalDocuments - maskedDocuments,
   };
 
   // Top active users (users with most documents)
@@ -228,8 +226,8 @@ exports.getFullAdminAnalytics = async (req, res) => {
     {
       $group: {
         _id: "$userId",
-        documentCount: { $sum: 1 }
-      }
+        documentCount: { $sum: 1 },
+      },
     },
     { $sort: { documentCount: -1 } },
     { $limit: 5 },
@@ -238,24 +236,24 @@ exports.getFullAdminAnalytics = async (req, res) => {
         from: "users",
         localField: "_id",
         foreignField: "_id",
-        as: "userDetails"
-      }
+        as: "userDetails",
+      },
     },
     {
       $project: {
         _id: 1,
         documentCount: 1,
-        user: { $arrayElemAt: ["$userDetails", 0] }
-      }
+        user: { $arrayElemAt: ["$userDetails", 0] },
+      },
     },
     {
       $project: {
         _id: 1,
         documentCount: 1,
         "user.name": 1,
-        "user.email": 1
-      }
-    }
+        "user.email": 1,
+      },
+    },
   ]);
 
   res.status(200).json({
@@ -270,7 +268,7 @@ exports.getFullAdminAnalytics = async (req, res) => {
     dailyDocumentUploads,
     userActivityByHour,
     maskedVsUnmaskedRatio,
-    topActiveUsers
+    topActiveUsers,
   });
 };
 
@@ -284,31 +282,33 @@ exports.getUserActivityLogs = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
-  
+
   try {
     // Get total count for pagination
     const totalLogs = await ActivityLog.countDocuments({ userId });
-    
+
     // Get activity logs with pagination
     const activityLogs = await ActivityLog.find({ userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('documentId', 'originalName documentType')
-      .populate('textId');
-    
+      .populate("documentId", "originalName documentType")
+      .populate("textId");
+
     res.status(200).json({
       activityLogs,
       pagination: {
         totalLogs,
         totalPages: Math.ceil(totalLogs / limit),
         currentPage: page,
-        hasMore: page < Math.ceil(totalLogs / limit)
-      }
+        hasMore: page < Math.ceil(totalLogs / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching activity logs:', error);
-    res.status(500).json({ message: 'Server error while fetching activity logs' });
+    console.error("Error fetching activity logs:", error);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching activity logs" });
   }
 };
 
@@ -322,27 +322,27 @@ exports.getAdminActivityLogs = async (req, res) => {
   const limit = parseInt(req.query.limit) || 20;
   const skip = (page - 1) * limit;
   const email = req.query.email; // Optional filter by user
-  
+
   try {
     let userId;
     // Build query
-    if(email){
-      const user= await User.find({email}).select('_id');
-      userId=user[0]._id;
+    if (email) {
+      const user = await User.find({ email }).select("_id");
+      userId = user[0]._id;
     }
-    
+
     const query = userId ? { userId } : {};
     // Get total count for pagination
     const totalLogs = await ActivityLog.countDocuments(query);
-    
+
     // Get activity logs with pagination
     const activityLogs = await ActivityLog.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('userId', 'name email')
-      .populate('documentId', 'originalName documentType')
-      .populate('textId');
+      .populate("userId", "name email")
+      .populate("documentId", "originalName documentType")
+      .populate("textId");
     console.log(activityLogs);
     res.status(200).json({
       activityLogs,
@@ -350,11 +350,13 @@ exports.getAdminActivityLogs = async (req, res) => {
         totalLogs,
         totalPages: Math.ceil(totalLogs / limit),
         currentPage: page,
-        hasMore: page < Math.ceil(totalLogs / limit)
-      }
+        hasMore: page < Math.ceil(totalLogs / limit),
+      },
     });
   } catch (error) {
-    console.error('Error fetching admin activity logs:', error);
-    res.status(500).json({ message: 'Server error while fetching activity logs' });
+    console.error("Error fetching admin activity logs:", error);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching activity logs" });
   }
 };

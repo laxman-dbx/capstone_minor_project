@@ -1,4 +1,4 @@
-const ActivityLog = require('../models/ActivityLog');
+const ActivityLog = require("../models/ActivityLog");
 
 /**
  * Log user activity
@@ -14,23 +14,23 @@ const ActivityLog = require('../models/ActivityLog');
 const logActivity = async (userId, type, text, options = {}) => {
   try {
     const { documentId, textId, metadata } = options;
-    
+
     const activityLog = new ActivityLog({
       userId,
       type,
       text,
       documentId,
       textId,
-      metadata
+      metadata,
     });
-    
+
     await activityLog.save();
     return activityLog;
   } catch (error) {
-    console.error('Error logging activity:', error);
+    console.error("Error logging activity:", error);
     // Don't throw the error to prevent disrupting the main flow
     return null;
   }
 };
 
-module.exports = { logActivity }; 
+module.exports = { logActivity };

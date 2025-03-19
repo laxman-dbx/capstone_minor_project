@@ -8,50 +8,47 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     phone: { type: String },
     profileImage: { type: String },
-    publicKey:{type:String},
-    privateKey:{type:String, select: false}
-    
+    publicKey: { type: String },
+    privateKey: { type: String, select: false },
   },
 
-  { timestamps: true }
+  { timestamps: true },
 );
-
 
 userSchema.pre("save", function (next) {
   userSchema.methods.generateRsaKeys = function () {
-    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
       modulusLength: 2048,
       publicKeyEncoding: {
-        type: 'spki',
-        format: 'pem',
+        type: "spki",
+        format: "pem",
       },
       privateKeyEncoding: {
-        type: 'pkcs8',
-        format: 'pem',
+        type: "pkcs8",
+        format: "pem",
       },
     });
-  
-    this.publicKey = publicKey;   
+
+    this.publicKey = publicKey;
     this.privateKey = privateKey;
   };
-
 
   if (!this.isModified("privateKey") || !this.privateKey) return next();
 
   const encryptionKey = process.env.PRIVATE_KEY_ENCRYPTION_KEY;
   if (!encryptionKey) throw new Error("Missing encryption key");
 
-  const iv = crypto.randomBytes(16); 
+  const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     "aes-256-cbc",
     Buffer.from(encryptionKey, "hex"),
-    iv
+    iv,
   );
 
   let encrypted = cipher.update(this.privateKey, "utf8", "hex");
   encrypted += cipher.final("hex");
 
-  this.privateKey = iv.toString("hex") + encrypted; 
+  this.privateKey = iv.toString("hex") + encrypted;
   next();
 });
 
@@ -67,7 +64,7 @@ userSchema.methods.getDecryptedPrivateKey = function () {
   const decipher = crypto.createDecipheriv(
     "aes-256-cbc",
     Buffer.from(encryptionKey, "hex"),
-    iv
+    iv,
   );
 
   let decrypted = decipher.update(encryptedData, "hex", "utf8");

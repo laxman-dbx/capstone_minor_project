@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 module.exports = (socket, next) => {
   const token = socket.handshake.auth.token;
-  
+
   if (!token) {
-    return next(new Error('Authentication error'));
+    return next(new Error("Authentication error"));
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -12,6 +12,6 @@ module.exports = (socket, next) => {
     next();
   } catch (err) {
     console.error(err);
-    next(new Error('Authentication error'));
+    next(new Error("Authentication error"));
   }
 };

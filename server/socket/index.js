@@ -1,10 +1,9 @@
 const socketAuth = require('../middlewares/socketAuth');
 const Ticket = require('../models/Ticket');
-const debug = require('debug')('app:socket');
 
 module.exports = (io) => {
   // Add CORS configuration to Socket.io
-  io.engine.on("headers", (headers, req) => {
+  io.engine.on("headers", (headers) => {
     headers["Access-Control-Allow-Origin"] = "*";
     headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization";
     headers["Access-Control-Allow-Credentials"] = true;
@@ -142,7 +141,7 @@ module.exports = (io) => {
     });
 
     // Handle leaving specific ticket rooms
-    socket.on('leaveTicketRoom', async (data, callback) => {
+    socket.on('leaveTicketRoom', (data, callback) => {
       try {
         const ticketId = data.ticketId;
         if (!ticketId) {

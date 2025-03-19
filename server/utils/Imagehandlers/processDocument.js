@@ -1,7 +1,5 @@
 const sharp = require('sharp');
 const path = require('path');
-const fs = require('fs').promises;
-const extractTextAndPII = require('./extractText'); 
 const qrHandler = require('./QRdetect/qrHandler'); 
 const extractDataPii = require('./extractDataPii');
 const adhaarHandler = require('./AdhaarPII/aadharHandler');
@@ -51,31 +49,27 @@ async function maskImagePII(imagePath, maskedUploadDir,documentType) {
         const {data}=await worker.recognize(imagePath);
         console.log(data.text);
         const startTime=Date.now();
-        let metadata,piiLocations,qrLocations;
+        let piiLocations,qrLocations;
         if(documentType==='adhaar'){
-            [metadata, piiLocations, qrLocations] = await Promise.all([
-                sharp(imagePath).metadata(),
+            [ piiLocations, qrLocations] = await Promise.all([
                 adhaarHandler(imagePath),
                 qrHandler(imagePath)
             ]);
         }
         else if(documentType==='driving_license'){
-            [metadata, piiLocations] = await Promise.all([
-                sharp(imagePath).metadata(),
+            [ piiLocations] = await Promise.all([
                 DrivingLicenseHandler(imagePath),
             ]);
         }
         else if(documentType==='pan'){
-            [metadata, piiLocations, qrLocations] = await Promise.all([
-                sharp(imagePath).metadata(),
+            [ piiLocations, qrLocations] = await Promise.all([
                 PANHandler(imagePath),
                 qrHandler(imagePath)
             ]);
         }
         else{
             // Run metadata extraction and PII/QR detection in parallel
-            [metadata, piiLocations, qrLocations] = await Promise.all([
-                sharp(imagePath).metadata(),
+            [ piiLocations, qrLocations] = await Promise.all([
                 extractDataPii(imagePath),
                 qrHandler(imagePath)
             ]);
@@ -113,9 +107,10 @@ async function maskImagePII(imagePath, maskedUploadDir,documentType) {
         //dl_no
         //panCard
 
+        let piiHash='';
         if (allSensitiveLocations.length > 0) {
 
-            let piiHash='';
+            
             if(documentType==='adhaar'){
                 const piiLoc = allSensitiveLocations.find(loc => loc.pattern === 'AadharNumber');
                 piiHash=await extractAndHashAadharNumber(imagePath, piiLoc)

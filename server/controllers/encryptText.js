@@ -1,6 +1,5 @@
 const detectPii = require("./detectPii")
 const user = require("../models/User");
-const mongoose = require("mongoose");
 const crypto = require("crypto");
 const {encrypt_text} = require("../utils/encryption/encrypt-text");
 const {encryptKey} = require("./encryptKey");

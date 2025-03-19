@@ -1,5 +1,4 @@
 const EncryptedMessages = require("../models/dataReceiver");
-const { encryptText } = require("./encryptText");
 
 exports.sharedToMe = async (req, res) => {
     const userId = req.userId;

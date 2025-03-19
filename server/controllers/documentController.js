@@ -55,7 +55,7 @@ const downloadDocument = async (req, res) => {
         res.attachment(document.originalName); 
         Body.pipe(res);
     } catch (err) {
-        res.status(500).json({ error: "File not found" });
+        res.status(500).json({ error: "File not found" ,err:err.message});
     }
 };
 

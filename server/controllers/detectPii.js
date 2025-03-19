@@ -3,7 +3,7 @@ const { PythonShell } = require('python-shell');
 
 async function detectPii(text) {
     if (!text) {
-        return res.status(400).json({ error: "Text parameter is required" });
+        return JSON.parse("Text parameter is required");
     }
 
     let options = {
@@ -15,7 +15,7 @@ async function detectPii(text) {
 
     try {
         let result = await PythonShell.run('model.py', options);
-        if (result[0]=="No entities detected.") { 
+        if (result[0]==="No entities detected.") { 
              return { success : false, error: "Text contains no PII data" };
         } else {
             const cleanedString = result[0]

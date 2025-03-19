@@ -72,7 +72,7 @@ const uploadDocument = async (req, res) => {
                 };
 
                 const command = new PutObjectCommand(uploadParams);
-                const result = await s3.send(command);
+                await s3.send(command);
 
                 // Save document info in database
                 const newDocument = new Document({

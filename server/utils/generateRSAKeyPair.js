@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 
-const generateRSAKeyPair = async () => {
+const generateRSAKeyPair = () => {
   return new Promise((resolve, reject) => {
     crypto.generateKeyPair(
       "rsa",

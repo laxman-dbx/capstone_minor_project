@@ -12,7 +12,7 @@ exports.getUserProfile = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" ,err:error.message});
   }
 };
 
@@ -29,7 +29,7 @@ exports.updateUserProfile = async (req, res) => {
 
     res.json(updatedUser);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" ,err:error.message});
   }
 };
 
@@ -73,12 +73,6 @@ exports.updateProfileImage = async (req, res) => {
 
     const profileImageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 
-    // Update user profile image URL in database
-    const updatedUser = await User.findByIdAndUpdate(
-      req.userId,
-      { profileImage: profileImageUrl },
-      { new: true }
-    ).select("-password");
 
     // Remove local file after upload
     fs.unlink(filePath, (err) => {
@@ -101,7 +95,7 @@ exports.deleteUserAccount = async (req, res) => {
     await User.findByIdAndDelete(req.userId);
     res.json({ message: "Account deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -118,7 +112,7 @@ exports.changePassword = async (req, res) => {
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Internal Server Error" ,err:error.message});
   }
 };
 
@@ -135,7 +129,7 @@ exports.getUsers=async(req, res) => {
     }
     res.status(200).json(users);
 } catch (error) {
-    res.status(500).json({ error: "Server Error" });
+    res.status(500).json({ error: error.message});
 }
 }
 
@@ -147,6 +141,6 @@ exports.getNotification=async(req, res) => {
     }
     res.status(200).json(user.notifications);
 } catch (error) {
-    res.status(500).json({ error: "Server Error" });
+    res.status(500).json({ error: error.message});
 }
 }

@@ -6,7 +6,7 @@ async function extractDataPii(imagePath){
     const image = fs.readFileSync(imagePath, {
         encoding: "base64"
     });
-    piiLocations=[]
+    let piiLocations=[]
     const response=await axios({
         method: "POST",
         url: "https://detect.roboflow.com/projectad/6",

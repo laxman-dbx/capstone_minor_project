@@ -29,7 +29,7 @@ function getPresignedUrl(apiKey, localFile) {
                 const jsonResponse = JSON.parse(data);
                 jsonResponse.error ? reject("Error getting presigned URL: " + jsonResponse.message) : resolve([jsonResponse.presignedUrl, jsonResponse.url]);
             });
-        }).on("error", reject);
+        }).on("error", reject("Error getting presigned URL"));
     });
 }
 

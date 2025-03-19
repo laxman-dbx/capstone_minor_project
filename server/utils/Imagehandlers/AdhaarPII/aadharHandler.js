@@ -2,7 +2,7 @@ const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-async function adhaarHandler(imagePath) {
+function adhaarHandler(imagePath) {
     return new Promise((resolve, reject) => {
         try {
             const scriptPath = path.resolve(__dirname, "detect_pii.py");

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const protect = async (req, res, next) => {
+const protect = (req, res, next) => {
   let token;
   
   if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
@@ -10,10 +10,10 @@ const protect = async (req, res, next) => {
       req.userId = decoded.id;
       next();
     } catch (error) {
-      res.status(401).json({ message: "Unauthorized, invalid token" });
+      return res.status(401).json({ message: "Unauthorized, invalid token" ,error:error.message});
     }
   } else {
-    res.status(401).json({ message: "No token, authorization denied" });
+    return res.status(401).json({ message: "No token, authorization denied" });
   }
 };
 

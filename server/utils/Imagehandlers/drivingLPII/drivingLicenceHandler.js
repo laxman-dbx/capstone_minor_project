@@ -8,13 +8,12 @@
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const axios=require('axios')
 /**
  * Process a Driving License image and detect PII regions
  * @param {string} imagePath - Path to the image file
  * @returns {Array} Array of PII locations
  */
-async function DrivingLicenseHandler(imagePath) {
+function DrivingLicenseHandler(imagePath) {
     // try {
     //     // Read image file as base64
     //     const image = fs.readFileSync(imagePath, {

@@ -1,10 +1,8 @@
 const Admin = require('../models/Admin');
 const Document = require('../models/Document');
-const User=require('../models/User');
 const Ticket = require('../models/Ticket');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const ActivityLog = require('../models/ActivityLog');
 // Admin Login
 exports.login = async (req, res) => {
@@ -53,6 +51,7 @@ exports.getDocumentAnalytics = async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Error fetching document analytics:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

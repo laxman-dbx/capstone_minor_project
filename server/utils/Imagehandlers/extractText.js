@@ -35,7 +35,6 @@ async function extractTextAndPII(imagePath) {
     //console.log('OCR API Response:', ParsedResults);
 
     if (ParsedResults && ParsedResults.length > 0) {
-      const text = ParsedResults[0].ParsedText.split('\r\n');
       const ocrData = ParsedResults[0].TextOverlay;
 
       // Use regex to find potential PII (e.g., email addresses, phone numbers)
@@ -88,7 +87,6 @@ async function extractTextAndPII(imagePath) {
                   if (!piiMap.has(pattern.label)) {
                     piiMap.set(pattern.label, []);
                   }
-                  let totalWidth = aadhaarWords.reduce((sum, word) => sum + word.Width, 0);
 
                   piiMap.get(pattern.label).push({
                     text: match,

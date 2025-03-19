@@ -19,7 +19,7 @@ const path = require("path");
  * @returns {Array} Array of PII locations
  */
 
-async function PANHandler(imagePath) {
+function PANHandler(imagePath) {
     return new Promise((resolve, reject) => {
         try {
             const scriptPath = path.resolve(__dirname, "detect_pii.py");

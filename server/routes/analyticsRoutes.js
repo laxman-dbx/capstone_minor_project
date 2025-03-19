@@ -7,7 +7,6 @@ const {
   // getDocumentTypeDistribution,
   // getPIIStats,
   // getRecentActivities,
-  getAdminAnalytics,
   getFullAdminAnalytics,
   // getAnalyticsData
   getDocumentMetrics,

@@ -59,7 +59,7 @@
 }
 
 .footer-column h4::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
@@ -145,20 +145,19 @@
     flex-direction: column;
     gap: var(--spacing-8);
   }
-  
+
   .footer-links {
     flex-direction: column;
     gap: var(--spacing-6);
   }
-  
+
   .footer-bottom {
     flex-direction: column;
     gap: var(--spacing-4);
     text-align: center;
   }
-  
+
   .copyright {
     order: 2;
   }
 }
-  

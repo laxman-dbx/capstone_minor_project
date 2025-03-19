@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  ViewChild,
+} from '@angular/core';
 
 interface FileEvent {
   files: File[];
@@ -9,7 +15,7 @@ interface FileEvent {
   selector: 'app-dropfileinput',
   imports: [CommonModule],
   templateUrl: './dropfileinput.component.html',
-  styleUrl: './dropfileinput.component.css'
+  styleUrl: './dropfileinput.component.css',
 })
 export class DropfileinputComponent {
   @Output() fileChange = new EventEmitter<FileEvent>();
@@ -18,8 +24,6 @@ export class DropfileinputComponent {
   file: File | null = null;
 
   showModal = false;
-
-  
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -37,7 +41,7 @@ export class DropfileinputComponent {
     event.preventDefault();
     event.stopPropagation();
     this.fileDropRef.nativeElement.classList.remove('dragover');
-    
+
     const files = event.dataTransfer?.files;
     if (files?.length) {
       this.handleFile(files[0]);
@@ -58,6 +62,6 @@ export class DropfileinputComponent {
 
   removeFile() {
     this.file = null;
-    this.fileChange.emit({files:[]});
+    this.fileChange.emit({ files: [] });
   }
 }

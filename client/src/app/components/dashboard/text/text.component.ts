@@ -9,16 +9,13 @@ import { EncryptTextService } from '../../../services/encrypt-text.service';
 @Component({
   selector: 'app-text',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-  ],
+  imports: [CommonModule, RouterModule],
   templateUrl: './text.component.html',
-  styleUrls: ['./text.component.css']
+  styleUrls: ['./text.component.css'],
 })
 export class TextComponent implements OnInit, OnDestroy {
   Math = Math;
-  
+
   loadingSharedWithMe = true;
   loadingSharedByMe = true;
   sharedWithMe: any[] = [];
@@ -37,25 +34,27 @@ export class TextComponent implements OnInit, OnDestroy {
     private textService: EncryptTextService,
     private dialog: MatDialog,
     private encryptService: EncryptTextService,
-    private toastr:ToastrService
-  ) { }
+    private toastr: ToastrService,
+  ) {}
 
   ngOnInit(): void {
     this.loadSharedWithMe();
     this.loadSharedByMe();
   }
-  
-  
+
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
   }
-  
+
   loadSharedWithMe(): void {
     this.loadingSharedWithMe = true;
 
     const sub = this.textService.getSharedWithMe().subscribe({
       next: (data) => {
-        this.sharedWithMe = (data.sharedFiles || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        this.sharedWithMe = (data.sharedFiles || []).sort(
+          (a: { createdAt: string }, b: { createdAt: string }) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
         this.loadingSharedWithMe = false;
         console.log(this.sharedWithMe);
       },
@@ -63,7 +62,7 @@ export class TextComponent implements OnInit, OnDestroy {
         console.error('Error loading shared messages:', error);
         this.toastr.error('Could not load messages shared with you.');
         this.loadingSharedWithMe = false;
-      }
+      },
     });
 
     this.subscriptions.push(sub);
@@ -74,63 +73,69 @@ export class TextComponent implements OnInit, OnDestroy {
 
     const sub = this.textService.getSharedByMe().subscribe({
       next: (data) => {
-        this.sharedByMe = (data.data || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());;
+        this.sharedByMe = (data.data || []).sort(
+          (a: { createdAt: string }, b: { createdAt: string }) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
         this.loadingSharedByMe = false;
       },
       error: (error) => {
         console.error('Error loading your shared messages:', error);
         this.toastr.error('Could not load messages you have shared.');
         this.loadingSharedByMe = false;
-      }
+      },
     });
 
     this.subscriptions.push(sub);
   }
-  
+
   refreshMessages(): void {
     this.loadSharedWithMe();
     this.loadSharedByMe();
   }
-  
+
   deleteText(id: string, messageType: 'received' | 'sent'): void {
     const deleteSub = this.textService.deleteSharedMessage(id).subscribe({
       next: () => {
         this.toastr.success('Message deleted successfully.');
-        
+
         if (messageType === 'received') {
-          this.sharedWithMe = this.sharedWithMe.filter(item => item._id !== id);
+          this.sharedWithMe = this.sharedWithMe.filter(
+            (item) => item._id !== id,
+          );
         } else {
-          this.sharedByMe = this.sharedByMe.filter(item => item._id !== id);
+          this.sharedByMe = this.sharedByMe.filter((item) => item._id !== id);
         }
       },
       error: (error) => {
         console.error('Error deleting message:', error);
         this.toastr.error('Could not delete message. Please try again.');
-      }
+      },
     });
   }
-  
+
   openEncryption(): void {
     window.location.href = '/encrypt-text';
   }
-  
+
   decrypt(encryptedTextId: string) {
-    this.decryptedMessages={};
+    this.decryptedMessages = {};
     this.loading = true;
     this.encryptService.decryptText(encryptedTextId).subscribe({
-      next: response => {
-        this.decryptedMessages[encryptedTextId] = response.text; 
+      next: (response) => {
+        this.decryptedMessages[encryptedTextId] = response.text;
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },
-      error: err => {
-        this.errorMessages[encryptedTextId] = 'Decryption failed: ' + (err.error?.message || err.message);
+      error: (err) => {
+        this.errorMessages[encryptedTextId] =
+          'Decryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
         this.toastr.error(this.error);
-      }
+      },
     });
   }
-  
+
   updateSharedWithMePage(offset: number): void {
     const newPage = this.sharedWithMeCurrentPage + offset;
     const maxPage = Math.ceil(this.sharedWithMe.length / this.itemsPerPage);
@@ -139,7 +144,7 @@ export class TextComponent implements OnInit, OnDestroy {
       this.sharedWithMeCurrentPage = newPage;
     }
   }
-  
+
   updateSharedByMePage(offset: number): void {
     const newPage = this.sharedByMeCurrentPage + offset;
     const maxPage = Math.ceil(this.sharedByMe.length / this.itemsPerPage);
@@ -148,22 +153,22 @@ export class TextComponent implements OnInit, OnDestroy {
       this.sharedByMeCurrentPage = newPage;
     }
   }
-  
+
   getPaginatedSharedWithMe(): any[] {
     const startIndex = (this.sharedWithMeCurrentPage - 1) * this.itemsPerPage;
     return this.sharedWithMe.slice(startIndex, startIndex + this.itemsPerPage);
   }
-  
+
   getPaginatedSharedByMe(): any[] {
     const startIndex = (this.sharedByMeCurrentPage - 1) * this.itemsPerPage;
     return this.sharedByMe.slice(startIndex, startIndex + this.itemsPerPage);
   }
-  
+
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleString();
   }
-  
+
   getUserInitials(name: string): string {
     if (!name) return '?';
 

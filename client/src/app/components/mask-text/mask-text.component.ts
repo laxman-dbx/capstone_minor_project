@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './mask-text.component.html',
-  styleUrls: ['./mask-text.component.css']
+  styleUrls: ['./mask-text.component.css'],
 })
 export class MaskTextComponent {
   inputText: string = '';
@@ -29,19 +29,21 @@ export class MaskTextComponent {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.http.post<any>('http://localhost:5000/api/users/replace-chars', {
-      text: this.inputText
-    }).subscribe({
-      next: (response) => {
-        this.outputText = response.encryptedText;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error masking text:', error);
-        this.errorMessage = 'Failed to mask text. Please try again.';
-        this.isLoading = false;
-      }
-    });
+    this.http
+      .post<any>('http://localhost:5000/api/users/replace-chars', {
+        text: this.inputText,
+      })
+      .subscribe({
+        next: (response) => {
+          this.outputText = response.encryptedText;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error masking text:', error);
+          this.errorMessage = 'Failed to mask text. Please try again.';
+          this.isLoading = false;
+        },
+      });
   }
 
   clearText() {
@@ -52,15 +54,18 @@ export class MaskTextComponent {
 
   copyToClipboard() {
     if (!this.outputText) return;
-    
-    navigator.clipboard.writeText(this.outputText).then(() => {
-      this.copySuccess = true;
-      setTimeout(() => {
-        this.copySuccess = false;
-      }, 3000);
-    }).catch(err => {
-      console.error('Could not copy text: ', err);
-      this.errorMessage = 'Failed to copy to clipboard';
-    });
+
+    navigator.clipboard
+      .writeText(this.outputText)
+      .then(() => {
+        this.copySuccess = true;
+        setTimeout(() => {
+          this.copySuccess = false;
+        }, 3000);
+      })
+      .catch((err) => {
+        console.error('Could not copy text: ', err);
+        this.errorMessage = 'Failed to copy to clipboard';
+      });
   }
 }

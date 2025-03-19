@@ -32,7 +32,8 @@
   font-size: 14px;
 }
 
-.filter-button, .clear-button {
+.filter-button,
+.clear-button {
   padding: 8px 12px;
   border: none;
   border-radius: 4px;
@@ -49,7 +50,6 @@
 .filter-button:hover {
   background-color: #2980b9;
 }
-
 
 .search-input {
   width: 100%;
@@ -114,7 +114,9 @@
   background-color: #c0392b;
 }
 
-.loading, .error, .no-logs {
+.loading,
+.error,
+.no-logs {
   padding: 20px;
   text-align: center;
   background-color: #f9f9f9;
@@ -220,13 +222,13 @@
   color: #34495e;
 }
 
-.activity-document, .activity-metadata {
+.activity-document,
+.activity-metadata {
   font-size: 13px;
   color: #7f8c8d;
   margin-top: 5px;
   display: flex;
 }
-
 
 .metadata-item {
   display: flex;
@@ -279,21 +281,21 @@
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .filter-controls {
     width: 100%;
   }
-  
+
   .filter-group {
     width: 100%;
   }
-  
+
   .filter-input {
     flex: 1;
   }
-  
+
   .pagination-controls {
     flex-direction: column;
     gap: 10px;
   }
-} 
+}

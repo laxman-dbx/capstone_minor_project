@@ -8,9 +8,8 @@ describe('MaskTextComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MaskTextComponent]
-    })
-    .compileComponents();
+      imports: [MaskTextComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MaskTextComponent);
     component = fixture.componentInstance;

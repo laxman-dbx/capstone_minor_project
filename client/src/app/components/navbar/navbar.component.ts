@@ -10,7 +10,7 @@ interface NavigationItem {
   href: string;
   icon: string;
   description: string;
-  isDisplay:boolean;
+  isDisplay: boolean;
 }
 
 interface Notification {
@@ -27,7 +27,7 @@ interface Notification {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.css']
+  styleUrls: ['./navbar.component.css'],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   isLogin: boolean = false;
@@ -37,35 +37,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
   private subscriptions: Subscription[] = [];
 
-
   constructor(
     private router: Router,
     private socketService: SocketService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) {}
 
-  navigation: NavigationItem[] = []
+  navigation: NavigationItem[] = [];
 
   ngOnInit(): void {
     // Check if user is logged in
     this.isLogin = !!localStorage.getItem('authToken');
-    
-    //loading ntifications
 
-    
+    //loading ntifications
 
     // Listen for new encrypted messages
     this.subscriptions.push(
-      this.socketService.listenToEncryptedMessages().subscribe(notification => {
-        this.addNotification({
-          id: notification.messageId,
-          message: `New encrypted message from ${notification.senderName}`,
-          time: notification.timestamp,
-          read: false,
-          icon: 'fas fa-lock',
-          type: 'encrypted-message'
-        });
-      })
+      this.socketService
+        .listenToEncryptedMessages()
+        .subscribe((notification) => {
+          this.addNotification({
+            id: notification.messageId,
+            message: `New encrypted message from ${notification.senderName}`,
+            time: notification.timestamp,
+            read: false,
+            icon: 'fas fa-lock',
+            type: 'encrypted-message',
+          });
+        }),
     );
 
     this.navigation = [
@@ -74,56 +73,52 @@ export class NavbarComponent implements OnInit, OnDestroy {
         href: '/',
         icon: 'fas fa-home',
         description: 'Go to home page',
-        isDisplay:true
+        isDisplay: true,
       },
       {
         name: 'Dashboard',
         href: '/dashboard',
         icon: 'fas fa-tachometer-alt',
         description: 'View your dashboard',
-        isDisplay:this.isLogin
+        isDisplay: this.isLogin,
       },
       {
         name: 'Upload',
         href: '/upload',
         icon: 'fas fa-upload',
         description: 'Upload and Secure',
-        isDisplay:true
+        isDisplay: true,
       },
       {
         name: 'Mask Text',
         href: '/mask-text',
         icon: 'fas fa-book',
         description: 'Mask you Pii',
-        isDisplay:true
+        isDisplay: true,
       },
       {
         name: 'Encrypt',
         href: '/encrypt-text',
         icon: 'fas fa-lock',
         description: 'Encrypt your data',
-        isDisplay:this.isLogin
+        isDisplay: this.isLogin,
       },
       {
         name: 'Decrypt',
         href: '/decrypt-text',
         icon: 'fas fa-unlock',
         description: 'Decrypt your data',
-        isDisplay:this.isLogin
-      }
+        isDisplay: this.isLogin,
+      },
     ];
     // Check for click outside of notifications
     document.addEventListener('click', this.handleOutsideClick.bind(this));
   }
 
-  
-
-  
-
   ngOnDestroy(): void {
     // Clean up subscriptions
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+
     // Remove event listener
     document.removeEventListener('click', this.handleOutsideClick.bind(this));
   }
@@ -146,12 +141,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
   handleOutsideClick(event: Event): void {
     const target = event.target as HTMLElement;
     const notificationBell = document.querySelector('.notification-bell');
-    const notificationsDropdown = document.querySelector('.notifications-dropdown');
-    
+    const notificationsDropdown = document.querySelector(
+      '.notifications-dropdown',
+    );
+
     // Close notifications if clicking outside
     if (
-      this.showNotifications && 
-      notificationBell && 
+      this.showNotifications &&
+      notificationBell &&
       notificationsDropdown &&
       !notificationBell.contains(target) &&
       !notificationsDropdown.contains(target)
@@ -163,11 +160,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
   addNotification(notification: Notification): void {
     this.notifications.unshift(notification);
     this.updateNotificationCount();
-    
   }
 
   markAllAsRead(): void {
-    this.notifications.forEach(notification => {
+    this.notifications.forEach((notification) => {
       notification.read = true;
     });
     this.updateNotificationCount();
@@ -179,7 +175,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   updateNotificationCount(): void {
-    this.notificationCount = this.notifications.filter(n => !n.read).length;
+    this.notificationCount = this.notifications.filter((n) => !n.read).length;
   }
 
   isCurrentRoute(route: string): boolean {
@@ -194,6 +190,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
     this.isLogin = false;
-    window.location.href= '/sign-in'
+    window.location.href = '/sign-in';
   }
 }

@@ -163,7 +163,7 @@
   font-size: var(--font-xs);
 }
 
-.ticket-priority, 
+.ticket-priority,
 .ticket-status {
   padding: var(--spacing-1) var(--spacing-2);
   border-radius: var(--radius-md);
@@ -240,7 +240,8 @@
   gap: var(--spacing-2);
 }
 
-.no-tickets, .no-messages {
+.no-tickets,
+.no-messages {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -250,7 +251,8 @@
   text-align: center;
 }
 
-.no-tickets i, .no-messages i {
+.no-tickets i,
+.no-messages i {
   font-size: var(--font-3xl);
   margin-bottom: var(--spacing-3);
   opacity: 0.5;
@@ -505,17 +507,17 @@
     flex-direction: column;
     margin: var(--spacing-4) auto;
   }
-  
-  .tickets-container, 
+
+  .tickets-container,
   .chat-container {
     max-width: 100%;
     width: 100%;
   }
-  
+
   .tickets-container {
     order: 1;
   }
-  
+
   .chat-container {
     order: 0;
     margin-bottom: var(--spacing-6);

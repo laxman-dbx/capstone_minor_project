@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -8,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   navigate: string = '/dashboard';
@@ -48,11 +54,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const options = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.1
+      threshold: 0.1,
     };
 
     this.animationObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
           // Once the animation has played, no need to observe this element anymore
@@ -64,19 +70,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // Get all elements that should animate on scroll
     setTimeout(() => {
       const animatedElements = document.querySelectorAll('.animate-on-scroll');
-      animatedElements.forEach(el => {
+      animatedElements.forEach((el) => {
         this.animationObserver?.observe(el);
       });
     }, 100);
   }
 
   private checkScrollAnimations(): void {
-    const animatedElements = document.querySelectorAll('.animate-on-scroll:not(.visible)');
-    
-    animatedElements.forEach(element => {
+    const animatedElements = document.querySelectorAll(
+      '.animate-on-scroll:not(.visible)',
+    );
+
+    animatedElements.forEach((element) => {
       const rect = element.getBoundingClientRect();
-      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-      
+      const windowHeight =
+        window.innerHeight || document.documentElement.clientHeight;
+
       // If element is in viewport
       if (rect.top <= windowHeight * 0.8) {
         element.classList.add('visible');

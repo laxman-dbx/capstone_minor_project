@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserTicketService {
   private apiUrl = `${environment.apiUrl}/api/tickets`;
@@ -23,8 +23,8 @@ export class UserTicketService {
     try {
       return await firstValueFrom(
         this.http.get(`${this.apiUrl}/user`, {
-          headers: { Authorization: `Bearer ${this.getAuthToken()}` }
-        })
+          headers: { Authorization: `Bearer ${this.getAuthToken()}` },
+        }),
       );
     } catch (error) {
       this.handleError(error, 'Error fetching user tickets');
@@ -36,8 +36,8 @@ export class UserTicketService {
     try {
       return await firstValueFrom(
         this.http.post(`${this.apiUrl}`, ticketData, {
-          headers: { Authorization: `Bearer ${this.getAuthToken()}` }
-        })
+          headers: { Authorization: `Bearer ${this.getAuthToken()}` },
+        }),
       );
     } catch (error) {
       this.handleError(error, 'Error creating ticket');
@@ -49,8 +49,8 @@ export class UserTicketService {
     try {
       return await firstValueFrom(
         this.http.get(`${this.apiUrl}/${ticketId}/messages`, {
-          headers: { Authorization: `Bearer ${this.getAuthToken()}` }
-        })
+          headers: { Authorization: `Bearer ${this.getAuthToken()}` },
+        }),
       );
     } catch (error) {
       this.handleError(error, 'Error fetching ticket messages');
@@ -60,7 +60,7 @@ export class UserTicketService {
 
   private handleError(error: any, defaultMessage: string): void {
     console.error(defaultMessage, error);
-    
+
     if (error instanceof HttpErrorResponse) {
       if (error.status === 401) {
         console.error('Authentication error. Token may be invalid or expired.');

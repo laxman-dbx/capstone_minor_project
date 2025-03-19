@@ -1,7 +1,12 @@
 `
 <div class="container">
-  <div #fileDropRef class="drop-container" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)">
+  <div
+    #fileDropRef
+    class="drop-container"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+  >
     <div class="icon-container">
       <label class="upload-label">
         <img src="assets/browse.png" alt="browse" class="upload-icon" />

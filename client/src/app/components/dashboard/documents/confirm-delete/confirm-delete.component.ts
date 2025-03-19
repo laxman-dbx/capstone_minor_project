@@ -1,6 +1,10 @@
 import { Component, Inject, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 
@@ -9,7 +13,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './confirm-delete.component.html',
   standalone: true,
   imports: [FormsModule, MatDialogModule, MatInputModule, CommonModule],
-  styleUrls: ['./confirm-delete.component.css']
+  styleUrls: ['./confirm-delete.component.css'],
 })
 export class ConfirmDeleteComponent {
   userInput: string = '';
@@ -17,12 +21,12 @@ export class ConfirmDeleteComponent {
 
   constructor(
     public dialogRef: MatDialogRef<ConfirmDeleteComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { fileName: string }
+    @Inject(MAT_DIALOG_DATA) public data: { fileName: string },
   ) {}
 
   checkInput(): void {
     this.isValidInput = this.userInput.trim().toUpperCase() === 'DELETE';
-  }  
+  }
 
   confirmDelete(): void {
     if (this.isValidInput) {

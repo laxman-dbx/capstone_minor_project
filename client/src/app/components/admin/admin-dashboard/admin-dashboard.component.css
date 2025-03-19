@@ -2,7 +2,7 @@
   padding: 20px;
   background-color: #f5f7fa;
   min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .dashboard-header {
@@ -14,7 +14,7 @@
   border-bottom: 1px solid #e1e5eb;
 }
 
-.admin-footer{
+.admin-footer {
   display: flex;
   padding-top: 15px;
   justify-content: space-between;
@@ -54,8 +54,8 @@ h2 {
   gap: 20px;
 }
 
-.analytics-section, 
-.activity-logs-section, 
+.analytics-section,
+.activity-logs-section,
 .support-tickets-section {
   background: #fff;
   padding: 20px;
@@ -121,7 +121,7 @@ h2 {
   .dashboard-content {
     grid-template-columns: 1fr;
   }
-  
+
   .support-tickets-section {
     order: 1; /* Move support tickets to the top on smaller screens */
   }
@@ -133,7 +133,7 @@ h2 {
     align-items: flex-start;
     gap: 10px;
   }
-  
+
   .header-actions {
     width: 100%;
   }

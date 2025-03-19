@@ -10,14 +10,14 @@ import { EncryptTextService } from '../../services/encrypt-text.service';
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './encrypt-text.component.html',
-  styleUrls: ['./encrypt-text.component.css']
+  styleUrls: ['./encrypt-text.component.css'],
 })
 export class EncryptTextComponent implements OnInit {
   text = '';
   receiverId = '';
   searchTerm = '';
   users: any[] = [];
-  filteredUsers: any[]= [];
+  filteredUsers: any[] = [];
   selectedUser: any | null = null;
   encryptedMessage = '';
   decryptedMessage = '';
@@ -25,9 +25,9 @@ export class EncryptTextComponent implements OnInit {
   error = '';
 
   constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private userService: UserService,
-    private encryptService: EncryptTextService
+    private encryptService: EncryptTextService,
   ) {}
 
   ngOnInit() {}
@@ -42,9 +42,10 @@ export class EncryptTextComponent implements OnInit {
 
   filterUsers() {
     this.filteredUsers = this.searchTerm.trim()
-      ? this.users.filter(user => 
-          user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(this.searchTerm.toLowerCase())
+      ? this.users.filter(
+          (user) =>
+            user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(this.searchTerm.toLowerCase()),
         )
       : this.users;
   }
@@ -71,15 +72,16 @@ export class EncryptTextComponent implements OnInit {
     const id = localStorage.getItem('userId') || 'currentUserId';
 
     this.encryptService.encryptText(id, this.receiverId, this.text).subscribe({
-      next: response => {
+      next: (response) => {
         this.encryptedMessage = response.encryptedText;
         this.loading = false;
         this.text = ''; // Clear the input after successful encryption
       },
-      error: err => {
-        this.error = 'Encryption failed: ' + (err.error?.message || err.message);
+      error: (err) => {
+        this.error =
+          'Encryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -87,14 +89,15 @@ export class EncryptTextComponent implements OnInit {
     this.loading = true;
 
     this.encryptService.decryptText(encryptedText).subscribe({
-      next: response => {
+      next: (response) => {
         this.decryptedMessage = response.decryptedText;
         this.loading = false;
       },
-      error: err => {
-        this.error = 'Decryption failed: ' + (err.error?.message || err.message);
+      error: (err) => {
+        this.error =
+          'Decryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
-      }
+      },
     });
   }
 }

@@ -2,11 +2,11 @@
   <div *ngIf="loading" class="loading">
     <p>Loading analytics data...</p>
   </div>
-  
+
   <div *ngIf="error" class="error">
     <p>{{ error }}</p>
   </div>
-  
+
   <div *ngIf="!loading && !error" class="analytics-content">
     <!-- Summary Cards -->
     <div class="summary-cards">
@@ -19,7 +19,7 @@
           <p class="card-value">{{ totalUsers }}</p>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-icon documents-icon">
           <i class="fas fa-file-alt"></i>
@@ -29,7 +29,7 @@
           <p class="card-value">{{ totalDocuments }}</p>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-icon masked-icon">
           <i class="fas fa-mask"></i>
@@ -39,7 +39,7 @@
           <p class="card-value">{{ maskedDocuments }}</p>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-icon shared-icon">
           <i class="fas fa-share-alt"></i>
@@ -50,7 +50,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Charts Grid - Only keep the most important charts -->
     <div class="charts-grid">
       <div class="chart-container">
@@ -60,7 +60,7 @@
         <canvas #documentTypesChart></canvas>
       </div>
     </div>
-    
+
     <!-- Top Active Users Table -->
     <div class="top-users-container" *ngIf="analytics?.topActiveUsers?.length">
       <h3>Top Active Users</h3>
@@ -82,4 +82,4 @@
       </table>
     </div>
   </div>
-</div> 
+</div>

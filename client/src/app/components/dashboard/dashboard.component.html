@@ -2,13 +2,15 @@
   <header class="dashboard-header">
     <div class="container">
       <h1 class="dashboard-title">Dashboard</h1>
-      <p class="dashboard-subtitle">Manage your documents and encryption tools</p>
+      <p class="dashboard-subtitle">
+        Manage your documents and encryption tools
+      </p>
     </div>
   </header>
 
   <div class="container">
     <!-- Dashboard Navigation -->
-    <nav class="dashboard-nav ">
+    <nav class="dashboard-nav">
       <ul class="nav-tabs">
         <li class="nav-item" [class.active]="activeTab === 'main'">
           <a (click)="setActiveTab('main')" class="nav-link">
@@ -19,6 +21,8 @@
           <a (click)="setActiveTab('text')" class="nav-link">
             <i class="fas fa-font"></i> Text
           </a>
+        </li>
+
         <li class="nav-item" [class.active]="activeTab === 'analytics'">
           <a (click)="setActiveTab('analytics')" class="nav-link">
             <i class="fas fa-chart-line"></i> Analytics
@@ -30,7 +34,7 @@
     <div class="dashboard-content">
       <!-- Main Dashboard (Documents + Messages) -->
       <div *ngIf="activeTab === 'main'" class="dashboard-main-content">
-        <div class="dashboard-main ">
+        <div class="dashboard-main">
           <app-documents></app-documents>
         </div>
       </div>
@@ -48,4 +52,3 @@
     </div>
   </div>
 </div>
-    

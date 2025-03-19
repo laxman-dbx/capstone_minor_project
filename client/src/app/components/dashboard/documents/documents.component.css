@@ -105,7 +105,7 @@
   height: 50px;
   border: 5px solid rgba(33, 150, 243, 0.2);
   border-radius: 50%;
-  border-top-color: #2196F3;
+  border-top-color: #2196f3;
   animation: spin 1s ease-in-out infinite;
 }
 
@@ -430,22 +430,22 @@
     align-items: flex-start;
     gap: var(--spacing-3);
   }
-  
+
   .document-list-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-3);
   }
-  
+
   .dialog-content {
     width: 95%;
     max-width: none;
   }
-  
+
   .dialog-body {
     padding: var(--spacing-3);
   }
-  
+
   .document-cards {
     grid-template-columns: 1fr;
   }

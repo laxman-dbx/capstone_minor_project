@@ -7,14 +7,22 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = `${environment.apiUrl}/api/auth`; 
-  private isLoggedInSubject = new BehaviorSubject<boolean>(this.checkLoginStatus());
+  private apiUrl = `${environment.apiUrl}/api/auth`;
+  private isLoggedInSubject = new BehaviorSubject<boolean>(
+    this.checkLoginStatus(),
+  );
   isLoggedIn$ = this.isLoggedInSubject.asObservable();
-  
+
   constructor() {}
 
   // Signup Method
-  async signUp(userData: { email: string; password: string; name: string; phone: string; profileImage?: File }) {
+  async signUp(userData: {
+    email: string;
+    password: string;
+    name: string;
+    phone: string;
+    profileImage?: File;
+  }) {
     try {
       const formData = new FormData();
       formData.append('email', userData.email);

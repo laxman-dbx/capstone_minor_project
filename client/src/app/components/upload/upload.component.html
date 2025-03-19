@@ -1,7 +1,9 @@
 <div class="upload-wrapper">
   <div class="page-header">
     <h1 class="page-title">Document Masking</h1>
-    <p class="page-description">Upload and mask sensitive information in your documents securely</p>
+    <p class="page-description">
+      Upload and mask sensitive information in your documents securely
+    </p>
   </div>
 
   <div class="upload-box">
@@ -13,23 +15,36 @@
         </a>
         <h4 class="header-content" *ngIf="isSuccess">MASKED IMAGE</h4>
       </div>
-      
+
       <div class="upload-content" *ngIf="!isSuccess">
         <div class="document-type-wrapper">
           <label for="documentType" class="label-dropdown flex items-center">
             Select Document Type:
-            <span class="info-button" (mouseenter)="showTooltip = true" (mouseleave)="showTooltip = false" (click)="showTooltip = !showTooltip">
+            <span
+              class="info-button"
+              (mouseenter)="showTooltip = true"
+              (mouseleave)="showTooltip = false"
+              (click)="showTooltip = !showTooltip"
+            >
               <i class="fas fa-info-circle"></i>
             </span>
             <span class="tooltip" *ngIf="showTooltip">
-              <pre>Choose the document type 
-you want to upload.</pre>
-              <pre>This can enhance the level 
-of masking the data.</pre>
+              <pre>
+Choose the document type 
+you want to upload.</pre
+              >
+              <pre>
+This can enhance the level 
+of masking the data.</pre
+              >
             </span>
           </label>
-          
-          <select id="documentType" class="document-type-dropdown" [(ngModel)]="selectedDocumentType">
+
+          <select
+            id="documentType"
+            class="document-type-dropdown"
+            [(ngModel)]="selectedDocumentType"
+          >
             <option value="" disabled selected>Select Document Type</option>
             <option value="adhaar">Aadhaar Card</option>
             <option value="pan">PAN Card</option>
@@ -37,33 +52,44 @@ of masking the data.</pre>
             <option value="other">Other</option>
           </select>
         </div>
-        
-        <app-dropfileinput (fileChange)="onFileChange($event)"></app-dropfileinput>
-        
+
+        <app-dropfileinput
+          (fileChange)="onFileChange($event)"
+        ></app-dropfileinput>
+
         <div class="toggle-container" *ngIf="isLogin">
           <div class="labelForSwitch">
             <label class="toggle-label">Save Masked Document?</label>
-            <span class="info-icon" (mouseenter)="showTooltip2" (mouseleave)="showTooltip2 = false" (click)="showTooltip2 = !showTooltip2">
+            <span
+              class="info-icon"
+              (mouseenter)="(showTooltip2)"
+              (mouseleave)="showTooltip2 = false"
+              (click)="showTooltip2 = !showTooltip2"
+            >
               <i class="fas fa-info-circle"></i>
             </span>
             <span class="tooltip" *ngIf="showTooltip2">
-              <pre>We securely store the masked document with AES-256 encryption.</pre>
+              <pre>
+We securely store the masked document with AES-256 encryption.</pre
+              >
             </span>
           </div>
-          
+
           <label class="switch">
-            <input type="checkbox" [(ngModel)]="saveMaskedDocument">
+            <input type="checkbox" [(ngModel)]="saveMaskedDocument" />
             <span class="slider"></span>
           </label>
         </div>
-        
+
         <div class="file-list" *ngIf="file">
           <div class="file-item">
             <div class="file-info">
               <i class="fas fa-file-alt file-icon"></i>
               <div class="file-details">
                 <strong>{{ file.name }}</strong>
-                <span class="file-size">{{ (file.size / 1024).toFixed(2) }} KB</span>
+                <span class="file-size"
+                  >{{ (file.size / 1024).toFixed(2) }} KB</span
+                >
               </div>
             </div>
             <button class="remove-button" (click)="removeFile()">
@@ -71,13 +97,21 @@ of masking the data.</pre>
             </button>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
-                <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
+                <img
+                  [src]="fileUrl"
+                  alt="Masked Preview"
+                  class="preview-image"
+                />
               </div>
             </div>
           </div>
         </div>
-        
-        <button class="upload-button" [disabled]="!file || isUploading" (click)="uploadAndFetchMaskedFile()">
+
+        <button
+          class="upload-button"
+          [disabled]="!file || isUploading"
+          (click)="uploadAndFetchMaskedFile()"
+        >
           <i class="fas fa-mask" *ngIf="!isUploading"></i>
           <span *ngIf="!isUploading">Mask Document</span>
           <span *ngIf="isUploading" class="spinner">
@@ -85,7 +119,7 @@ of masking the data.</pre>
           </span>
         </button>
       </div>
-      
+
       <div class="success-screen" *ngIf="isSuccess">
         <div class="file-list" *ngIf="file">
           <div class="file-item">
@@ -93,7 +127,9 @@ of masking the data.</pre>
               <i class="fas fa-file-alt file-icon"></i>
               <div class="file-details">
                 <strong>{{ file.name }}</strong>
-                <span class="file-size">{{ (file.size / 1024).toFixed(2) }} KB</span>
+                <span class="file-size"
+                  >{{ (file.size / 1024).toFixed(2) }} KB</span
+                >
               </div>
             </div>
             <button class="remove-button" (click)="removeFile()">
@@ -101,7 +137,11 @@ of masking the data.</pre>
             </button>
             <div class="preview-container" *ngIf="fileUrl">
               <div class="preview-box">
-                <img [src]="fileUrl" alt="Masked Preview" class="preview-image" />
+                <img
+                  [src]="fileUrl"
+                  alt="Masked Preview"
+                  class="preview-image"
+                />
               </div>
             </div>
           </div>

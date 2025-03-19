@@ -2,7 +2,8 @@
   width: 100%;
 }
 
-.loading, .error {
+.loading,
+.error {
   padding: 20px;
   text-align: center;
   background-color: #f9f9f9;
@@ -34,7 +35,9 @@
   display: flex;
   align-items: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .card:hover {
@@ -124,7 +127,7 @@
   border-collapse: collapse;
 }
 
-.top-users-table th, 
+.top-users-table th,
 .top-users-table td {
   padding: 10px;
   text-align: left;
@@ -149,8 +152,8 @@
   .summary-cards {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .charts-grid {
     grid-template-columns: 1fr;
   }
-} 
+}

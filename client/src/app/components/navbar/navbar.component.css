@@ -15,7 +15,7 @@
 .container {
   display: flex;
   align-items: center;
-  justify-content: space-between; 
+  justify-content: space-between;
   width: 100%;
 }
 
@@ -24,7 +24,7 @@
   align-items: center;
 }
 
-.tooltip a{
+.tooltip a {
   align-items: center;
 }
 .logo a {
@@ -45,7 +45,7 @@
 .nav-container {
   display: flex;
   align-items: center;
-  
+
   justify-content: space-between;
   flex: 1;
   margin-left: var(--spacing-6);
@@ -257,7 +257,9 @@
   object-fit: cover;
   cursor: pointer;
   border: 2px solid var(--gray-300);
-  transition: border-color var(--transition-normal), transform var(--transition-fast);
+  transition:
+    border-color var(--transition-normal),
+    transform var(--transition-fast);
 }
 
 .profile-image:hover {
@@ -266,7 +268,7 @@
 }
 
 .sign-out {
-  background-color:  var(--primary-800);
+  background-color: var(--primary-800);
   color: white;
   padding: var(--spacing-1) var(--spacing-3);
   font-size: var(--font-sm);
@@ -274,11 +276,11 @@
 
 .sign-out:hover {
   background-color: white;
-  color: var(--gray-800);;
+  color: var(--gray-800);
 }
 
 .sign-in {
-  background-color:  var(--primary-800);
+  background-color: var(--primary-800);
   padding: var(--spacing-1) var(--spacing-3);
   font-size: var(--font-sm);
 }
@@ -299,11 +301,11 @@
   .navbar {
     padding: var(--spacing-2) var(--spacing-3);
   }
-  
+
   .mobile-menu-toggle {
     display: block;
   }
-  
+
   .nav-container {
     position: fixed;
     top: 64px;
@@ -321,39 +323,39 @@
     z-index: 99;
     overflow-y: auto;
   }
-  
+
   .nav-container.show-mobile-menu {
     transform: translateX(0);
   }
-  
+
   .nav-links {
     flex-direction: column;
     width: 100%;
     gap: var(--spacing-2);
   }
-  
+
   .nav-links a {
     padding: var(--spacing-3) var(--spacing-4);
     width: 100%;
   }
-  
+
   .profile-section {
     flex-direction: column;
     margin-top: var(--spacing-6);
     width: 100%;
   }
-  
+
   .profile-section .nav-links {
     margin-bottom: var(--spacing-4);
   }
-  
+
   .user-profile {
     justify-content: center;
     padding: var(--spacing-4) 0;
     border-top: 1px solid var(--gray-700);
     width: 100%;
   }
-  
+
   .notifications-dropdown {
     position: fixed;
     top: 64px;

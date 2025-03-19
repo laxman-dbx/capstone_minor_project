@@ -8,9 +8,8 @@ describe('DecryptTextComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DecryptTextComponent]
-    })
-    .compileComponents();
+      imports: [DecryptTextComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DecryptTextComponent);
     component = fixture.componentInstance;

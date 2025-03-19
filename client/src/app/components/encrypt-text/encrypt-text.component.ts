@@ -10,13 +10,13 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './encrypt-text.component.html',
-  styleUrls: ['./encrypt-text.component.css']
+  styleUrls: ['./encrypt-text.component.css'],
 })
 export class EncryptTextComponent implements OnInit {
   text = '';
   searchTerm = '';
   users: User[] = [];
-  selectedUser: User={_id:'',name:'',email:''};
+  selectedUser: User = { _id: '', name: '', email: '' };
   filteredUsers: User[] = [];
   selectedUsers: User[] = [];
   encryptedMessage = '';
@@ -24,10 +24,10 @@ export class EncryptTextComponent implements OnInit {
   loading = false;
   error = '';
   maxRecipients = 3;
-  encryptedMessageId='';
+  encryptedMessageId = '';
   constructor(
     private encryptTextService: EncryptTextService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
   ) {}
 
   ngOnInit() {
@@ -43,17 +43,19 @@ export class EncryptTextComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to fetch users: ' + (err.error?.message || err.message);
+        this.error =
+          'Failed to fetch users: ' + (err.error?.message || err.message);
         this.loading = false;
-      }
+      },
     });
   }
 
   filterUsers() {
     this.filteredUsers = this.searchTerm.trim()
-      ? this.users.filter(user =>
-          user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(this.searchTerm.toLowerCase())
+      ? this.users.filter(
+          (user) =>
+            user.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(this.searchTerm.toLowerCase()),
         )
       : this.users;
   }
@@ -63,8 +65,8 @@ export class EncryptTextComponent implements OnInit {
       this.toastr.warning(`Maximum ${this.maxRecipients} recipients allowed`);
       return;
     }
-    
-    if (!this.selectedUsers.find(u => u._id === user._id)) {
+
+    if (!this.selectedUsers.find((u) => u._id === user._id)) {
       this.selectedUsers.push(user);
     }
     this.searchTerm = '';
@@ -72,7 +74,7 @@ export class EncryptTextComponent implements OnInit {
   }
 
   removeUser(user: User) {
-    this.selectedUsers = this.selectedUsers.filter(u => u._id !== user._id);
+    this.selectedUsers = this.selectedUsers.filter((u) => u._id !== user._id);
   }
 
   handleEncrypt() {
@@ -89,38 +91,42 @@ export class EncryptTextComponent implements OnInit {
     this.loading = true;
     this.error = '';
     const userId = localStorage.getItem('userId') || '';
-    const receiverIds = this.selectedUsers.map(user => user._id);
+    const receiverIds = this.selectedUsers.map((user) => user._id);
 
-    this.encryptTextService.encryptText(userId, receiverIds, this.text).subscribe({
-      next: response => {
-        this.encryptedMessage = response.encryptedText;
-        this.encryptedMessageId=response.encryptedMessageId;
-        this.loading = false;
-        this.text = '';
-        this.toastr.success('Message encrypted successfully');
-      },
-      error: err => {
-        this.error = 'Encryption failed: ' + (err.error?.message || err.message);
-        this.loading = false;
-        this.toastr.error(this.error);
-      }
-    });
+    this.encryptTextService
+      .encryptText(userId, receiverIds, this.text)
+      .subscribe({
+        next: (response) => {
+          this.encryptedMessage = response.encryptedText;
+          this.encryptedMessageId = response.encryptedMessageId;
+          this.loading = false;
+          this.text = '';
+          this.toastr.success('Message encrypted successfully');
+        },
+        error: (err) => {
+          this.error =
+            'Encryption failed: ' + (err.error?.message || err.message);
+          this.loading = false;
+          this.toastr.error(this.error);
+        },
+      });
   }
 
   decrypt() {
     this.loading = true;
 
     this.encryptTextService.decryptText(this.encryptedMessageId).subscribe({
-      next: response => {
+      next: (response) => {
         this.decryptedMessage = response.text;
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },
-      error: err => {
-        this.error = 'Decryption failed: ' + (err.error?.message || err.message);
+      error: (err) => {
+        this.error =
+          'Decryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
         this.toastr.error(this.error);
-      }
+      },
     });
   }
 }

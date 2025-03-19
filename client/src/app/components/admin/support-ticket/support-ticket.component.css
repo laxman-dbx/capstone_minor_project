@@ -25,18 +25,22 @@ h2 {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  
+
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
-.ticket-list-item{
+.ticket-list-item {
   background-color: #fff;
   border-radius: 6px;
   padding: 12px;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .ticket-list-item:hover {
@@ -300,7 +304,8 @@ h2 {
   cursor: not-allowed;
 }
 
-.loading, .error-message {
+.loading,
+.error-message {
   padding: 20px;
   text-align: center;
   color: #7f8c8d;
@@ -314,8 +319,9 @@ h2 {
   .admin-dashboard {
     flex-direction: column;
   }
-  
-  .tickets-section, .chat-section {
+
+  .tickets-section,
+  .chat-section {
     width: 100%;
   }
 }

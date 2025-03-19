@@ -32,20 +32,19 @@ export interface StatusNotification {
 }
 
 export interface User {
-    _id: string;
-    name: string;
-    email: string;
-  }
-  
-  
+  _id: string;
+  name: string;
+  email: string;
+}
+
 export interface UserTicket {
-    _id: string;
-    user: string | User;
-    issue: string;
-    status: 'open' | 'in-progress' | 'resolved';
-    priority: 'low' | 'medium' | 'high';
-    createdAt: Date;
-    messages: Message[];
-    // Keep userId for backward compatibility
-    userId?: User | string;
+  _id: string;
+  user: string | User;
+  issue: string;
+  status: 'open' | 'in-progress' | 'resolved';
+  priority: 'low' | 'medium' | 'high';
+  createdAt: Date;
+  messages: Message[];
+  // Keep userId for backward compatibility
+  userId?: User | string;
 }

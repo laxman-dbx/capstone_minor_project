@@ -2,12 +2,17 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { Observable, BehaviorSubject, Subject } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
-import { Message, MessageNotification, StatusNotification, EncryptedMessageNotification,SendMessageData } from '../models/support.model';
+import {
+  Message,
+  MessageNotification,
+  StatusNotification,
+  EncryptedMessageNotification,
+  SendMessageData,
+} from '../models/support.model';
 import { environment } from '../../environments/environment';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SocketService {
   private socket: Socket | null = null;
@@ -20,13 +25,13 @@ export class SocketService {
   private reconnectTimer: any = null;
   private manuallyDisconnected = false;
   private socketInitialized = false;
-  
+
   // Queue for pending subscriptions
   private pendingSubscriptions: Array<() => void> = [];
-  
+
   // Public observable for connection status
   public connectionStatus$ = this.connectionStatus.asObservable();
-  
+
   // Subject for error notifications
   private errorSubject = new Subject<string>();
   public errors$ = this.errorSubject.asObservable();
@@ -35,17 +40,17 @@ export class SocketService {
     this.SOCKET_URL = environment.apiUrl;
     this.initializeSocket();
   }
-  
+
   private initializeSocket(websocketOnly = false, forcedTransports?: string[]) {
     try {
       // Get the current port from localStorage or use default
       const socketUrl = environment.apiUrl;
-      
+
       if (this.socket) {
         this.socket.removeAllListeners();
         this.socket.disconnect();
       }
-      
+
       // Configure transports based on parameters
       let transports: string[];
       if (forcedTransports) {
@@ -53,7 +58,7 @@ export class SocketService {
       } else {
         transports = ['polling', 'websocket'];
       }
-      
+
       // Get the auth token
       const authToken = localStorage.getItem('authToken');
       console.log(`Auth token present: ${!!authToken}`);
@@ -65,7 +70,7 @@ export class SocketService {
       }
       this.socket = io(socketUrl, {
         auth: {
-          token: authToken
+          token: authToken,
         },
         reconnectionAttempts: this.maxReconnectAttempts,
         reconnectionDelay: 1000,
@@ -76,32 +81,33 @@ export class SocketService {
         reconnection: true,
         // Add explicit CORS settings
         extraHeaders: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization"
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
         },
         // Add additional options to help with connection issues
         upgrade: true, // Allow transport upgrade
         rememberUpgrade: true,
         secure: false, // Set to true if using HTTPS
-        rejectUnauthorized: false // Helps with self-signed certificates
+        rejectUnauthorized: false, // Helps with self-signed certificates
       });
-      
+
       this.socketInitialized = true;
       this.setupConnectionHandlers();
-      
     } catch (error) {
       console.error('Error initializing socket:', error);
       this.errorSubject.next('Failed to initialize socket connection');
     }
   }
-  
+
   private setupConnectionHandlers() {
     if (!this.socket) {
-      console.error('Cannot setup connection handlers: Socket is not initialized');
+      console.error(
+        'Cannot setup connection handlers: Socket is not initialized',
+      );
       return;
     }
-    
+
     // Handle connection
     this.socket.on('connect', () => {
       console.log('Socket connected successfully');
@@ -111,166 +117,196 @@ export class SocketService {
       // if (this.toastr) {
       //   this.toastr.success('Real-time connection established', 'Connected');
       // }
-      
+
       // Process any pending subscriptions
       if (this.pendingSubscriptions.length > 0) {
-        console.log(`Processing ${this.pendingSubscriptions.length} pending subscriptions after connect`);
+        console.log(
+          `Processing ${this.pendingSubscriptions.length} pending subscriptions after connect`,
+        );
         this.processPendingSubscriptions();
       }
-      
+
       // Start ping interval to keep connection alive
       this.startPingInterval();
     });
-    
+
     // Handle connection acknowledgment
     this.socket.on('connectionAcknowledged', (data) => {
       console.log('Connection acknowledged by server:', data);
     });
-    
+
     // Handle disconnection
     this.socket.on('disconnect', (reason) => {
       console.log(`Socket disconnected: ${reason}`);
       this.connectionStatus.next(false);
-      
+
       // Clear active rooms on disconnect
       this.activeTicketRooms.clear();
-      
+
       // Stop ping interval
       this.stopPingInterval();
-      
+
       if (!this.manuallyDisconnected && reason !== 'io client disconnect') {
         console.log('Disconnection was not manual, attempting to reconnect');
         this.attemptReconnect();
       }
     });
-    
+
     // Handle connection error
     this.socket.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
       this.connectionStatus.next(false);
       this.errorSubject.next(`Connection error: ${error.message}`);
-      
+
       // Handle transport errors specifically
       if (error.message) {
         // Check for specific XHR poll errors
         if (error.message.includes('xhr poll error')) {
-          console.log('XHR Poll Error detected - attempting to recover with alternative transport');
-          
+          console.log(
+            'XHR Poll Error detected - attempting to recover with alternative transport',
+          );
+
           // Try a different approach - use a different port and transport
-          const currentPort = localStorage.getItem('serverPort') || this.DEFAULT_PORT;
-          
+          const currentPort =
+            localStorage.getItem('serverPort') || this.DEFAULT_PORT;
+
           // Try the same port first but with websocket-only transport
           console.log('Attempting to switch to websocket-only transport');
-          
+
           if (this.socket) {
             this.socket.disconnect();
           }
-          
+
           setTimeout(() => {
             // First try with websocket only
             this.initializeSocket(true, ['websocket']);
-            
+
             // If that fails, we'll fall back to polling only in the connect_error handler
           }, 1000);
-          
+
           return;
         }
-        
+
         // Check for websocket errors
         if (error.message.includes('websocket error')) {
-          console.log('WebSocket Error detected - falling back to polling transport');
-          
+          console.log(
+            'WebSocket Error detected - falling back to polling transport',
+          );
+
           if (this.socket) {
             this.socket.disconnect();
           }
-          
+
           setTimeout(() => {
             // Reinitialize with polling-only transport
             this.initializeSocket(false, ['polling']);
           }, 1000);
-          
+
           return;
         }
-        
+
         // Check for authentication errors
-        if (error.message.includes('Authentication error') || error.message.includes('Unauthorized')) {
+        if (
+          error.message.includes('Authentication error') ||
+          error.message.includes('Unauthorized')
+        ) {
           console.error('Authentication error detected:', error.message);
-          
+
           if (this.toastr) {
-            this.toastr.error('Authentication failed. Please log in again.', 'Auth Error');
+            this.toastr.error(
+              'Authentication failed. Please log in again.',
+              'Auth Error',
+            );
             window.location.href = '/sign-in';
           }
-          
+
           // Don't attempt to reconnect for auth errors
           this.manuallyDisconnected = true;
           return;
         }
-        
+
         this.attemptReconnect();
       } else {
         this.attemptReconnect();
       }
     });
-    
+
     // Handle server errors
     this.socket.on('error', (error) => {
       console.error('Socket error from server:', error);
-      this.errorSubject.next(`Socket error: ${error.message || 'Unknown error'}`);
-      
+      this.errorSubject.next(
+        `Socket error: ${error.message || 'Unknown error'}`,
+      );
+
       // Handle specific error types
       if (error.message && error.message.includes('Authentication')) {
         console.log('Authentication error detected. Token may be invalid.');
         if (this.toastr) {
-          this.toastr.error('Authentication failed. Please log in again.', 'Auth Error');
+          this.toastr.error(
+            'Authentication failed. Please log in again.',
+            'Auth Error',
+          );
           window.location.href = '/sign-in';
         }
       }
     });
-    
+
     // Handle pong responses
     this.socket.on('pong', (data) => {
       // Update connection status based on successful pong
       this.connectionStatus.next(true);
     });
-    
+
     // Handle transport changes
     if (this.socket.io && this.socket.io.engine) {
       this.socket.io.engine.on('upgrade', (transport) => {
         console.log(`Transport upgraded to: ${transport}`);
       });
-      
+
       this.socket.io.engine.on('upgradeError', (err) => {
         console.error('Transport upgrade error:', err);
       });
     }
   }
-  
+
   private attemptReconnect() {
     if (this.manuallyDisconnected) {
-      console.log('Not attempting to reconnect because socket was manually disconnected');
+      console.log(
+        'Not attempting to reconnect because socket was manually disconnected',
+      );
       return;
     }
-    
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
     }
-    
+
     this.reconnectAttempts++;
-    
+
     if (this.reconnectAttempts <= this.maxReconnectAttempts) {
-      const delay = Math.min(1000 * Math.pow(1.5, this.reconnectAttempts), 10000);
-      console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`);
-      
+      const delay = Math.min(
+        1000 * Math.pow(1.5, this.reconnectAttempts),
+        10000,
+      );
+      console.log(
+        `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts}) in ${delay}ms`,
+      );
+
       this.reconnectTimer = setTimeout(() => {
         console.log(`Reconnecting attempt ${this.reconnectAttempts}...`);
         this.reconnect();
       }, delay);
     } else {
       console.log('Maximum reconnection attempts reached');
-      this.errorSubject.next('Failed to connect after multiple attempts. Please refresh the page.');
-      
+      this.errorSubject.next(
+        'Failed to connect after multiple attempts. Please refresh the page.',
+      );
+
       if (this.toastr) {
-        this.toastr.error('Connection lost. Please refresh the page.', 'Connection Error');
+        this.toastr.error(
+          'Connection lost. Please refresh the page.',
+          'Connection Error',
+        );
       }
     }
   }
@@ -285,7 +321,7 @@ export class SocketService {
     // If socket is not initialized, queue this subscription for later
     if (!this.socket || !this.socket.connected) {
       console.log(`Socket not ready, queueing subscription to ${eventName}`);
-      
+
       // Add to pending subscriptions
       const subscriptionFn = () => {
         console.log(`Processing queued subscription to ${eventName}`);
@@ -293,9 +329,9 @@ export class SocketService {
           this.socket.on(eventName, callback);
         }
       };
-      
+
       this.pendingSubscriptions.push(subscriptionFn);
-      
+
       // Return an unsubscribe function
       return () => {
         // Remove from pending queue if not processed yet
@@ -308,10 +344,10 @@ export class SocketService {
         }
       };
     }
-    
+
     // If socket is ready, subscribe immediately
     this.socket.on(eventName, callback);
-    
+
     // Return an unsubscribe function
     return () => {
       if (this.socket) {
@@ -339,21 +375,27 @@ export class SocketService {
         resolve();
         return;
       }
-      
+
       // Check if socket is connected
       if (!this.socket || !this.socket.connected) {
         console.error('Socket is not connected. Cannot join ticket room.');
-        
+
         // Try to reconnect
         this.reconnect();
-        
-        reject(new Error('Socket is not connected. Please try again after reconnecting.'));
+
+        reject(
+          new Error(
+            'Socket is not connected. Please try again after reconnecting.',
+          ),
+        );
         return;
       }
 
       console.log(`Attempting to join ticket room: ${ticketId}`);
-      console.log(`Auth token: ${localStorage.getItem('authToken') ? 'Present (length: ' + localStorage.getItem('authToken')?.length + ')' : 'Missing'}`);
-      
+      console.log(
+        `Auth token: ${localStorage.getItem('authToken') ? 'Present (length: ' + localStorage.getItem('authToken')?.length + ')' : 'Missing'}`,
+      );
+
       // Set up one-time listener for join confirmation before emitting the event
       this.socket.once('joinedTicketRoom', (data) => {
         if (data.ticketId === ticketId) {
@@ -361,7 +403,9 @@ export class SocketService {
           console.log(`Successfully joined ticket room: ${ticketId}`);
           resolve();
         } else {
-          console.warn(`Received joinedTicketRoom event with mismatched ticketId: expected ${ticketId}, got ${data.ticketId}`);
+          console.warn(
+            `Received joinedTicketRoom event with mismatched ticketId: expected ${ticketId}, got ${data.ticketId}`,
+          );
           reject(new Error('Received confirmation for wrong ticket room'));
         }
       });
@@ -369,14 +413,17 @@ export class SocketService {
       // Set up one-time listener for error
       this.socket.once('error', (error) => {
         console.error('Error joining ticket room:', error);
-        
+
         // Check if the error is related to authentication
-        if (error.message && (
-            error.message.includes('Unauthorized') || 
+        if (
+          error.message &&
+          (error.message.includes('Unauthorized') ||
             error.message.includes('authentication') ||
-            error.message.includes('auth')
-          )) {
-          console.log('Authentication issue detected. Current auth token may be invalid.');
+            error.message.includes('auth'))
+        ) {
+          console.log(
+            'Authentication issue detected. Current auth token may be invalid.',
+          );
           reject(new Error(`Authentication error: ${error.message}`));
         } else {
           reject(new Error(error.message || 'Failed to join ticket room'));
@@ -398,9 +445,12 @@ export class SocketService {
       this.socket.emit('joinTicketRoom', { ticketId }, (response: any) => {
         // Clear the timeout since we got a response
         clearTimeout(timeoutId);
-        
+
         if (response && response.error) {
-          console.error('Error response from server when joining room:', response.error);
+          console.error(
+            'Error response from server when joining room:',
+            response.error,
+          );
           reject(new Error(response.error));
         } else if (response && response.success) {
           console.log('Server acknowledged join room request with success');
@@ -413,7 +463,7 @@ export class SocketService {
       const clearTimeoutFn = () => {
         clearTimeout(timeoutId);
       };
-      
+
       this.socket.once('joinedTicketRoom', clearTimeoutFn);
       this.socket.once('error', clearTimeoutFn);
     });
@@ -431,37 +481,44 @@ export class SocketService {
         resolve(); // Not an error, just nothing to do
         return;
       }
-      
+
       // If not in this room, resolve immediately
       if (!this.activeTicketRooms.has(ticketId)) {
         console.log(`Not in ticket room ${ticketId}, nothing to leave`);
         resolve();
         return;
       }
-      
+
       // Check if socket is connected
       if (!this.socket || !this.socket.connected) {
-        console.log('Socket is not connected. Cannot leave ticket room, but removing from active rooms.');
+        console.log(
+          'Socket is not connected. Cannot leave ticket room, but removing from active rooms.',
+        );
         this.activeTicketRooms.delete(ticketId);
         resolve(); // Resolve anyway since we've removed it from our tracking
         return;
       }
-      
+
       console.log(`Leaving ticket room: ${ticketId}`);
-      
+
       // Set a timeout for the operation
       const timeoutId = setTimeout(() => {
-        console.log(`Timeout leaving ticket room ${ticketId}, but removing from active rooms anyway`);
+        console.log(
+          `Timeout leaving ticket room ${ticketId}, but removing from active rooms anyway`,
+        );
         this.activeTicketRooms.delete(ticketId);
         resolve(); // Resolve anyway to prevent blocking
       }, 5000);
-      
+
       // Emit the leave event with acknowledgment
       this.socket.emit('leaveTicketRoom', { ticketId }, (response: any) => {
         clearTimeout(timeoutId);
-        
+
         if (response && response.error) {
-          console.warn(`Error leaving ticket room ${ticketId}:`, response.error);
+          console.warn(
+            `Error leaving ticket room ${ticketId}:`,
+            response.error,
+          );
           // Still remove from our tracking even if server had an error
           this.activeTicketRooms.delete(ticketId);
           resolve(); // Resolve anyway to prevent blocking
@@ -471,7 +528,7 @@ export class SocketService {
           resolve();
         }
       });
-      
+
       // If no acknowledgment callback is supported by the server, still remove from tracking
       setTimeout(() => {
         this.activeTicketRooms.delete(ticketId);
@@ -485,11 +542,13 @@ export class SocketService {
    * @returns An observable that emits when the event occurs
    */
   createEventObservable<T>(eventName: string): Observable<T> {
-    return new Observable<T>(observer => {
+    return new Observable<T>((observer) => {
       // If socket is not initialized, we'll handle it with the queue
       if (!this.socketInitialized) {
-        console.log(`Socket not initialized, queueing observable for ${eventName}`);
-        
+        console.log(
+          `Socket not initialized, queueing observable for ${eventName}`,
+        );
+
         // Add to pending subscriptions
         const subscriptionFn = () => {
           if (this.socket) {
@@ -497,9 +556,9 @@ export class SocketService {
             this.socket.on(eventName, (data: any) => observer.next(data as T));
           }
         };
-        
+
         this.pendingSubscriptions.push(subscriptionFn);
-        
+
         // Return cleanup function
         return () => {
           // Remove from pending queue if not processed yet
@@ -507,25 +566,25 @@ export class SocketService {
           if (index !== -1) {
             this.pendingSubscriptions.splice(index, 1);
           }
-          
+
           // Also remove the actual listener if socket exists
           if (this.socket) {
             this.socket.off(eventName);
           }
         };
       }
-      
+
       // Socket is initialized but might not be connected
       if (!this.socket) {
         observer.error(new Error('Socket is not initialized'));
         return;
       }
-      
+
       // Set up the event listener
       this.socket.on(eventName, (data: any) => {
         observer.next(data as T);
       });
-      
+
       // Return cleanup function
       return () => {
         if (this.socket) {
@@ -553,7 +612,9 @@ export class SocketService {
    * Listen for message notifications
    */
   listenToMessageNotifications(): Observable<MessageNotification> {
-    return this.createEventObservable<MessageNotification>('messageNotification');
+    return this.createEventObservable<MessageNotification>(
+      'messageNotification',
+    );
   }
 
   /**
@@ -567,7 +628,9 @@ export class SocketService {
    * Listen for encrypted message notifications
    */
   listenToEncryptedMessages(): Observable<EncryptedMessageNotification> {
-    return this.createEventObservable<EncryptedMessageNotification>('newEncryptedMessage');
+    return this.createEventObservable<EncryptedMessageNotification>(
+      'newEncryptedMessage',
+    );
   }
 
   sendMessage(data: SendMessageData): Promise<void> {
@@ -576,45 +639,50 @@ export class SocketService {
       if (!this.socket || !this.socket.connected) {
         console.error('Cannot send message: Socket is not connected', {
           socketExists: !!this.socket,
-          connected: this.socket?.connected
+          connected: this.socket?.connected,
         });
         reject(new Error('Socket is not connected'));
         return;
       }
-      
+
       // Log message details for debugging
       console.log('Sending message:', {
         recipient: data.recipient,
         ticketId: data.ticketId,
-        messagePreview: data.message.substring(0, 30) + (data.message.length > 30 ? '...' : ''),
+        messagePreview:
+          data.message.substring(0, 30) +
+          (data.message.length > 30 ? '...' : ''),
         socketId: this.socket.id,
-        transport: this.socket.io?.engine?.transport?.name
+        transport: this.socket.io?.engine?.transport?.name,
       });
-      
+
       // Set up a timeout in case the server doesn't respond
       const timeoutId = setTimeout(() => {
         console.warn('No response from server after sending message (timeout)');
         resolve(); // Resolve anyway to prevent blocking UI
       }, 8000);
-      
+
       // Send the message to the server
       this.socket.emit('sendMessage', data, (response: any) => {
         // Clear the timeout since we got a response
         clearTimeout(timeoutId);
-        
+
         // Log the response for debugging
         console.log('Response from server for message:', response);
-        
+
         if (response && response.error) {
           console.error('Error response from server:', response.error);
           reject(new Error(response.error));
         } else if (response && response.success) {
           console.log('Message sent successfully, server acknowledged', {
-            messageId: response.messageId
+            messageId: response.messageId,
           });
           resolve();
         } else {
-          console.warn('Received unexpected response format from server:', response);
+          console.warn(
+            'Received unexpected response format from server:',
+            response,
+          );
           resolve(); // Resolve anyway to avoid blocking UI
         }
       });
@@ -627,7 +695,7 @@ export class SocketService {
         reject(new Error('Socket is not connected'));
         return;
       }
-      
+
       this.socket.emit('getChatHistory', { ticketId }, (response: any) => {
         if (response.error) {
           reject(new Error(response.error));
@@ -640,60 +708,61 @@ export class SocketService {
 
   disconnect(): void {
     this.manuallyDisconnected = true;
-    
+
     // Stop ping interval
     this.stopPingInterval();
-    
+
     // Leave all active ticket rooms
-    this.activeTicketRooms.forEach(ticketId => {
+    this.activeTicketRooms.forEach((ticketId) => {
       this.leaveTicketRoom(ticketId);
     });
-    
+
     if (this.socket) {
       console.log('Manually disconnecting socket');
       this.socket.disconnect();
     }
-    
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
   }
-  
+
   reconnect(): void {
     // Reset manual disconnect flag
     this.manuallyDisconnected = false;
-    
+
     if (this.socket) {
       console.log('Attempting to reconnect socket...');
-      
+
       // If the socket is already connected, don't try to reconnect
       if (this.socket.connected) {
         console.log('Socket is already connected, no need to reconnect');
         this.connectionStatus.next(true);
         return;
       }
-      
+
       // If we're already trying to reconnect, don't start another attempt
       if (this.reconnectTimer) {
         console.log('Socket is already trying to reconnect');
         return;
       }
-      
+
       // Disconnect the existing socket first
       try {
         this.socket.disconnect();
       } catch (error) {
         console.error('Error disconnecting socket:', error);
       }
-      
+
       // Try a different approach - alternate between ports
-      const currentPort = localStorage.getItem('serverPort') || this.DEFAULT_PORT;
+      const currentPort =
+        localStorage.getItem('serverPort') || this.DEFAULT_PORT;
       const alternatePort = '5000';
       localStorage.setItem('serverPort', alternatePort.toString());
-      
+
       console.log(`Switching to alternate port: ${alternatePort}`);
-      
+
       // Reinitialize with polling transport
       setTimeout(() => {
         this.initializeSocket(false, ['polling']);
@@ -703,16 +772,16 @@ export class SocketService {
       this.initializeSocket(false, ['polling']);
     }
   }
-  
+
   // Utility to reset port to default
   resetPort(): void {
     localStorage.removeItem('serverPort');
     console.log('Server port reset to default');
-    
+
     // Reinitialize with default port
     this.initializeSocket();
   }
-  
+
   // Check if socket is currently connected
   isConnected(): boolean {
     return !!this.socket && this.socket.connected;
@@ -721,21 +790,21 @@ export class SocketService {
   // Ping interval to detect zombie connections
   private pingInterval: any = null;
   private pingTimeout = 3000; // 3seconds
-  
+
   private startPingInterval() {
     // Clear any existing interval
     this.stopPingInterval();
-    
+
     // Start a new ping interval
     this.pingInterval = setInterval(() => {
-      this.pingServer().catch(error => {
+      this.pingServer().catch((error) => {
         console.error('Ping error:', error);
       });
     }, this.pingTimeout);
-    
+
     console.log(`Started ping interval (${this.pingTimeout}ms)`);
   }
-  
+
   private stopPingInterval() {
     if (this.pingInterval) {
       clearInterval(this.pingInterval);
@@ -743,7 +812,7 @@ export class SocketService {
       console.log('Stopped ping interval');
     }
   }
-  
+
   /**
    * Ping the server to check connection health
    * @returns Promise that resolves with the ping result or rejects on timeout/error
@@ -758,17 +827,17 @@ export class SocketService {
         reject(new Error('Socket is not connected'));
         return;
       }
-      
+
       console.log('Pinging server...');
-      
+
       // Create a local reference to the socket to avoid null issues
       const socket = this.socket;
-      
+
       // Set a timeout for the ping response
       const pingTimeout = setTimeout(() => {
         console.error('Ping timeout - no response from server');
         this.connectionStatus.next(false);
-        
+
         // Force reconnection
         if (this.socket) {
           this.socket.disconnect();
@@ -776,11 +845,11 @@ export class SocketService {
         this.attemptReconnect();
         reject(new Error('Ping timeout'));
       }, 5000); // 5 second timeout for ping response
-      
+
       // Send ping to server using the local reference
       socket.emit('ping', { timestamp: new Date() }, (response: any) => {
         clearTimeout(pingTimeout);
-        
+
         if (response && response.pong) {
           console.log('Received pong from server');
           this.connectionStatus.next(true);
@@ -799,8 +868,10 @@ export class SocketService {
    * Process any pending subscriptions that were requested before the socket was ready
    */
   private processPendingSubscriptions() {
-    console.log(`Processing ${this.pendingSubscriptions.length} pending subscriptions`);
-    
+    console.log(
+      `Processing ${this.pendingSubscriptions.length} pending subscriptions`,
+    );
+
     // Execute all pending subscription functions
     while (this.pendingSubscriptions.length > 0) {
       const subscription = this.pendingSubscriptions.shift();

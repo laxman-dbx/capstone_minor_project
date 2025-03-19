@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './decrypt-text.component.html',
   styleUrls: ['./decrypt-text.component.css'],
   standalone: true,
-  imports: [FormsModule, CommonModule]
+  imports: [FormsModule, CommonModule],
 })
 export class DecryptTextComponent implements OnInit {
   sharedWithMe: any[] = [];
@@ -23,7 +23,10 @@ export class DecryptTextComponent implements OnInit {
   sharedWithMePage: number = 1;
   itemsPerPage: number = 4;
 
-  constructor(private encryptService: EncryptTextService, private toastr: ToastrService) {}
+  constructor(
+    private encryptService: EncryptTextService,
+    private toastr: ToastrService,
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -31,15 +34,18 @@ export class DecryptTextComponent implements OnInit {
 
   loadData(): void {
     this.encryptService.getSharedWithMe().subscribe({
-      next: response => {
+      next: (response) => {
         if (response?.success) {
-          this.sharedWithMe = (response.sharedFiles || []).sort((a: { createdAt: string }, b: { createdAt: string }) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          this.sharedWithMe = (response.sharedFiles || []).sort(
+            (a: { createdAt: string }, b: { createdAt: string }) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          );
           if (this.sharedWithMe.length > 0) {
             this.selectMessage(this.sharedWithMe[0]);
           }
         }
       },
-      error: err => console.error('Error fetching shared files:', err)
+      error: (err) => console.error('Error fetching shared files:', err),
     });
   }
 
@@ -53,16 +59,17 @@ export class DecryptTextComponent implements OnInit {
     if (!this.selectedMessage) return;
     this.loading = true;
     this.encryptService.decryptText(this.selectedMessage._id).subscribe({
-      next: response => {
+      next: (response) => {
         this.decryptedMessage = response.text;
         this.loading = false;
         this.toastr.success('Message decrypted successfully');
       },
-      error: err => {
-        this.error = 'Decryption failed: ' + (err.error?.message || err.message);
+      error: (err) => {
+        this.error =
+          'Decryption failed: ' + (err.error?.message || err.message);
         this.loading = false;
         this.toastr.error(this.error);
-      }
+      },
     });
   }
 
@@ -88,16 +95,19 @@ export class DecryptTextComponent implements OnInit {
 
   copyToClipboard() {
     if (!this.decryptedMessage) return;
-    
-    navigator.clipboard.writeText(this.decryptedMessage).then(() => {
-      this.copySuccess = true;
-      this.toastr.success('Text copied to clipboard');
-      setTimeout(() => {
-        this.copySuccess = false;
-      }, 3000);
-    }).catch(err => {
-      console.error('Could not copy text: ', err);
-      this.error = 'Failed to copy to clipboard';
-    });
+
+    navigator.clipboard
+      .writeText(this.decryptedMessage)
+      .then(() => {
+        this.copySuccess = true;
+        this.toastr.success('Text copied to clipboard');
+        setTimeout(() => {
+          this.copySuccess = false;
+        }, 3000);
+      })
+      .catch((err) => {
+        console.error('Could not copy text: ', err);
+        this.error = 'Failed to copy to clipboard';
+      });
   }
 }

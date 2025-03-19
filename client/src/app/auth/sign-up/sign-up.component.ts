@@ -7,9 +7,9 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-sign-up',
-  imports: [FormsModule,CommonModule,RouterModule],
+  imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './sign-up.component.html',
-  styleUrl: './sign-up.component.css'
+  styleUrl: './sign-up.component.css',
 })
 export class SignUpComponent {
   enteredEmail: string = '';
@@ -21,7 +21,11 @@ export class SignUpComponent {
   fileError: string = '';
   errorMessage = '';
 
-  constructor(private authService: AuthService,private router:Router,private toastr:ToastrService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private toastr: ToastrService,
+  ) {}
 
   onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
@@ -64,11 +68,15 @@ export class SignUpComponent {
       };
 
       const response = await this.authService.signUp(userData);
-      this.toastr.success("SignUp SuccessFul","",{positionClass:"toast-top-center"})
+      this.toastr.success('SignUp SuccessFul', '', {
+        positionClass: 'toast-top-center',
+      });
       window.location.href = '/dashboard';
-    } catch (error:any) {
+    } catch (error: any) {
       this.errorMessage = error.message || 'Signup failed!';
-      this.toastr.error(this.errorMessage, '', { positionClass: 'toast-top-center' });
+      this.toastr.error(this.errorMessage, '', {
+        positionClass: 'toast-top-center',
+      });
     }
   }
 }

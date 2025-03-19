@@ -9,9 +9,14 @@ import { AnalyticsComponent } from './analytics/analytics.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DocumentsComponent, TextComponent,AnalyticsComponent],
+  imports: [
+    CommonModule,
+    DocumentsComponent,
+    TextComponent,
+    AnalyticsComponent,
+  ],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   refreshTrigger = false;
@@ -22,19 +27,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private titleService: Title,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
   ) {}
 
   ngOnInit() {
     this.refreshTrigger = !this.refreshTrigger; // Toggle to force update
     this.titleService.setTitle('Dashboard - Secure Document Management');
-    
+
     // Get user name from local storage if available
     this.userName = localStorage.getItem('userName');
-    
+
     // Check for query params to set the active tab
-    this.route.queryParams.subscribe(params => {
-      if (params['tab'] && ['main', 'analytics','text'].includes(params['tab'])) {
+    this.route.queryParams.subscribe((params) => {
+      if (
+        params['tab'] &&
+        ['main', 'analytics', 'text'].includes(params['tab'])
+      ) {
         this.activeTab = params['tab'];
       }
     });
@@ -50,17 +58,17 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.animationObserver.disconnect();
     }
   }
-  
+
   setActiveTab(tabName: string) {
     this.activeTab = tabName;
-    
+
     // Update URL with the active tab
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab: tabName },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
-    
+
     // Update page title based on active tab
     if (tabName === 'analytics') {
       this.titleService.setTitle('Analytics - Secure Document Management');
@@ -73,7 +81,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     // Set up intersection observer for scroll animations
     this.animationObserver = new IntersectionObserver(
       (entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
             // Once the animation has played, no need to observe this element anymore
@@ -84,12 +92,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         root: null, // Use viewport as root
         threshold: 0.1, // Trigger when 10% of the element is visible
-        rootMargin: '0px 0px -50px 0px' // Adjust the trigger point
-      }
+        rootMargin: '0px 0px -50px 0px', // Adjust the trigger point
+      },
     );
 
     // Observe all elements with the animate-on-scroll class
-    document.querySelectorAll('.animate-on-scroll').forEach(element => {
+    document.querySelectorAll('.animate-on-scroll').forEach((element) => {
       this.animationObserver?.observe(element);
     });
   }

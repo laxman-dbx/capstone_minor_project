@@ -184,7 +184,8 @@
   background-color: var(--gray-50);
 }
 
-.decrypt-btn, .delete-btn {
+.decrypt-btn,
+.delete-btn {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
@@ -303,7 +304,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Message Lists */
@@ -341,7 +344,8 @@
   background-color: var(--gray-50);
 }
 
-.sender-info, .sent-info {
+.sender-info,
+.sent-info {
   display: flex;
   align-items: center;
   gap: var(--spacing-3);
@@ -434,38 +438,38 @@
   .text-dashboard {
     padding: var(--spacing-4);
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-3);
   }
-  
+
   .panel-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-3);
     padding: var(--spacing-4);
   }
-  
+
   .message-list {
     padding: var(--spacing-3);
   }
-  
+
   .message-header {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-2);
   }
-  
+
   .message-status {
     align-self: flex-start;
   }
-  
+
   .message-footer {
     flex-direction: column;
   }
-  
+
   .btn {
     width: 100%;
   }

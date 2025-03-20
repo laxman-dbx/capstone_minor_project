@@ -12,8 +12,8 @@ export class EncryptTextService {
 
   constructor(private http: HttpClient) {}
 
-  encryptText(id: string, receiverIds: string[], text: string): Observable<{ encryptedText: string }> {
-    return this.http.post<{ encryptedText: string }>(`${this.baseUrl}/encrypt/encrypt-text`, {
+  encryptText(id: string, receiverIds: string[], text: string): Observable<{ encryptedText: string, encryptedMessageId: string }> {
+    return this.http.post<{ encryptedText: string ,encryptedMessageId:string}>(`${this.baseUrl}/encrypt/encrypt-text`, {
       id,
       receiverIds,
       text
@@ -22,9 +22,9 @@ export class EncryptTextService {
     });
   }
 
-  decryptText(encryptedText: string): Observable<{ decryptedText: string }> {
-    return this.http.post<{ decryptedText: string }>(`${this.baseUrl}/decrypt/decrypt-text`, {
-      encryptedText
+  decryptText(dataId: string): Observable<{ text: string }> {
+    return this.http.post<{ text: string }>(`${this.baseUrl}/decrypt/decrypt-text`, {
+      dataId
     }, {
       headers: { Authorization: `Bearer ${this.token}` }
     });

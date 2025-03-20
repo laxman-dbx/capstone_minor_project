@@ -5,7 +5,7 @@ exports.sharedByMe = async (req, res) => {
 
     try {
 
-        const mySharedFiles = await EncryptedMessages.find({ userId: senderId},{_id : 1, encryptedText : 1, "receivers.receiverId" : 1}).populate("receivers.receiverId", "name");
+        const mySharedFiles = await EncryptedMessages.find({ userId: senderId},{_id : 1, encryptedText : 1, "receivers.receiverId" : 1,createdAt:1}).populate("receivers.receiverId", "name");
 
         if (mySharedFiles.length === 0) {
             return res.status(200).send({ success: true, message: "No data is sent by you" });

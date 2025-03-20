@@ -1,31 +1,45 @@
 <div class="container" [class.disabled]="isLoading">
-  
   <!-- Upload Document -->
   <div class="upload-section">
     <h2>📄 Manage Documents</h2>
-    <p for="fileUpload" class="upload-btn"  routerLink="/upload">Upload Document</p>
+    <p class="upload-btn" routerLink="/upload">Upload Document</p>
   </div>
+
   <!-- Document List -->
   <div class="document-list">
-    <h3>Your Documents</h3>
-    <div class="document-card" *ngFor="let doc of documents">
-      <div class="doc-info">
-        <div class="doc-header">
-          <span class="doc-name">{{ doc.originalName }}</span>
-          <span class="doc-type">({{ doc.documentType }})</span>
-        </div>
-        <span class="doc-date">Uploaded on: {{ doc.uploadedAt | date:'medium' }}</span>
+    <div class="list-header">
+      <h3>Your Documents</h3>
+      <div class="pagination-controls">
+        <button class="btn nav-btn" (click)="prevPage()" [disabled]="currentPage === 1">
+          ← Previous
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="btn nav-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Next →
+        </button>
       </div>
-      <div class="doc-actions">
-        <button class="btn preview" (click)="openPreviewDialog(doc.maskedFileName)" [disabled]="isLoading">
-          👁 Preview
-        </button>
-        <button class="btn download" (click)="downloadFile(doc.maskedFileName)" [disabled]="isLoading">
-          ⬇ Download
-        </button>
-        <button class="btn delete" (click)="deleteFile(doc.maskedFileName)" [disabled]="isLoading">
-          🗑 Delete
-        </button>
+    </div>
+
+    <div class="documents-list">
+      <div class="document-card" *ngFor="let doc of paginatedDocuments">
+        <div class="doc-info">
+          <div class="doc-main-info">
+            <span class="doc-name">{{ doc.originalName }}</span>
+            <span class="doc-type">({{ doc.documentType }})</span>
+            <span class="doc-date">{{ doc.uploadedAt | date:'medium' }}</span>
+          </div>
+        </div>
+        <div class="doc-actions">
+          <button class="btn preview" (click)="openPreviewDialog(doc.maskedFileName)" [disabled]="isLoading">
+            👁 Preview
+          </button>
+          <button class="btn download" (click)="downloadFile(doc.maskedFileName)" [disabled]="isLoading">
+            ⬇ Download
+          </button>
+          <button class="btn delete" (click)="deleteFile(doc.maskedFileName)" [disabled]="isLoading">
+            🗑 Delete
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -35,6 +49,7 @@
     <p>No documents uploaded yet.</p>
   </div>
 </div>
+
 <!-- Loading Overlay -->
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="loading-content">

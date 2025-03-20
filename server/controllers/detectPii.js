@@ -3,7 +3,7 @@ const { PythonShell } = require('python-shell');
 
 async function detectPii(text) {
     if (!text) {
-        return res.status(400).json({ error: "Text parameter is required" });
+        return { error: "Text parameter is required" };
     }
 
     let options = {

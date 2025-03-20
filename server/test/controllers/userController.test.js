@@ -13,6 +13,7 @@ const fs = require("fs");
 const bcrypt = require("bcryptjs");
 const { s3 } = require("../../config/aws");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const Notification = require("../../models/Notification");
 
 describe("User Controller", () => {
   let req, res, next;
@@ -308,27 +309,40 @@ describe("User Controller", () => {
   describe("getNotification", () => {
     it("should get user notifications", async () => {
       const mockNotifications = [
-        { message: "Notification 1" },
-        { message: "Notification 2" },
+        { message: "Notification 1", userId: "testUserId", isRead: false },
+        { message: "Notification 2", userId: "testUserId", isRead: false },
       ];
-      const mockUser = { _id: "testUserId", notifications: mockNotifications };
-      sinon.stub(User, "findById").withArgs("testUserId").resolves(mockUser);
+
+      // Correctly stub the Notification.find method
+      sinon
+        .stub(Notification, "find")
+        .withArgs({ userId: "testUserId", isRead: false })
+        .resolves(mockNotifications);
 
       await userController.getNotification(req, res);
 
-      expect(User.findById.calledOnceWith("testUserId")).to.be.true;
+      expect(Notification.find.calledOnce).to.be.true;
       expect(res.status.calledOnceWith(200)).to.be.true;
       expect(res.json.calledOnceWith(mockNotifications)).to.be.true;
     });
-    it("should return 404 if user not found", async () => {
-      sinon.stub(User, "findById").withArgs("testUserId").resolves(null);
+
+    it("should return 404 if no notifications found", async () => {
+      // Stub to return null to simulate no notifications
+      sinon
+        .stub(Notification, "find")
+        .withArgs({ userId: "testUserId", isRead: false })
+        .resolves(null);
+
       await userController.getNotification(req, res);
 
       expect(res.status.calledOnceWith(404)).to.be.true;
       expect(res.json.calledOnceWith({ message: "User not found" })).to.be.true;
     });
+
     it("should return 500 on server error", async () => {
-      sinon.stub(User, "findById").throws(new Error("Test error"));
+      // Stub to throw an error
+      sinon.stub(Notification, "find").throws(new Error("Test error"));
+
       await userController.getNotification(req, res);
 
       expect(res.status.calledOnceWith(500)).to.be.true;

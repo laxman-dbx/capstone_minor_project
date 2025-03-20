@@ -61,8 +61,8 @@
         <div
           class="ticket-list-item"
           *ngFor="let ticket of tickets"
-          [class.selected]="selectedTicket?._id === ticket._id"
-          [class.resolved]="ticket.status === 'resolved'"
+          [class.selected]="ticket._id === selectedTicketId"
+          (click)="selectTicket(ticket._id)"
         >
           <div class="ticket-header">
             <span class="ticket-id">#{{ ticket._id.substring(0, 8) }}</span>
@@ -81,7 +81,10 @@
               ticket.createdAt | date: "short"
             }}</span>
           </div>
-          <button class="btn btn-open-ticket" (click)="selectTicket(ticket)">
+          <button
+            class="btn btn-open-ticket"
+            (click)="selectTicket(ticket._id)"
+          >
             <i class="fas fa-folder-open"></i> Open
           </button>
         </div>
@@ -90,34 +93,40 @@
   </div>
 
   <!-- Right Section - Chat -->
-  <div class="chat-container" *ngIf="selectedTicket; else selectTicketPrompt">
+  <div
+    class="chat-container"
+    *ngIf="selectedTicketData; else selectTicketPrompt"
+  >
     <div class="card">
       <div class="chat-header">
         <div class="ticket-info">
           <h2 class="chat-title">
             Ticket #{{
-              selectedTicket._id.substr(selectedTicket._id.length - 6)
+              selectedTicketData._id.substr(selectedTicketData._id.length - 6)
             }}
             <span
               class="ticket-status"
-              [class]="getStatusClass(selectedTicket.status)"
+              [class]="getStatusClass(selectedTicketData.status)"
             >
-              {{ selectedTicket.status }}
+              {{ selectedTicketData.status }}
             </span>
           </h2>
-          <p class="issue-text">{{ selectedTicket.issue }}</p>
+          <p class="issue-text">{{ selectedTicketData.issue }}</p>
         </div>
       </div>
 
       <div class="messages-container fixed-height">
-        <div *ngIf="selectedTicket.messages.length === 0" class="no-messages">
+        <div
+          *ngIf="selectedTicketData.messages.length === 0"
+          class="no-messages"
+        >
           <i class="fas fa-comments"></i>
           <p>No messages yet. Start the conversation!</p>
         </div>
 
         <div class="messages" #messageContainer>
           <div
-            *ngFor="let message of selectedTicket.messages"
+            *ngFor="let message of selectedTicketData.messages"
             class="message"
             [class.user-message]="message.sender === 'user'"
             [class.admin-message]="message.sender === 'admin'"

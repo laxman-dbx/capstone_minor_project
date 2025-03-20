@@ -3,7 +3,7 @@ const fs = require("fs");
 const bcrypt = require("bcryptjs");
 const { s3 } = require("../config/aws");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
-
+const Notification = require("../models/Notification");
 //  Get User Profile
 exports.getUserProfile = async (req, res) => {
   try {
@@ -141,11 +141,15 @@ exports.getUsers = async (req, res) => {
 
 exports.getNotification = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user) {
+    const userId = req.userId;
+    const usernotifications = await Notification.find({
+      userId,
+      isRead: false,
+    });
+    if (!usernotifications) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json(user.notifications);
+    res.status(200).json(usernotifications);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

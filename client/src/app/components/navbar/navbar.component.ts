@@ -1,9 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 import { SocketService } from '../../services/socket.service';
 import { ToastrService } from 'ngx-toastr';
+import { UserService } from '../../services/user.service';
+import { Notification } from '../../models/notification.model';
 
 interface NavigationItem {
   name: string;
@@ -11,15 +13,6 @@ interface NavigationItem {
   icon: string;
   description: string;
   isDisplay: boolean;
-}
-
-interface Notification {
-  id: string;
-  message: string;
-  time: Date;
-  read: boolean;
-  icon: string;
-  type: string;
 }
 
 @Component({
@@ -36,11 +29,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
   notificationCount: number = 0;
   notifications: Notification[] = [];
   private subscriptions: Subscription[] = [];
+  private pollingSubscription?: Subscription;
 
   constructor(
     private router: Router,
-    private socketService: SocketService,
-    private toastr: ToastrService,
+    private userService: UserService,
   ) {}
 
   navigation: NavigationItem[] = [];
@@ -49,23 +42,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     // Check if user is logged in
     this.isLogin = !!localStorage.getItem('authToken');
 
-    //loading ntifications
-
-    // Listen for new encrypted messages
-    this.subscriptions.push(
-      this.socketService
-        .listenToEncryptedMessages()
-        .subscribe((notification) => {
-          this.addNotification({
-            id: notification.messageId,
-            message: `New encrypted message from ${notification.senderName}`,
-            time: notification.timestamp,
-            read: false,
-            icon: 'fas fa-lock',
-            type: 'encrypted-message',
-          });
-        }),
-    );
+    // Start polling for notifications every 30 seconds
+    this.startNotificationPolling();
 
     this.navigation = [
       {
@@ -115,7 +93,33 @@ export class NavbarComponent implements OnInit, OnDestroy {
     document.addEventListener('click', this.handleOutsideClick.bind(this));
   }
 
+  private startNotificationPolling(): void {
+    // Initial load
+    this.loadNotifications();
+
+    // Set up polling every 30 seconds
+    this.pollingSubscription = interval(10000).subscribe(() => {
+      this.loadNotifications();
+    });
+  }
+
+  async loadNotifications() {
+    try {
+      const response: Notification[] = await this.userService.getUserNotifications();
+    this.notifications = response.sort((a: Notification, b: Notification) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+      this.notificationCount = response.length;
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  }
+
   ngOnDestroy(): void {
+    // Clean up polling subscription
+    if (this.pollingSubscription) {
+      this.pollingSubscription.unsubscribe();
+    }
     // Clean up subscriptions
     this.subscriptions.forEach((sub) => sub.unsubscribe());
 
@@ -164,18 +168,45 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   markAllAsRead(): void {
     this.notifications.forEach((notification) => {
-      notification.read = true;
+      notification.isRead = true;
     });
     this.updateNotificationCount();
   }
 
   markAsRead(notification: Notification): void {
-    notification.read = true;
+    notification.isRead = true;
     this.updateNotificationCount();
   }
 
+  handleNotificationClick(notification: Notification): void {
+    // Mark as read
+    this.userService.markNotificationAsRead(notification._id);
+
+    // Navigate based on notification type with state
+    switch (notification.type) {
+      case 'message_encrypted':
+        if (notification.metadata.messageId) {
+          this.router.navigate(['/decrypt-text'], {
+            state: { messageId: notification.metadata.messageId },
+          });
+        }
+        break;
+      case 'support_response':
+        if (notification.metadata.ticketId) {
+          this.router.navigate(['/support'], {
+            state: { ticketId: notification.metadata.ticketId },
+          });
+        }
+        break;
+    }
+
+    notification.isRead = true;
+    this.updateNotificationCount();
+    this.showNotifications = false;
+  }
+
   updateNotificationCount(): void {
-    this.notificationCount = this.notifications.filter((n) => !n.read).length;
+    this.notificationCount = this.notifications.filter((n) => !n.isRead).length;
   }
 
   isCurrentRoute(route: string): boolean {

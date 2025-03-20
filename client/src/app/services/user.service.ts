@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { Notification } from '../models/notification.model';
 
 @Injectable({
   providedIn: 'root',
@@ -97,6 +98,38 @@ export class UserService {
     } catch (error) {
       console.error('Error deleting user:', error);
       throw error;
+    }
+  }
+
+  //get user Notifications
+
+  async getUserNotifications(): Promise<Notification[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<Notification[]>(`${this.apiUrl}/notifications`, {
+          headers: { Authorization: `Bearer ${this.getToken()}` },
+        }),
+      );
+      return response;
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.put(
+          `${this.apiUrl}/notifications/${notificationId}/read`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${this.getToken()}` },
+          },
+        ),
+      );
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
     }
   }
 }

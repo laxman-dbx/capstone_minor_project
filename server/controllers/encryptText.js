@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { encrypt_text } = require("../utils/encryption/encrypt-text");
 const { encryptKey } = require("./encryptKey");
 const { logActivity } = require("../utils/activityLogger");
+const { createNotification } = require("../utils/notificationManager");
 
 exports.encryptText = async (req, res) => {
   const id = req.userId;
@@ -71,6 +72,17 @@ exports.encryptText = async (req, res) => {
         },
       },
     );
+
+    for (const receiverId of receiverIds) {
+      if (receiverId !== req.userId) {
+        await createNotification(
+          receiverId,
+          "New encrypted message received",
+          "message_encrypted",
+          { messageId: encKey.encryptedMessage._id },
+        );
+      }
+    }
 
     res.status(200).json({
       encryptedText: modifiedText,

@@ -23,12 +23,10 @@ describe("Auth Controller", () => {
     res = { status: sinon.stub().returnsThis(), json: sinon.stub() };
     next = sinon.stub();
 
-    const generateRSAKeyPairStub = sinon
-      .stub()
-      .resolves({
-        publicKey: "mockedPublicKey",
-        privateKey: "mockedPrivateKey",
-      });
+    const generateRSAKeyPairStub = sinon.stub().resolves({
+      publicKey: "mockedPublicKey",
+      privateKey: "mockedPrivateKey",
+    });
     const generateTokenStub = sinon.stub().returns("mockedToken");
 
     // Proxyquire to inject mocked dependencies

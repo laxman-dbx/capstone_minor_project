@@ -1,5 +1,6 @@
 const socketAuth = require("../middlewares/socketAuth");
 const Ticket = require("../models/Ticket");
+const { createNotification } = require("../utils/notificationManager");
 
 module.exports = (io) => {
   // Add CORS configuration to Socket.io
@@ -307,6 +308,13 @@ module.exports = (io) => {
             sender: "user",
           });
         }
+
+        await createNotification(
+          ticketUserId,
+          "Admin responded to your ticket",
+          "support_response",
+          { ticketId: ticket._id },
+        );
 
         // Send success acknowledgment to the sender
         console.log("Message processing complete, sending acknowledgment");

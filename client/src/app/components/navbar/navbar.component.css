@@ -212,6 +212,7 @@
 }
 
 .notification-content {
+  cursor: pointer;
   flex: 1;
 }
 

@@ -3,6 +3,7 @@ import { EncryptTextService } from '../../services/encrypt-text.service';
 import { ToastrService } from 'ngx-toastr';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-decrypt-text',
@@ -22,11 +23,21 @@ export class DecryptTextComponent implements OnInit {
   // Pagination properties
   sharedWithMePage: number = 1;
   itemsPerPage: number = 4;
+  messageId: string | null = null;
+  selectedMessageId: string | null = null;
+  selectedMessageData: any = null;
 
   constructor(
     private encryptService: EncryptTextService,
     private toastr: ToastrService,
-  ) {}
+    private router: Router,
+  ) {
+    // Get state data
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.messageId = navigation.extras.state['messageId'];
+    }
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -40,25 +51,39 @@ export class DecryptTextComponent implements OnInit {
             (a: { createdAt: string }, b: { createdAt: string }) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
           );
-          if (this.sharedWithMe.length > 0) {
-            this.selectMessage(this.sharedWithMe[0]);
+          if (this.messageId) {
+            console.log(this.messageId, this.sharedWithMe);
+            this.selectMessage(this.messageId);
+          } else if (this.sharedWithMe.length > 0) {
+            this.selectMessage(this.sharedWithMe[0]._id);
           }
         }
       },
-      error: (err) => console.error('Error fetching shared files:', err),
+      error: (err) => {
+        console.error('Error fetching shared files:', err);
+        this.toastr.error('Failed to load shared messages');
+      },
     });
   }
 
-  selectMessage(message: any) {
-    this.selectedMessage = message;
+  selectMessage(messageId: string) {
+    const message = this.sharedWithMe.find((m) => m._id === messageId);
+    if (!message) {
+      this.toastr.error('Message not found');
+      return;
+    }
+
+    this.selectedMessageId = messageId;
+    this.selectedMessageData = message;
     this.decryptedMessage = ''; // Reset previous decryption result
     this.error = '';
   }
 
   decrypt() {
-    if (!this.selectedMessage) return;
+    if (!this.selectedMessageId) return;
+
     this.loading = true;
-    this.encryptService.decryptText(this.selectedMessage._id).subscribe({
+    this.encryptService.decryptText(this.selectedMessageId).subscribe({
       next: (response) => {
         this.decryptedMessage = response.text;
         this.loading = false;
@@ -82,14 +107,20 @@ export class DecryptTextComponent implements OnInit {
   nextPage() {
     if (this.sharedWithMePage * this.itemsPerPage < this.sharedWithMe.length) {
       this.sharedWithMePage++;
-      this.selectMessage(this.getPaginatedSharedWithMe()[0]);
+      const paginatedMessages = this.getPaginatedSharedWithMe();
+      if (paginatedMessages.length > 0) {
+        this.selectMessage(paginatedMessages[0]._id);
+      }
     }
   }
 
   prevPage() {
     if (this.sharedWithMePage > 1) {
       this.sharedWithMePage--;
-      this.selectMessage(this.getPaginatedSharedWithMe()[0]);
+      const paginatedMessages = this.getPaginatedSharedWithMe();
+      if (paginatedMessages.length > 0) {
+        this.selectMessage(paginatedMessages[0]._id);
+      }
     }
   }
 

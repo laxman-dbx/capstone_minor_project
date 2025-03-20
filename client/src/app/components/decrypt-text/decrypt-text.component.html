@@ -5,8 +5,8 @@
     <ul *ngIf="getPaginatedSharedWithMe().length > 0; else noData">
       <li
         *ngFor="let item of getPaginatedSharedWithMe()"
-        [class.selected]="item === selectedMessage"
-        (click)="selectMessage(item)"
+        [class.selected]="item._id === selectedMessageId"
+        (click)="selectMessage(item._id)"
       >
         <div>
           <p><strong>Encrypted Text:</strong> {{ item.encryptedText }}</p>
@@ -44,9 +44,9 @@
     </div>
 
     <!-- Encrypted Result -->
-    <div class="result-box" *ngIf="selectedMessage">
+    <div class="result-box" *ngIf="selectedMessageData">
       <h3>Encrypted Message:</h3>
-      <p class="encrypted-text">{{ selectedMessage.encryptedText }}</p>
+      <p class="encrypted-text">{{ selectedMessageData.encryptedText }}</p>
       <button (click)="decrypt()" [disabled]="loading" class="decrypt-btn">
         {{ loading ? "Decrypting..." : "Decrypt" }}
       </button>

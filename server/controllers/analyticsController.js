@@ -82,12 +82,10 @@ exports.getDocumentMetrics = async (req, res) => {
       totalStorageUsed,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Server error while fetching document metrics",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Server error while fetching document metrics",
+      error: error.message,
+    });
   }
 };
 
@@ -249,12 +247,10 @@ exports.getFullAdminAnalytics = async (req, res) => {
       topActiveUsers,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Server error while fetching analytics",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Server error while fetching analytics",
+      error: error.message,
+    });
   }
 };
 
@@ -299,11 +295,9 @@ exports.getAdminActivityLogs = async (req, res) => {
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Server error while fetching activity logs",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Server error while fetching activity logs",
+      error: error.message,
+    });
   }
 };

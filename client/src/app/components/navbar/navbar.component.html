@@ -81,15 +81,15 @@
               <div
                 class="notification-item"
                 *ngFor="let notification of notifications"
-                [class.unread]="!notification.read"
+                [class.unread]="!notification.isRead"
               >
-                <div class="notification-icon">
-                  <i class="{{ notification.icon }}" aria-hidden="true"></i>
-                </div>
-                <div class="notification-content">
-                  <p class="notification-text">{{ notification.message }}</p>
+                <div
+                  class="notification-content"
+                  (click)="handleNotificationClick(notification)"
+                >
+                  <p class="notification-text">{{ notification.title }}</p>
                   <p class="notification-time">
-                    {{ notification.time | date: "short" }}
+                    {{ notification.createdAt | date: "short" }}
                   </p>
                 </div>
               </div>

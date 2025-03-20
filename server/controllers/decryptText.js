@@ -2,6 +2,7 @@ const EncryptedMessage = require("../models/dataReceiver");
 const { decryptKey } = require("./decryptKey");
 const { decrypt } = require("../utils/decryption/decrypt-text");
 const { logActivity } = require("../utils/activityLogger");
+const { createNotification } = require("../utils/notificationManager");
 
 exports.decryptText = async (req, res) => {
   const receiverId = req.userId;
@@ -52,6 +53,14 @@ exports.decryptText = async (req, res) => {
         textLength: modifiedText.length,
       },
     });
+    if (Details.userId !== req.userId) {
+      await createNotification(
+        Details.userId,
+        "Your message was decrypted",
+        "message_decrypted",
+        { messageId: Details._id },
+      );
+    }
 
     res.json({ text: modifiedText });
   } catch (error) {

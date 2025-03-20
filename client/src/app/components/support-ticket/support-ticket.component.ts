@@ -14,6 +14,7 @@ import { SocketService } from '../../services/socket.service';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
 import { UserTicket, Message } from '../../models/support.model';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-user-support-ticket',
   standalone: true,
@@ -26,9 +27,12 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
   tickets: UserTicket[] = [];
   newTicket = { issue: '', priority: 'low' as const };
   loading = false;
-  selectedTicket: UserTicket | null = null;
+  selectedTicketId: string | null = null;
+  selectedTicketData: UserTicket | null = null;
   newMessage = '';
   error = '';
+
+  ticketId: string = '';
   private subscriptions: Subscription[] = [];
   private currentTicketId: string | null = null;
   private shouldScrollToBottom = false;
@@ -40,7 +44,13 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private cdRef: ChangeDetectorRef,
     private ngZone: NgZone,
-  ) {}
+    private router: Router,
+  ) {
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.ticketId = navigation.extras.state['ticketId'];
+    }
+  }
 
   ngOnInit() {
     console.log('Support ticket component initializing...');
@@ -59,6 +69,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       .then(() => {
         console.log('Tickets loaded, now connecting socket...');
         // Then connect socket for real-time updates
+        this.selectTicket(this.ticketId);
         this.connectSocket();
       })
       .catch((error) => {
@@ -134,7 +145,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
               this.setupSocketListeners();
 
               // If we have a selected ticket, make sure we're in the right room
-              if (this.selectedTicket && this.currentTicketId) {
+              if (this.selectedTicketData && this.currentTicketId) {
                 console.log(
                   `Ensuring we're in the correct ticket room: ${this.currentTicketId}`,
                 );
@@ -153,11 +164,15 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
                     return Promise.resolve(null);
                   })
                   .then((history) => {
-                    if (history && history.length > 0 && this.selectedTicket) {
+                    if (
+                      history &&
+                      history.length > 0 &&
+                      this.selectedTicketData
+                    ) {
                       console.log(
                         `Received ${history.length} messages after connection`,
                       );
-                      this.selectedTicket.messages = history;
+                      this.selectedTicketData.messages = history;
                       this.cdRef.detectChanges();
                       setTimeout(() => this.scrollToBottom(), 200);
                     }
@@ -225,18 +240,18 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
 
           // Only process messages for the currently selected ticket
           if (
-            this.selectedTicket &&
-            message.ticketId === this.selectedTicket._id
+            this.selectedTicketData &&
+            message.ticketId === this.selectedTicketData._id
           ) {
             console.log('Adding message to current ticket');
 
             // Ensure messages array exists
-            if (!this.selectedTicket.messages) {
-              this.selectedTicket.messages = [];
+            if (!this.selectedTicketData.messages) {
+              this.selectedTicketData.messages = [];
             }
 
             // Check if this message is already in the array (prevent duplicates)
-            const isDuplicate = this.selectedTicket.messages.some(
+            const isDuplicate = this.selectedTicketData.messages.some(
               (m) =>
                 m.sender === message.sender &&
                 m.message === message.message &&
@@ -248,7 +263,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
 
             if (!isDuplicate) {
               // Add the message to the array
-              this.selectedTicket.messages.push(message);
+              this.selectedTicketData.messages.push(message);
               this.cdRef.detectChanges();
 
               // Scroll to bottom immediately after new message
@@ -286,8 +301,8 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
           );
 
           // Update selected ticket if it's the one being updated
-          if (this.selectedTicket?._id === update.ticketId) {
-            this.selectedTicket!.status = update.status;
+          if (this.selectedTicketData?._id === update.ticketId) {
+            this.selectedTicketData!.status = update.status;
           }
 
           this.toastr.info(`Ticket status updated to ${update.status}`);
@@ -320,8 +335,8 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
 
             // Only show notification if it's not for the currently selected ticket
             if (
-              !this.selectedTicket ||
-              notification.ticketId !== this.selectedTicket._id
+              !this.selectedTicketData ||
+              notification.ticketId !== this.selectedTicketData._id
             ) {
               // Add different notifications based on sender
               if (notification.sender === 'admin') {
@@ -369,11 +384,15 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
                   return Promise.resolve(null);
                 })
                 .then((history) => {
-                  if (history && history.length > 0 && this.selectedTicket) {
+                  if (
+                    history &&
+                    history.length > 0 &&
+                    this.selectedTicketData
+                  ) {
                     console.log(
                       `Received ${history.length} messages after reconnection`,
                     );
-                    this.selectedTicket.messages = history;
+                    this.selectedTicketData.messages = history;
                     this.cdRef.detectChanges();
                     this.scrollToBottom();
                   }
@@ -431,19 +450,19 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
 
           // If this is for the currently selected ticket, update the UI
           if (
-            this.selectedTicket &&
-            this.selectedTicket._id === pendingMessage.ticketId
+            this.selectedTicketData &&
+            this.selectedTicketData._id === pendingMessage.ticketId
           ) {
             // Find any pending messages in the UI and remove the (pending) indicator
-            const index = this.selectedTicket.messages.findIndex(
+            const index = this.selectedTicketData.messages.findIndex(
               (m) =>
                 m.message.includes(pendingMessage.message) &&
                 m.message.includes('(pending)'),
             );
 
             if (index !== -1) {
-              this.selectedTicket.messages[index].message =
-                this.selectedTicket.messages[index].message.replace(
+              this.selectedTicketData.messages[index].message =
+                this.selectedTicketData.messages[index].message.replace(
                   ' (pending)',
                   '',
                 );
@@ -518,21 +537,21 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
         });
 
         // If we had a previously selected ticket, re-select it with updated data
-        if (this.selectedTicket) {
+        if (this.selectedTicketData) {
           const updatedTicket = this.tickets.find(
-            (t) => t._id === this.selectedTicket?._id,
+            (t) => t._id === this.selectedTicketData?._id,
           );
           if (updatedTicket) {
             // Preserve messages from the current selected ticket
-            const currentMessages = this.selectedTicket.messages || [];
-            this.selectedTicket = updatedTicket;
+            const currentMessages = this.selectedTicketData.messages || [];
+            this.selectedTicketData = updatedTicket;
 
             // Only use the messages from the updated ticket if it has messages
             if (
-              !this.selectedTicket.messages ||
-              this.selectedTicket.messages.length === 0
+              !this.selectedTicketData.messages ||
+              this.selectedTicketData.messages.length === 0
             ) {
-              this.selectedTicket.messages = currentMessages;
+              this.selectedTicketData.messages = currentMessages;
             }
           }
         }
@@ -566,7 +585,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       this.tickets.unshift(ticket);
       this.newTicket.issue = '';
       this.toastr.success('Ticket created successfully');
-      this.selectTicket(ticket);
+      this.selectTicket(ticket._id);
     } catch (error: any) {
       this.toastr.error('Failed to create ticket');
       this.error =
@@ -577,9 +596,9 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     }
   }
 
-  async selectTicket(ticket: UserTicket) {
+  async selectTicket(ticketId: string) {
     try {
-      console.log('Selecting ticket:', ticket._id);
+      console.log('Selecting ticket:', ticketId);
 
       // Leave the current ticket room if any
       if (this.currentTicketId) {
@@ -589,17 +608,23 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
           console.log('Successfully left previous ticket room');
         } catch (leaveError) {
           console.warn('Error leaving previous ticket room:', leaveError);
-          // Continue anyway, as we'll join a new room
         }
       }
 
-      // Store the selected ticket and ID
-      this.selectedTicket = { ...ticket };
-      this.currentTicketId = ticket._id;
+      // Find the ticket data from the tickets array
+      const ticket = this.tickets.find((t) => t._id === ticketId);
+      if (!ticket) {
+        throw new Error('Ticket not found');
+      }
+
+      // Store the selected ticket ID and data
+      this.selectedTicketId = ticketId;
+      this.selectedTicketData = { ...ticket };
+      this.currentTicketId = ticketId;
 
       // Clear any existing messages to avoid showing stale data
-      if (this.selectedTicket.messages) {
-        this.selectedTicket.messages = [];
+      if (this.selectedTicketData.messages) {
+        this.selectedTicketData.messages = [];
       }
 
       // Ensure socket is connected before trying to join room
@@ -667,7 +692,8 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
             'Access denied: You do not have permission to view this ticket';
 
           // Reset selection
-          this.selectedTicket = null;
+          this.selectedTicketId = null;
+          this.selectedTicketData = null;
           this.currentTicketId = null;
           return;
         }
@@ -687,10 +713,10 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
 
         if (history && history.length > 0) {
           // Replace any existing messages with the full history
-          this.selectedTicket.messages = history;
-        } else if (!this.selectedTicket.messages) {
+          this.selectedTicketData.messages = history;
+        } else if (!this.selectedTicketData.messages) {
           // Ensure messages array exists even if empty
-          this.selectedTicket.messages = [];
+          this.selectedTicketData.messages = [];
         }
       } catch (historyError: any) {
         console.error('Error loading chat history:', historyError);
@@ -704,7 +730,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
               ticket._id,
             );
             if (retryHistory && retryHistory.length > 0) {
-              this.selectedTicket.messages = retryHistory;
+              this.selectedTicketData.messages = retryHistory;
             }
           } catch (retryError) {
             console.error('Retry failed to load chat history:', retryError);
@@ -721,8 +747,8 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
         }
 
         // Continue with empty or existing messages
-        if (!this.selectedTicket.messages) {
-          this.selectedTicket.messages = [];
+        if (!this.selectedTicketData.messages) {
+          this.selectedTicketData.messages = [];
         }
       }
 
@@ -737,13 +763,14 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
         'Failed to load ticket data: ' + (error.message || 'Unknown error');
 
       // Reset selection on critical errors
-      this.selectedTicket = null;
+      this.selectedTicketId = null;
+      this.selectedTicketData = null;
       this.currentTicketId = null;
     }
   }
 
   async sendMessage() {
-    if (!this.selectedTicket) {
+    if (!this.selectedTicketId || !this.selectedTicketData) {
       console.error('Cannot send message: No ticket selected');
       this.toastr.error('Please select a ticket first');
       return;
@@ -754,14 +781,14 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.selectedTicket.status === 'resolved') {
+    if (this.selectedTicketData.status === 'resolved') {
       console.error('Cannot send message: Ticket is resolved');
       this.toastr.warning('Cannot send messages to resolved tickets');
       return;
     }
 
     const messageText = this.newMessage.trim();
-    const ticketId = this.selectedTicket._id;
+    const ticketId = this.selectedTicketData._id;
 
     try {
       // Clear input field immediately
@@ -783,12 +810,12 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       };
 
       // Ensure messages array exists
-      if (!this.selectedTicket.messages) {
-        this.selectedTicket.messages = [];
+      if (!this.selectedTicketData.messages) {
+        this.selectedTicketData.messages = [];
       }
 
       // Add message to UI immediately
-      this.selectedTicket.messages.push(optimisticMessage);
+      this.selectedTicketData.messages.push(optimisticMessage);
       this.cdRef.detectChanges();
 
       // Scroll to bottom immediately after adding message to UI
@@ -886,8 +913,8 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       console.error('Error sending message:', error);
 
       // Don't remove the optimistic message, but mark it as pending
-      if (this.selectedTicket?.messages) {
-        const index = this.selectedTicket.messages.findIndex(
+      if (this.selectedTicketData?.messages) {
+        const index = this.selectedTicketData.messages.findIndex(
           (m) =>
             m.message === messageText &&
             m.sender === 'user' &&
@@ -897,7 +924,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
 
         if (index !== -1) {
           // Add a visual indicator that the message is pending
-          this.selectedTicket.messages[index].message += ' (pending)';
+          this.selectedTicketData.messages[index].message += ' (pending)';
           this.cdRef.detectChanges();
         }
       }
@@ -907,7 +934,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
         localStorage.getItem('pendingMessages') || '[]',
       );
       pendingMessages.push({
-        ticketId: this.selectedTicket._id,
+        ticketId: this.selectedTicketData._id,
         message: messageText,
         timestamp: new Date(),
       });
@@ -925,7 +952,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
   }
 
   isTicketResolved(): boolean {
-    return this.selectedTicket?.status === 'resolved';
+    return this.selectedTicketData?.status === 'resolved';
   }
 
   getStatusClass(status: string): string {

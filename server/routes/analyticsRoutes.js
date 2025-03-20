@@ -10,21 +10,14 @@ const {
   getFullAdminAnalytics,
   // getAnalyticsData
   getDocumentMetrics,
-  getUserActivityLogs,
   getAdminActivityLogs,
 } = require("../controllers/analyticsController");
 
 // User analytics routes
 router.get("/user-metrics", protect, getDocumentMetrics);
-router.get("/activity-logs", protect, getUserActivityLogs);
 
 //admin analytics routes
-router.get("/admin/analytics/full", protect, admin, getFullAdminAnalytics);
-router.get(
-  "/admin/analytics/activity-logs",
-  protect,
-  admin,
-  getAdminActivityLogs,
-);
+router.get("/admin/analytics/full", admin, getFullAdminAnalytics);
+router.get("/admin/analytics/activity-logs", admin, getAdminActivityLogs);
 
 module.exports = router;

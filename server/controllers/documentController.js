@@ -105,8 +105,9 @@ const deleteDocument = async (req, res) => {
 
     res.json({ message: "File deleted successfully" });
   } catch (err) {
-    console.error("Delete error:", err);
-    res.status(500).json({ error: "Error deleting file" });
+    res
+      .status(500)
+      .json({ messege: "Error deleting file", error: err.message });
   }
 };
 

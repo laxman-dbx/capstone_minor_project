@@ -26,12 +26,9 @@ const uploadDocument = async (req, res) => {
     const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
     if (!allowedTypes.includes(req.file.mimetype)) {
       fs.unlinkSync(req.file.path);
-      return res
-        .status(415)
-        .json({
-          message:
-            "Invalid file type. Only JPEG, PNG and PDF files are allowed",
-        });
+      return res.status(415).json({
+        message: "Invalid file type. Only JPEG, PNG and PDF files are allowed",
+      });
     }
 
     const { documentType, isSave } = req.body;
@@ -54,14 +51,11 @@ const uploadDocument = async (req, res) => {
         processedFilePath = imagePath[0];
       }
 
-      // Mask PII Data
-      console.log(processedFilePath);
       const { maskedFilePath, piiHash } = await maskImagePII(
         processedFilePath,
         "masked_uploads/",
         documentType,
       );
-      console.log(maskedFilePath);
 
       if (maskedFilePath === processedFilePath) {
         fs.unlinkSync(processedFilePath);
@@ -113,7 +107,7 @@ const uploadDocument = async (req, res) => {
         // Cleanup files
         cleanup([filePath, processedFilePath, maskedFilePath]);
 
-        return res.json({
+        return res.status(200).json({
           message: "File uploaded & masked successfully",
           fileUrl: filename,
         });
@@ -141,7 +135,6 @@ const uploadDocument = async (req, res) => {
       throw processingError;
     }
   } catch (err) {
-    console.error("Error in uploadDocument:", err);
     res.status(500).json({
       error: "Failed to process document",
       message: err.message,
@@ -169,12 +162,9 @@ const publicUploadDocument = async (req, res) => {
     const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
     if (!allowedTypes.includes(req.file.mimetype)) {
       fs.unlinkSync(req.file.path);
-      return res
-        .status(415)
-        .json({
-          message:
-            "Invalid file type. Only JPEG, PNG and PDF files are allowed",
-        });
+      return res.status(415).json({
+        message: "Invalid file type. Only JPEG, PNG and PDF files are allowed",
+      });
     }
 
     const { documentType } = req.body;
@@ -198,7 +188,7 @@ const publicUploadDocument = async (req, res) => {
       }
 
       // Mask PII Data
-      const maskedFilePath = await maskImagePII(
+      const { maskedFilePath } = await maskImagePII(
         processedFilePath,
         "masked_uploads/",
         documentType,
@@ -233,7 +223,6 @@ const publicUploadDocument = async (req, res) => {
       throw processingError;
     }
   } catch (err) {
-    console.error("Error in uploadDocument:", err);
     res.status(500).json({
       error: "Failed to process document",
       message: err.message,
@@ -247,7 +236,7 @@ function cleanup(files) {
       try {
         fs.unlinkSync(file);
       } catch (err) {
-        console.error(`Error cleaning up file ${file}:`, err);
+        return err;
       }
     }
   });

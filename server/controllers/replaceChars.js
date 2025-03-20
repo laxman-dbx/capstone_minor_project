@@ -30,20 +30,16 @@ exports.replaceChars = async (req, res) => {
         modifiedText.slice(end_index);
     }
 
-    res
-      .status(200)
-      .send({
-        success: true,
-        encryptedText: modifiedText,
-        newIndex: newIndicesArray,
-      });
+    res.status(200).send({
+      success: true,
+      encryptedText: modifiedText,
+      newIndex: newIndicesArray,
+    });
   } catch (error) {
     console.error(error);
-    return res
-      .status(400)
-      .send({
-        success: false,
-        error: "An error occurred while processing your request",
-      });
+    return res.status(400).send({
+      success: false,
+      error: "An error occurred while processing your request",
+    });
   }
 };

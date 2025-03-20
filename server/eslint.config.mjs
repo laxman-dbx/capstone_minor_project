@@ -1,10 +1,13 @@
 import globals from "globals";
 import pluginJs from "@eslint/js";
+import { globalIgnores } from "eslint/config";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
+  globalIgnores(["test/*", "node_modules/*", "utils/*"]),
   {
     files: ["**/*.js"],
+
     languageOptions: {
       ecmaVersion: 2024,
       sourceType: "commonjs",

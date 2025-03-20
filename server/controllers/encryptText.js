@@ -72,13 +72,11 @@ exports.encryptText = async (req, res) => {
       },
     );
 
-    res
-      .status(200)
-      .json({
-        encryptedText: modifiedText,
-        newIndex: newIndicesArray,
-        encryptedMessageId: encKey.encryptedMessage._id,
-      });
+    res.status(200).json({
+      encryptedText: modifiedText,
+      newIndex: newIndicesArray,
+      encryptedMessageId: encKey.encryptedMessage._id,
+    });
   } catch (error) {
     console.error(error);
     res

@@ -12,7 +12,7 @@ exports.getUserProfile = async (req, res) => {
     ); // Exclude password and Keys
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json(user);
+    res.status(200).json(user);
   } catch (error) {
     res
       .status(500)
@@ -85,7 +85,7 @@ exports.updateProfileImage = async (req, res) => {
       if (err) console.error("Error deleting local file:", err);
     });
 
-    res.json({
+    res.status(200).json({
       message: "Profile image updated successfully",
       profileImage: profileImageUrl,
     });

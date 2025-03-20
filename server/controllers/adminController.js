@@ -1,5 +1,4 @@
 const Admin = require("../models/Admin");
-const Document = require("../models/Document");
 const Ticket = require("../models/Ticket");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -15,7 +14,7 @@ exports.login = async (req, res) => {
     }
     const hashedPassword = admin.password;
     const isMatch = await bcrypt.compare(password, hashedPassword);
-    console.log("1", hashedPassword);
+
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -30,29 +29,7 @@ exports.login = async (req, res) => {
       token,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Get Dashboard Analytics
-exports.getDocumentAnalytics = async (req, res) => {
-  try {
-    // Document statistics
-    const totalDocuments = await Document.countDocuments();
-    const documentTypes = await Document.aggregate([
-      { $group: { _id: "$documentType", count: { $sum: 1 } } },
-    ]);
-
-    res.json({
-      documents: {
-        total: totalDocuments,
-        byType: documentTypes,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching document analytics:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -63,47 +40,9 @@ exports.getSupportTickets = async (req, res) => {
       .populate("user", "name email")
       .sort({ createdAt: -1 });
 
-    console.log(
-      "Fetched tickets:",
-      tickets.map((t) => ({
-        id: t._id,
-        user: t.user,
-        userId: t.userId,
-        issue: t.issue,
-      })),
-    );
-
     res.status(200).json(tickets);
   } catch (error) {
-    console.error("Error fetching tickets:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-// Reply to Support Ticket
-exports.replyToTicket = async (req, res) => {
-  try {
-    const { ticketId } = req.params;
-    const { message } = req.body;
-
-    const ticket = await Ticket.findById(ticketId);
-    if (!ticket) {
-      return res.status(404).json({ message: "Ticket not found" });
-    }
-
-    ticket.messages.push({
-      sender: "admin",
-      message,
-      timestamp: new Date(),
-    });
-    ticket.status = "in-progress";
-    ticket.updatedAt = new Date();
-
-    await ticket.save();
-    res.status(200).json(ticket);
-  } catch (error) {
-    console.error("Error replying to ticket:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -125,8 +64,7 @@ exports.updateTicketStatus = async (req, res) => {
 
     res.status(200).json(ticket);
   } catch (error) {
-    console.error("Error updating ticket status:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -135,7 +73,6 @@ exports.usersLogs = async (req, res) => {
     const userslog = await ActivityLog.find();
     res.status(200).json(userslog);
   } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

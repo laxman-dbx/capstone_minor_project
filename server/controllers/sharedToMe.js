@@ -6,8 +6,8 @@ exports.sharedToMe = async (req, res) => {
 
     try {
         const sharedFiles = await EncryptedMessages.find({
-            "receivers.receiverId": userId, // User is in the receivers list
-            userId: { $ne: userId } // Exclude messages where the sender is the same as the requesting user
+            "receivers.receiverId": userId, 
+            userId: { $ne: userId } 
         }, { _id: 1, userId: 1, encryptedText: 1, createdAt: 1 })
         .populate("userId", "name");
 

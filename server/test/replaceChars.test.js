@@ -1,26 +1,34 @@
-// let chai;
-// let chaiHttp;
-// before(async()=>{
-//   chai=await import('chai');
-//   chaiHttp = await import("chai-http");
-//   await chai.use(chaiHttp);
-// })
+let chai;
+let chaiHttp;
+const server = require("../controllers/replaceChars"); ;
 
-// const server = require("../controllers/replaceChars"); ;
+async function start(){
+    chai  = await import('chai');
+    const { default: chaiHttpModule } = await import('chai-http');
+    chaiHttp = chaiHttpModule;
+    chai.use(chaiHttp);  
+     
+
+}
 
 
-// describe("PII Detection and Replacement", function () {
 
-//     it("should return an error if text parameter is missing", function (done) {
-//         chai.request(server)
-//             .post("/replaceChars") 
-//             .send({})
-//             .end((err, res) => {
-//                 chai.expect(res).to.have.status(404);
-//                 chai.expect(res.body).to.have.property("error").eql("Text parameter is required");
-//                 done();
-//             });
-//     });
+describe("PII Detection and Replacement", function () {
+    before(async()=>{
+        await start();
+    })
+    it("should return an error if text parameter is missing", function (done) {
+        chai.request(server)
+            .post("/replaceChars") 
+            .send({})
+            .end((err, res) => {
+                chai.expect(res).to.have.status(404);
+                chai.expect(res.body).to.have.property("error").eql("Text parameter is required");
+                done();
+            });
+    });
+    
+    
 
 //     // it("should return success: false if no PII is detected", function (done) {
 //     //     const mockText = "This is just a regular sentence with no sensitive information.";
@@ -74,5 +82,4 @@
 //     //         });
 //     // });
 
-// });
-
+});

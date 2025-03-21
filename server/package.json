@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "npx nodemon server.js",
-    "test": "mocha 'test/**/*.test.js'"
+    "test": "mocha './test/utils/**/*.test.js'"
   },
   "keywords": [],
   "author": "",

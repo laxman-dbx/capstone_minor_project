@@ -1,18 +1,22 @@
 const User = require("../models/User");
 const fs = require("fs");
-const bcrypt=require('bcryptjs')
+const bcrypt = require("bcryptjs");
 const { s3 } = require("../config/aws");
-const { PutObjectCommand,DeleteObjectCommand } = require("@aws-sdk/client-s3");
-
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const Notification = require("../models/Notification");
 //  Get User Profile
 exports.getUserProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select("_id name phone email profileImage"); // Exclude password and Keys
+    const user = await User.findById(req.userId).select(
+      "_id name phone email profileImage",
+    ); // Exclude password and Keys
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.json(user);
+    res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", err: error.message });
   }
 };
 
@@ -24,19 +28,22 @@ exports.updateUserProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.userId,
       { name, phone },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     ).select("_id name phone email profileImage");
 
     res.json(updatedUser);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", err: error.message });
   }
 };
 
 // Update Profile Image
 exports.updateProfileImage = async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: "No image uploaded" });
+    if (!req.file)
+      return res.status(400).json({ message: "No image uploaded" });
 
     const filePath = req.file.path;
     const fileStream = fs.createReadStream(filePath);
@@ -55,7 +62,7 @@ exports.updateProfileImage = async (req, res) => {
           new DeleteObjectCommand({
             Bucket: bucketName,
             Key: oldImageKey,
-          })
+          }),
         );
       }
     }
@@ -68,24 +75,17 @@ exports.updateProfileImage = async (req, res) => {
         Body: fileStream,
         ContentType: req.file.mimetype,
         ACL: "public-read",
-      })
+      }),
     );
 
     const profileImageUrl = `https://${bucketName}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
-
-    // Update user profile image URL in database
-    const updatedUser = await User.findByIdAndUpdate(
-      req.userId,
-      { profileImage: profileImageUrl },
-      { new: true }
-    ).select("-password");
 
     // Remove local file after upload
     fs.unlink(filePath, (err) => {
       if (err) console.error("Error deleting local file:", err);
     });
 
-    res.json({
+    res.status(200).json({
       message: "Profile image updated successfully",
       profileImage: profileImageUrl,
     });
@@ -94,14 +94,13 @@ exports.updateProfileImage = async (req, res) => {
   }
 };
 
-
 //  Delete User Account
 exports.deleteUserAccount = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.userId);
     res.json({ message: "Account deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -118,23 +117,40 @@ exports.changePassword = async (req, res) => {
 
     res.json({ message: "Password changed successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", err: error.message });
   }
 };
 
 //user list by ID
-exports.getUsers=async(req, res) => {
+exports.getUsers = async (req, res) => {
   try {
-
     const users = await User.find({ _id: { $ne: req.userId } })
-    .select('id name email profileImage')
-    .limit(10); 
+      .select("id name email profileImage")
+      .limit(10);
 
     if (!users) {
-        return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(users);
-} catch (error) {
-    res.status(500).json({ error: "Server Error" });
-}
-}
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getNotification = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const usernotifications = await Notification.find({
+      userId,
+      isRead: false,
+    });
+    if (!usernotifications) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(usernotifications);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

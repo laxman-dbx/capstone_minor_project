@@ -1,44 +1,44 @@
 {
-    "masked_pii": [
-        {
-            "pattern": "AadharNumber",
-            "text": "AadharNumber",
-            "location": {
-                "Left": 166,
-                "Top": 442,
-                "Width": 230,
-                "Height": 59
-            }
-        },
-        {
-            "pattern": "AadharName",
-            "text": "AadharName",
-            "location": {
-                "Left": 175,
-                "Top": 167,
-                "Width": 110,
-                "Height": 46
-            }
-        },
-        {
-            "pattern": "AadharGender",
-            "text": "AadharGender",
-            "location": {
-                "Left": 220,
-                "Top": 267,
-                "Width": 46,
-                "Height": 31
-            }
-        },
-        {
-            "pattern": "AadharDOB",
-            "text": "AadharDOB",
-            "location": {
-                "Left": 367,
-                "Top": 217,
-                "Width": 48,
-                "Height": 34
-            }
-        }
-    ]
+  "masked_pii": [
+    {
+      "pattern": "AadharNumber",
+      "text": "AadharNumber",
+      "location": {
+        "Left": 227,
+        "Top": 393,
+        "Width": 243,
+        "Height": 34
+      }
+    },
+    {
+      "pattern": "AadharGender",
+      "text": "AadharGender",
+      "location": {
+        "Left": 268,
+        "Top": 258,
+        "Width": 41,
+        "Height": 21
+      }
+    },
+    {
+      "pattern": "AadharDOB",
+      "text": "AadharDOB",
+      "location": {
+        "Left": 376,
+        "Top": 235,
+        "Width": 87,
+        "Height": 16
+      }
+    },
+    {
+      "pattern": "AadharName",
+      "text": "AadharName",
+      "location": {
+        "Left": 223,
+        "Top": 211,
+        "Width": 164,
+        "Height": 23
+      }
+    }
+  ]
 }

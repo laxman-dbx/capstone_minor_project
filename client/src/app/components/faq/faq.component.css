@@ -1,11 +1,11 @@
-.faq-container{
+.faq-container {
   display: flex;
   padding: 5%;
 }
-.faq-right{
+.faq-right {
   padding-left: 5%;
 }
-.faq-header{
+.faq-header {
   display: flex;
   align-items: center;
   align-content: center;

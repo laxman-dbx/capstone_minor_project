@@ -23,7 +23,6 @@ function decrypt(cipherText, secret) {
     } catch (error) {
         console.error("Decryption error:", error);
         return 'Base64'; 
-    }
-}
+    }}
 
 module.exports = { decrypt };

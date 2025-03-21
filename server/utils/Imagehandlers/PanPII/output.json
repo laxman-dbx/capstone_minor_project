@@ -1,44 +1,44 @@
 {
-    "masked_pii": [
-        {
-            "pattern": "name",
-            "text": "name",
-            "location": {
-                "Left": 19,
-                "Top": 43,
-                "Width": 82,
-                "Height": 18
-            }
-        },
-        {
-            "pattern": "dob",
-            "text": "dob",
-            "location": {
-                "Left": 22,
-                "Top": 89,
-                "Width": 56,
-                "Height": 16
-            }
-        },
-        {
-            "pattern": "fatherName",
-            "text": "fatherName",
-            "location": {
-                "Left": 20,
-                "Top": 65,
-                "Width": 64,
-                "Height": 18
-            }
-        },
-        {
-            "pattern": "panCard",
-            "text": "panCard",
-            "location": {
-                "Left": 21,
-                "Top": 110,
-                "Width": 71,
-                "Height": 16
-            }
-        }
-    ]
+  "masked_pii": [
+    {
+      "pattern": "name",
+      "text": "name",
+      "location": {
+        "Left": 15,
+        "Top": 49,
+        "Width": 140,
+        "Height": 21
+      }
+    },
+    {
+      "pattern": "dob",
+      "text": "dob",
+      "location": {
+        "Left": 10,
+        "Top": 94,
+        "Width": 67,
+        "Height": 18
+      }
+    },
+    {
+      "pattern": "panCard",
+      "text": "panCard",
+      "location": {
+        "Left": 10,
+        "Top": 120,
+        "Width": 79,
+        "Height": 17
+      }
+    },
+    {
+      "pattern": "fatherName",
+      "text": "fatherName",
+      "location": {
+        "Left": 10,
+        "Top": 72,
+        "Width": 101,
+        "Height": 19
+      }
+    }
+  ]
 }

@@ -1,26 +1,32 @@
 import { Injectable } from '@angular/core';
-import axios from 'axios';
+import { environment } from '../../environments/environment';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { Notification } from '../models/notification.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5000/api/users';
+  private apiUrl = `${environment.apiUrl}/api/users`;
 
+  constructor(private http: HttpClient) {}
   // Get updated token for each request
   private getToken(): string | null {
-    return localStorage.getItem("authToken");
+    return localStorage.getItem('authToken');
   }
 
   // Get user profile
   async getUserProfile() {
     try {
-      const response = await axios.get(`${this.apiUrl}/profile`, {
-        headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.get(`${this.apiUrl}/profile`, {
+          headers: { Authorization: `Bearer ${this.getToken()}` },
+        }),
+      );
+      return response;
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error('Error fetching user profile:', error);
       throw error;
     }
   }
@@ -28,12 +34,14 @@ export class UserService {
   // Update user profile
   async updateUserProfile(userData: any) {
     try {
-      const response = await axios.put(`${this.apiUrl}/profile`, userData, {
-        headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.put(`${this.apiUrl}/profile`, userData, {
+          headers: { Authorization: `Bearer ${this.getToken()}` },
+        }),
+      );
+      return response;
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error('Error updating profile:', error);
       throw error;
     }
   }
@@ -45,28 +53,35 @@ export class UserService {
       if (file) {
         formData.append('file', file);
       }
-      const response = await axios.post(`${this.apiUrl}/update-profile-image`, formData, {
-        headers: {
-          Authorization: `Bearer ${this.getToken()}`
-        }
-      });
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.post(`${this.apiUrl}/update-profile-image`, formData, {
+          headers: {
+            Authorization: `Bearer ${this.getToken()}`,
+          },
+        }),
+      );
+      return response;
     } catch (error) {
-      console.error("Error updating profile image:", error);
+      console.error('Error updating profile image:', error);
       throw error;
     }
   }
 
-
   // Change password
   async changePassword(newPassword: string) {
     try {
-      const response = await axios.post(`${this.apiUrl}/change-password`, { password: newPassword }, {
-        headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.post(
+          `${this.apiUrl}/change-password`,
+          { password: newPassword },
+          {
+            headers: { Authorization: `Bearer ${this.getToken()}` },
+          },
+        ),
+      );
+      return response;
     } catch (error) {
-      console.error("Error changing password:", error);
+      console.error('Error changing password:', error);
       throw error;
     }
   }
@@ -74,13 +89,47 @@ export class UserService {
   // Delete user account
   async deleteUser() {
     try {
-      const response = await axios.delete(`${this.apiUrl}/delete`, {
-        headers: { Authorization: `Bearer ${this.getToken()}` }
-      });
-      return response.data;
+      const response = await firstValueFrom(
+        this.http.delete(`${this.apiUrl}/delete`, {
+          headers: { Authorization: `Bearer ${this.getToken()}` },
+        }),
+      );
+      return response;
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error('Error deleting user:', error);
       throw error;
+    }
+  }
+
+  //get user Notifications
+
+  async getUserNotifications(): Promise<Notification[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<Notification[]>(`${this.apiUrl}/notifications`, {
+          headers: { Authorization: `Bearer ${this.getToken()}` },
+        }),
+      );
+      return response;
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      return [];
+    }
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<void> {
+    try {
+      await firstValueFrom(
+        this.http.put(
+          `${this.apiUrl}/notifications/${notificationId}/read`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${this.getToken()}` },
+          },
+        ),
+      );
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
     }
   }
 }

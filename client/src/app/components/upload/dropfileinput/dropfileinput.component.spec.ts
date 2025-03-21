@@ -8,9 +8,8 @@ describe('DropfileinputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DropfileinputComponent]
-    })
-    .compileComponents();
+      imports: [DropfileinputComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DropfileinputComponent);
     component = fixture.componentInstance;

@@ -12,7 +12,7 @@ import { lastValueFrom } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './documents.component.html',
-  styleUrls: ['./documents.component.css']
+  styleUrls: ['./documents.component.css'],
 })
 export class DocumentsComponent implements OnInit {
   documents: any[] = [];
@@ -22,26 +22,26 @@ export class DocumentsComponent implements OnInit {
   isLoading: boolean = false;
   loadingMessage: string = '';
   previewTitle: string = 'Document Preview';
-  
+
   // Pagination
   currentPage: number = 1;
-  itemsPerPage: number = 8;
-  
+  itemsPerPage: number = 9;
+
   // Loading messages for the interactive experience
   loadingMessages: string[] = [
     'Retrieving your document...',
     'Preparing for viewing...',
     'Almost there...',
     'Getting everything ready...',
-    'Optimizing display...'
+    'Optimizing display...',
   ];
-  
+
   loadingInterval: any;
 
   constructor(
     private documentService: DocumentService,
     private toastrService: ToastrService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -51,7 +51,7 @@ export class DocumentsComponent implements OnInit {
   async getFiles(): Promise<void> {
     try {
       const response = await this.documentService.getUserDocuments();
-      this.documents = response.documents.reverse();
+      this.documents = response.documents ? response.documents.reverse() : [];
     } catch (error) {
       console.error('Error fetching documents:', error);
       this.toastrService.error('Failed to fetch documents');
@@ -81,7 +81,7 @@ export class DocumentsComponent implements OnInit {
 
   async downloadFile(fileKey: string): Promise<void> {
     if (!fileKey) return;
-    
+
     try {
       this.setLoading(true, 'Preparing download...');
       const blob = await this.documentService.downloadDocument(fileKey);
@@ -105,7 +105,7 @@ export class DocumentsComponent implements OnInit {
     try {
       const dialogRef = this.dialog.open(ConfirmDeleteComponent, {
         width: '800px',
-        data: { fileName: fileKey }
+        data: { fileName: fileKey },
       });
 
       const confirmed = await lastValueFrom(dialogRef.afterClosed());
@@ -114,8 +114,8 @@ export class DocumentsComponent implements OnInit {
       this.setLoading(true, 'Deleting document...');
       await this.documentService.deleteDocument(fileKey);
       this.toastrService.success('Deleted Successfully!', '', {
-        positionClass: "toast-top-left",
-        timeOut: 2000
+        positionClass: 'toast-top-left',
+        timeOut: 2000,
       });
       await this.getFiles();
     } catch (error) {
@@ -131,16 +131,18 @@ export class DocumentsComponent implements OnInit {
       this.selectedFile = fileName;
       this.setLoading(true);
       this.startLoadingAnimation();
-      
-      const document = this.documents.find(doc => doc.maskedFileName === fileName);
+
+      const document = this.documents.find(
+        (doc) => doc.maskedFileName === fileName,
+      );
       this.previewTitle = document?.originalName || 'Document Preview';
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       const blob = await this.documentService.downloadDocument(fileName);
       const url = window.URL.createObjectURL(blob);
       this.filePreviewURL = url;
-      
+
       this.setLoading(false);
       this.showPreview = true;
     } catch (error) {
@@ -158,7 +160,7 @@ export class DocumentsComponent implements OnInit {
     }
     this.selectedFile = null;
   }
-  
+
   setLoading(isLoading: boolean, message?: string): void {
     this.isLoading = isLoading;
     if (!isLoading && this.loadingInterval) {
@@ -168,7 +170,7 @@ export class DocumentsComponent implements OnInit {
       this.loadingMessage = message;
     }
   }
-  
+
   startLoadingAnimation(): void {
     let messageIndex = 0;
     this.loadingMessage = this.loadingMessages[messageIndex];
@@ -177,7 +179,7 @@ export class DocumentsComponent implements OnInit {
       this.loadingMessage = this.loadingMessages[messageIndex];
     }, 1500);
   }
-  
+
   ngOnDestroy(): void {
     if (this.loadingInterval) {
       clearInterval(this.loadingInterval);
@@ -185,5 +187,10 @@ export class DocumentsComponent implements OnInit {
     if (this.filePreviewURL) {
       window.URL.revokeObjectURL(this.filePreviewURL);
     }
+  }
+
+  // Method to show document actions (missing in original code)
+  showDocumentActions(doc: any): void {
+    doc.showActions = !doc.showActions;
   }
 }

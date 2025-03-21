@@ -39,3 +39,5 @@ Thumbs.db
 *.env
 server/.env
 
+
+/server/.nyc_output

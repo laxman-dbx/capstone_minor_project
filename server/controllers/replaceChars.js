@@ -7,29 +7,38 @@ exports.replaceChars = async (req, res) =>{
         return res.status(200).send({ success: false, error: "Text parameter is required" });
     }
 
-    try {
-        const response = await detectPii(text);
-        
-        const entityEntries = Object.entries(response);
-        entityEntries.sort((a, b) => a[1].start_index - b[1].start_index);
+  try {
+    const response = await detectPii(text);
 
-        let modifiedText = text;
-        let newIndicesArray = [];
+    const entityEntries = Object.entries(response);
+    entityEntries.sort((a, b) => a[1].start_index - b[1].start_index);
 
-        for (let [entityName, entityData] of entityEntries) {
-            let { start_index, end_index } = entityData;
-            let plain_text = entityName;
-            let cipher_text = '*'.repeat(plain_text.length - 1);
+    let modifiedText = text;
+    const newIndicesArray = [];
 
-            newIndicesArray.push([start_index, start_index + cipher_text.length]);
+    for (const [entityName, entityData] of entityEntries) {
+      const { start_index, end_index } = entityData;
+      const plain_text = entityName;
+      const cipher_text = "*".repeat(plain_text.length - 1);
 
-            modifiedText = modifiedText.slice(0, start_index + 1) + cipher_text + modifiedText.slice(end_index);
-        }
+      newIndicesArray.push([start_index, start_index + cipher_text.length]);
 
-        res.status(200).send({ success: true, encryptedText: modifiedText, newIndex: newIndicesArray });
-
-    } catch (error) {
-        console.error(error);
-        return res.status(400).send({ success: false, error: 'An error occurred while processing your request' });
+      modifiedText =
+        modifiedText.slice(0, start_index + 1) +
+        cipher_text +
+        modifiedText.slice(end_index);
     }
-}
+
+    res.status(200).send({
+      success: true,
+      encryptedText: modifiedText,
+      newIndex: newIndicesArray,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(400).send({
+      success: false,
+      error: "An error occurred while processing your request",
+    });
+  }
+};

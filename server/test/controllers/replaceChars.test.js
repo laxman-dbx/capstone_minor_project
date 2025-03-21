@@ -1,6 +1,6 @@
 let chai;
 let chaiHttp;
-const server = require("../controllers/replaceChars"); ;
+const server = require("../../controllers/replaceChars"); ;
 
 async function start(){
     chai  = await import('chai');

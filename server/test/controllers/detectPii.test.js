@@ -1,6 +1,6 @@
 const sinon = require("sinon");
 const { PythonShell } = require("python-shell");
-const detectPii = require("../controllers/detectPii");
+const detectPii = require("../../controllers/detectPii");
 let chai;
 before(async()=>{
   chai=await import('chai');

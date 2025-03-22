@@ -2,8 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../services/user.service';
 import { Notification } from '../../models/notification.model';
 
@@ -168,15 +166,11 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   markAllAsRead(): void {
     this.notifications.forEach((notification) => {
-      notification.isRead = true;
+      this.userService.markNotificationAsRead(notification._id);
     });
     this.updateNotificationCount();
   }
 
-  markAsRead(notification: Notification): void {
-    notification.isRead = true;
-    this.updateNotificationCount();
-  }
 
   handleNotificationClick(notification: Notification): void {
     // Mark as read

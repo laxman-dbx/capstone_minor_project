@@ -14,6 +14,7 @@ const bcrypt = require("bcryptjs");
 const { s3 } = require("../../config/aws");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const Notification = require("../../models/Notification");
+const proxyquire = require("proxyquire");
 
 describe("User Controller", () => {
   let req, res, next;
@@ -348,6 +349,52 @@ describe("User Controller", () => {
       expect(res.status.calledOnceWith(500)).to.be.true;
       expect(res.json.calledOnce).to.be.true;
       expect(res.json.args[0][0].error).to.equal("Test error");
+    });
+  });
+  describe("userMarkAsRead Controller", function () {
+    let userMarkAsRead, markAsReadStub, req, res, statusStub, sendStub;
+
+    beforeEach(() => {
+      markAsReadStub = sinon.stub();
+
+      userMarkAsRead = proxyquire("../../controllers/userController", {
+        "../utils/notificationManager": { markAsRead: markAsReadStub },
+      }).userMarkAsRead;
+
+      req = { params: { id: "12345" } };
+      sendStub = sinon.stub();
+      statusStub = sinon.stub().returns({ send: sendStub });
+      res = { status: statusStub };
+    });
+
+    it("should mark a notification as read and return success message", async function () {
+      markAsReadStub.resolves("Success");
+
+      await userMarkAsRead(req, res);
+
+      expect(markAsReadStub.calledOnceWithExactly("12345")).to.be.true;
+      expect(statusStub.calledOnceWithExactly(200)).to.be.true;
+      expect(
+        sendStub.calledOnceWithExactly({
+          message: "Marked as read",
+          result: "Success",
+        }),
+      ).to.be.true;
+    });
+
+    it("should return an error response if markAsRead fails", async function () {
+      markAsReadStub.rejects(new Error("Database error"));
+
+      await userMarkAsRead(req, res);
+
+      expect(markAsReadStub.calledOnceWithExactly("12345")).to.be.true;
+      expect(statusStub.calledOnceWithExactly(500)).to.be.true;
+      expect(
+        sendStub.calledOnceWithExactly({
+          message: "Internal Server Error",
+          error: "Database error",
+        }),
+      ).to.be.true;
     });
   });
 });

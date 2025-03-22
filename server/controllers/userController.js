@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const { s3 } = require("../config/aws");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const Notification = require("../models/Notification");
+const { markAsRead } = require("../utils/notificationManager");
 //  Get User Profile
 exports.getUserProfile = async (req, res) => {
   try {
@@ -152,5 +153,17 @@ exports.getNotification = async (req, res) => {
     res.status(200).json(usernotifications);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.userMarkAsRead = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const result = await markAsRead(notificationId);
+    return res.status(200).send({ message: "Marked as read", result });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: "Internal Server Error", error: error.message });
   }
 };

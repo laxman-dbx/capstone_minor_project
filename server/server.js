@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const http = require("http");
 const socketIO = require("socket.io");
-
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");

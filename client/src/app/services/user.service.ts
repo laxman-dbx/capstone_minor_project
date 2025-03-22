@@ -121,7 +121,7 @@ export class UserService {
     try {
       await firstValueFrom(
         this.http.put(
-          `${this.apiUrl}/notifications/${notificationId}/read`,
+          `${this.apiUrl}/notification/${notificationId}/read`,
           {},
           {
             headers: { Authorization: `Bearer ${this.getToken()}` },

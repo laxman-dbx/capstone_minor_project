@@ -103,10 +103,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   async loadNotifications() {
     try {
-      const response: Notification[] = await this.userService.getUserNotifications();
-    this.notifications = response.sort((a: Notification, b: Notification) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+      const response: Notification[] =
+        await this.userService.getUserNotifications();
+      this.notifications = response.sort((a: Notification, b: Notification) => {
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
       this.notificationCount = response.length;
     } catch (error) {
       console.error('Error loading notifications:', error);
@@ -170,7 +173,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
     this.updateNotificationCount();
   }
-
 
   handleNotificationClick(notification: Notification): void {
     // Mark as read

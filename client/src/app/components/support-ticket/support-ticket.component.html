@@ -93,10 +93,7 @@
   </div>
 
   <!-- Right Section - Chat -->
-  <div
-    class="chat-container"
-    *ngIf="selectedTicket; else selectTicketPrompt"
-  >
+  <div class="chat-container" *ngIf="selectedTicket; else selectTicketPrompt">
     <div class="card">
       <div class="chat-header">
         <div class="ticket-info">
@@ -116,10 +113,7 @@
       </div>
 
       <div class="messages-container fixed-height">
-        <div
-          *ngIf="selectedTicket.messages.length === 0"
-          class="no-messages"
-        >
+        <div *ngIf="selectedTicket.messages.length === 0" class="no-messages">
           <i class="fas fa-comments"></i>
           <p>No messages yet. Start the conversation!</p>
         </div>

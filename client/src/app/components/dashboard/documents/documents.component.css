@@ -219,13 +219,13 @@
 }
 
 .document-type-badge.pan {
-  background-color: var(--secondary-100);
-  color: var(--secondary-800);
+  background-color: var(--primary-100);
+  color: var(--primary-800);
 }
 
 .document-type-badge.driving_license {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: var(--primary-100);
+  color: var(--primary-800);
 }
 
 .document-menu {

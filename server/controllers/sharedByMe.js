@@ -1,13 +1,13 @@
-const EncryptedMessages = require("../models/data - receiver");
-const { encryptText } = require("./encryptText");
+const EncryptedMessages = require("../models/dataReceiver");
 
 exports.sharedByMe = async (req, res) => {
   const senderId = req.userId;
 
-    try {
-
-        const mySharedFiles = await EncryptedMessages.find({ userId: senderId},{_id : 1, encryptedText : 1, "receivers.receiverId" : 1,createdAt:1}).populate("receivers.receiverId", "name");
-
+  try {
+    const mySharedFiles = await EncryptedMessages.find(
+      { userId: senderId },
+      { _id: 1, encryptedText: 1, "receivers.receiverId": 1, createdAt: 1 },
+    ).populate("receivers.receiverId", "name");
 
     if (mySharedFiles.length === 0) {
       return res

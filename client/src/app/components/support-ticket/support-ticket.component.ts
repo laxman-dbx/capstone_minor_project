@@ -1,5 +1,12 @@
 // user-support-ticket.component.ts (CORRECTED)
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserTicketService } from '../../services/user-support.service';
@@ -30,7 +37,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     private userTicketService: UserTicketService,
     private socketService: SocketService,
     private cdRef: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
   ) {
     const navigation = this.router.getCurrentNavigation();
     if (navigation?.extras.state) {
@@ -49,25 +56,26 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     this.socketService.connect(); // Connect when component initializes
 
     // This subscription is still useful for *initial* loading, but joinChat is the key.
-    this.messagesSubscription = this.socketService.getMessages().subscribe((messages) => {
-      if (this.selectedTicket) { // Only update if a ticket is selected
-        this.selectedTicket.messages = messages;
-        this.cdRef.detectChanges();
-        this.scrollToBottom();
-      }
-    });
-
+    this.messagesSubscription = this.socketService
+      .getMessages()
+      .subscribe((messages) => {
+        if (this.selectedTicket) {
+          // Only update if a ticket is selected
+          this.selectedTicket.messages = messages;
+          this.cdRef.detectChanges();
+          this.scrollToBottom();
+        }
+      });
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach((sub) => sub.unsubscribe());
-     this.messagesSubscription?.unsubscribe();
+    this.messagesSubscription?.unsubscribe();
     if (this.selectedTicket) {
       this.socketService.leaveChat(this.selectedTicket._id); // IMPORTANT: Leave the chat on destroy
     }
     this.socketService.disconnect();
   }
-
 
   async loadTickets() {
     this.loading = true;
@@ -85,7 +93,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       });
       this.cdRef.detectChanges();
     } catch (error) {
-      console.error("Failed to load tickets:", error);
+      console.error('Failed to load tickets:', error);
     } finally {
       this.loading = false;
     }
@@ -102,12 +110,11 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       this.loadTickets();
       this.newTicket = { issue: '', priority: 'low' }; // Reset form
     } catch (error) {
-      console.error("Failed to create ticket:", error);
+      console.error('Failed to create ticket:', error);
     } finally {
       this.loading = false;
     }
   }
-
 
   async selectTicket(ticketId: string) {
     if (!ticketId) return;
@@ -128,10 +135,13 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     this.scrollToBottom();
   }
 
-
-
   async sendMessage() {
-    if (!this.selectedTicket || !this.newMessage.trim() || this.isTicketResolved()) return;
+    if (
+      !this.selectedTicket ||
+      !this.newMessage.trim() ||
+      this.isTicketResolved()
+    )
+      return;
 
     const messageData: Message = {
       ticketId: this.selectedTicket._id,
@@ -146,16 +156,20 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     this.newMessage = ''; // Clear input
 
     try {
-      await this.socketService.sendMessage(messageData.ticketId!, messageData.message);
+      await this.socketService.sendMessage(
+        messageData.ticketId!,
+        messageData.message,
+      );
       this.scrollToBottom();
     } catch (error) {
       console.error('Failed to send message:', error);
       // Rollback: Remove the message if sending failed.
-      this.selectedTicket.messages = this.selectedTicket.messages.filter(m => m !== messageData);
+      this.selectedTicket.messages = this.selectedTicket.messages.filter(
+        (m) => m !== messageData,
+      );
       this.cdRef.detectChanges();
     }
   }
-
 
   private scrollToBottom(): void {
     if (this.messageContainer) {

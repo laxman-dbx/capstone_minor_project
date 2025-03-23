@@ -1,5 +1,12 @@
 // admin-support-ticket.component.ts (CORRECTED)
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../services/admin.service';
@@ -37,21 +44,23 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     this.socketService.connect(); // Connect when component initializes
 
     // Subscribe to message updates.
-    this.messagesSubscription = this.socketService.getMessages().subscribe((messages) => {
-      // Check if we have a selected ticket *and* the messages are for that ticket.
-      if (this.selectedTicket) {
-          this.selectedTicket.messages = messages;  //UPDATE Messages
-           this.cdRef.detectChanges(); // Trigger change detection
-           this.scrollToBottom();
-      }
-    });
+    this.messagesSubscription = this.socketService
+      .getMessages()
+      .subscribe((messages) => {
+        // Check if we have a selected ticket *and* the messages are for that ticket.
+        if (this.selectedTicket) {
+          this.selectedTicket.messages = messages; //UPDATE Messages
+          this.cdRef.detectChanges(); // Trigger change detection
+          this.scrollToBottom();
+        }
+      });
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.messagesSubscription?.unsubscribe();
     if (this.selectedTicket) {
-        this.socketService.leaveChat(this.selectedTicket._id);
+      this.socketService.leaveChat(this.selectedTicket._id);
     }
     this.socketService.disconnect(); // ALWAYS disconnect
   }
@@ -59,7 +68,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
   async loadTickets() {
     this.loading = true;
     try {
-      this.tickets = await this.adminService.getTickets() as UserTicket[];
+      this.tickets = (await this.adminService.getTickets()) as UserTicket[];
       this.tickets.sort((a, b) => {
         const statusPriority = { open: 0, 'in-progress': 1, resolved: 2 };
         if (statusPriority[a.status] !== statusPriority[b.status]) {
@@ -71,7 +80,7 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       });
       this.cdRef.detectChanges();
     } catch (error) {
-      console.error("Failed to load tickets:", error);
+      console.error('Failed to load tickets:', error);
     } finally {
       this.loading = false;
     }
@@ -89,7 +98,12 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
   }
 
   async sendMessage() {
-    if (!this.selectedTicket || !this.newMessage.trim() || this.isTicketResolved()) return;
+    if (
+      !this.selectedTicket ||
+      !this.newMessage.trim() ||
+      this.isTicketResolved()
+    )
+      return;
 
     const messageData: Message = {
       ticketId: this.selectedTicket._id,
@@ -105,36 +119,45 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     this.newMessage = ''; // Clear input
 
     try {
-      await this.socketService.sendMessage(messageData.ticketId!, messageData.message);
+      await this.socketService.sendMessage(
+        messageData.ticketId!,
+        messageData.message,
+      );
       this.scrollToBottom();
     } catch (error) {
       console.error('Failed to send message:', error);
       // Rollback: Remove the message if sending failed.
-      this.selectedTicket.messages = this.selectedTicket.messages.filter(m => m !== messageData);
+      this.selectedTicket.messages = this.selectedTicket.messages.filter(
+        (m) => m !== messageData,
+      );
       this.cdRef.detectChanges();
     }
   }
 
-  async updateTicketStatus(ticketId: string, status: 'open' | 'in-progress' | 'resolved') {
+  async updateTicketStatus(
+    ticketId: string,
+    status: 'open' | 'in-progress' | 'resolved',
+  ) {
     try {
       await this.adminService.updateTicketStatus(ticketId, status);
       await this.loadTickets(); // Reload tickets
       if (this.selectedTicket && this.selectedTicket._id === ticketId) {
-        const updatedTicket = this.tickets.find(t => t._id === ticketId);
+        const updatedTicket = this.tickets.find((t) => t._id === ticketId);
         if (updatedTicket) {
           this.selectedTicket = updatedTicket; // Update selected ticket
           this.cdRef.detectChanges();
         }
       }
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error('Error updating status:', error);
     }
   }
 
   private scrollToBottom(): void {
     if (this.messageContainer) {
       setTimeout(() => {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        this.messageContainer.nativeElement.scrollTop =
+          this.messageContainer.nativeElement.scrollHeight;
       }, 0);
     }
   }
@@ -173,11 +196,12 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
     if (ticket.userId && typeof ticket.userId === 'object') {
       return `${ticket.userId.name} (${ticket.userId.email})`;
     }
-    return `User ID: ${typeof ticket.user === 'string'
-      ? ticket.user
-      : typeof ticket.userId === 'string'
-        ? ticket.userId
-        : 'Unknown'
-      }`;
+    return `User ID: ${
+      typeof ticket.user === 'string'
+        ? ticket.user
+        : typeof ticket.userId === 'string'
+          ? ticket.userId
+          : 'Unknown'
+    }`;
   }
 }

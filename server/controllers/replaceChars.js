@@ -1,11 +1,12 @@
 const detectPii = require("./detectPii");
-const { encryptText } = require("./encryptText");
 
-exports.replaceChars = async (req, res) =>{
-    let text = req.body.text;
-    if (!text) {
-        return res.status(200).send({ success: false, error: "Text parameter is required" });
-    }
+exports.replaceChars = async (req, res) => {
+  const text = req.body.text;
+  if (!text) {
+    return res
+      .status(200)
+      .send({ success: false, error: "Text parameter is required" });
+  }
 
   try {
     const response = await detectPii(text);

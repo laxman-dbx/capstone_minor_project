@@ -21,8 +21,7 @@ const createNotification = async (userId, title, type, metadata = {}) => {
     // Here you could add real-time notification using Socket.io
     return notification;
   } catch (error) {
-    console.error("Error creating notification:", error);
-    return null;
+    return error;
   }
 };
 
@@ -33,10 +32,10 @@ const markAsRead = async (notificationId) => {
       { isRead: true },
       { new: true },
     );
+
     return notification;
   } catch (error) {
-    console.error("Error marking notification as read:", error);
-    return null;
+    return error;
   }
 };
 

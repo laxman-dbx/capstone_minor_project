@@ -11,7 +11,6 @@ module.exports = (socket, next) => {
     socket.user = decoded;
     next();
   } catch (err) {
-    console.error(err);
-    next(new Error("Authentication error"));
+    next(new Error("Authentication error",err));
   }
 };

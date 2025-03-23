@@ -69,16 +69,8 @@ async function maskImagePII(imagePath, maskedUploadDir, documentType) {
       ]);
     }
 
-    //AaDdharNumber
-    //dl_no
-    //panCard
-
-    // console.log('PII Locations:', piiLocations);
-    // console.log('QR Locations:', qrLocations);
-
     let allSensitiveLocations = [];
 
-    // Combine PII and QR Code locations
     if (!piiLocations && !qrLocations) {
       throw new Error("Error in PII or QR Code detection");
     } else if (!piiLocations) {
@@ -171,7 +163,6 @@ async function maskImagePII(imagePath, maskedUploadDir, documentType) {
   }
 }
 
-// maskImagePII("/home/laxman.v/Documents/Document-Management-System/uploads/sample3.jpg","masked_uploads")
 module.exports = maskImagePII;
 
 /*

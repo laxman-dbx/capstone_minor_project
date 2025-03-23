@@ -1,0 +1,8 @@
+{
+  "exclude": [
+    "utils/Imagehandlers/AdhaarPII/aadharHandler.js",
+    "utils/Imagehandlers/PanPII/panHandler.js",
+    "utils/Imagehandlers/QRdetect/qrHandler.js",
+    "utils/Imagehandlers/drivingLPII/drivingLicenceHandler.js"
+  ]
+}

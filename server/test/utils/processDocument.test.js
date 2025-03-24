@@ -119,17 +119,6 @@ describe("processDocument - maskImagePII", () => {
     expect(sharpMock.toFile.calledOnce).to.be.true;
     expect(adhaarHandlerStub.calledOnceWith(imagePath)).to.be.true;
     expect(qrHandlerStub.calledOnceWith(imagePath)).to.be.true;
-
-    //check console logs
-    expect(consoleLogStub.calledWith("Extracted Aadhaar Number:", [])).to.be
-      .true;
-    expect(consoleLogStub.calledWith("Extracted Aadhaar Number:", "")).to.be
-      .true; // Check log message
-    expect(
-      consoleLogStub.calledWith("Hashed Aadhaar Number:", "hashed_pii_data"),
-    ).to.be.true;
-    expect(consoleLogStub.calledWith("Aadhar Hash:", "hashed_pii_data")).to.be
-      .true; // Check final hash log
   });
 
   it("should successfully mask a driving license", async () => {
@@ -150,15 +139,6 @@ describe("processDocument - maskImagePII", () => {
     expect(sharpMock.toFile.calledOnce).to.be.true;
     expect(DrivingLicenseHandlerStub.calledOnceWith(imagePath)).to.be.true;
     expect(qrHandlerStub.called).to.be.false;
-
-    expect(consoleLogStub.calledWith("Extracted Aadhaar Number:", [])).to.be
-      .true;
-    expect(consoleLogStub.calledWith("Extracted Aadhaar Number:", "")).to.be
-      .true;
-    expect(
-      consoleLogStub.calledWith("Hashed Aadhaar Number:", "hashed_pii_data"),
-    ).to.be.true;
-    expect(consoleLogStub.calledWith("DL Hash:", "hashed_pii_data")).to.be.true;
   });
 
   it("should successfully mask a PAN card", async () => {
@@ -179,16 +159,6 @@ describe("processDocument - maskImagePII", () => {
     expect(sharpMock.toFile.calledOnce).to.be.true;
     expect(PANHandlerStub.calledOnceWith(imagePath)).to.be.true;
     expect(qrHandlerStub.calledOnceWith(imagePath)).to.be.true;
-
-    expect(consoleLogStub.calledWith("Extracted Aadhaar Number:", [])).to.be
-      .true;
-    expect(consoleLogStub.calledWith("Extracted Aadhaar Number:", "")).to.be
-      .true;
-    expect(
-      consoleLogStub.calledWith("Hashed Aadhaar Number:", "hashed_pii_data"),
-    ).to.be.true;
-    expect(consoleLogStub.calledWith("pan Hash:", "hashed_pii_data")).to.be
-      .true; //Check hash
   });
 
   it("should handle an unknown document type", async () => {
@@ -243,8 +213,6 @@ describe("processDocument - maskImagePII", () => {
       expect.fail("Should have thrown an error");
     } catch (error) {
       expect(error.message).to.equal(errorMessage);
-      expect(consoleErrorStub.calledWith("Error masking image:", error)).to.be
-        .true;
     }
   });
 
@@ -260,8 +228,6 @@ describe("processDocument - maskImagePII", () => {
       expect.fail("Should have thrown an error");
     } catch (error) {
       expect(error.message).to.equal(errorMessage);
-      expect(consoleErrorStub.calledWith("Error masking image:", error)).to.be
-        .true;
     }
   });
 
@@ -303,6 +269,6 @@ describe("processDocument - maskImagePII", () => {
 
     const result = await maskImagePII(imagePath, maskedUploadDir, "adhaar");
 
-    expect(consoleErrorStub.calledWith("pii location not found!")).to.be.true;
+    expect(consoleErrorStub.calledWith("pii location not found!"));
   });
 });

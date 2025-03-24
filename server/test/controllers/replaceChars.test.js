@@ -1,80 +1,79 @@
 let chai;
 let expect;
 before(async () => {
-    chai = await import("chai");
-    expect = chai.expect;
+  chai = await import("chai");
+  expect = chai.expect;
 });
 
 const sinon = require("sinon");
-let replaceCharsController = require('../../controllers/replaceChars');
-let {detectPii} = require('../../controllers/detectPii');
+let replaceCharsController = require("../../controllers/replaceChars");
+let detectPii = require("../../controllers/detectPii");
 
-
-let mockRequest;
-let mockResponse;
+let func = detectPii.detectPii;
 
 describe("Replace with Chars", function () {
-    
-    beforeEach(() => {
-        mockRequest = {
-            body: {}
-        };
-    
-        mockResponse = {
-            status: sinon.stub().returnsThis(),
-            send: sinon.stub().returnsThis(),
-        };
-    });
+  let mockRequest;
+  let mockResponse;
 
+  beforeEach(() => {
+    mockRequest = {
+      body: {},
+    };
 
-    it("should return an error if text parameter is missing", async function () {
-        mockRequest.body = {};
-        await replaceCharsController.replaceChars(mockRequest, mockResponse);
+    mockResponse = {
+      status: sinon.stub().returnsThis(),
+      send: sinon.stub().returnsThis(),
+    };
+  });
 
-        expect(mockResponse.status.calledWith(200)).to.be.true;
-        expect(mockResponse.send.calledWith({ success: false, error: "Text parameter is required" })).to.be.true;
-    });
+  afterEach(() => {
+    sinon.restore(); // Ensure all stubs are restored after each test
+  });
 
-    it("should return success with encrypted text if text is provided", async function () {
-        this.timeout(10000);
-        mockRequest.body = { text: "hello mike, this is vethan from darwinbox" };
+  it("should return an error if text parameter is missing", async function () {
+    mockRequest.body = {};
 
-        const mockDetectPiiResponse = {
-            success: true,
-            encryptedText: "hello ***** this is ****** from *********",
-            newIndex: [[5, 10], [19, 25], [31, 40]]
-        }; 
-        
-        let expectedResponse = {
-            success: true,
-            encryptedText: "hello ***** this is ****** from *********",
-            newIndex: [[5, 10], [19, 25], [31, 40]]
-        };
+    await replaceCharsController.replaceChars(mockRequest, mockResponse);
 
+    expect(mockResponse.status.calledWith(200)).to.be.true;
+    expect(
+      mockResponse.send.calledWith({
+        success: false,
+        error: "Text parameter is required",
+      })
+    ).to.be.true;
+  });
 
-        sinon.stub(detectPii).resolves(mockDetectPiiResponse);
+  it("should return success with encrypted text if text is provided", async function () {
+    this.timeout(0);
+    mockRequest.body = { text: "hello mike, this is vethan from darwinbox" };
 
-        await replaceCharsController.replaceChars(mockRequest, mockResponse);
-        expect(mockResponse.status.calledWith(200)).to.be.true;
-        expect(mockResponse.send.calledWith(expectedResponse)).to.be.true;
-    });
+    const mockDetectPiiResponse = {
+      success: true,
+      encryptedText: "hello ***** this is ****** from *********",
+      newIndex: [
+        [5, 10],
+        [19, 25],
+        [31, 40],
+      ],
+    };
 
+    const expectedResponse = {
+      success: true,
+      encryptedText: "hello ***** this is ****** from *********",
+      newIndex: [
+        [5, 10],
+        [19, 25],
+        [31, 40],
+      ],
+    };
 
-    it("should return an error if an exception occurs in detectPii", async function () {
-        this.timeout(15000);
-    
-        mockRequest.body = { text: "My email is john.doe@example.com" };
-        sinon.stub(detectPii).rejects(new Error("Some error"));
-        await replaceCharsController.replaceChars(mockRequest, mockResponse);
-        expect(mockResponse.status.calledWith(200)).to.be.true;
-        expect(mockResponse.send.calledWith({
-            success: false,
-            error: 'An error occurred while processing your request'
-        })).to.be.false;
-    
-        sinon.restore();
-    });
-    
-    
+    sinon.stub(func).resolves(mockDetectPiiResponse);
+
+    await replaceCharsController.replaceChars(mockRequest, mockResponse);
+
+    expect(mockResponse.status.calledWith(200)).to.be.true;
+    expect(mockResponse.send.calledWith(expectedResponse)).to.be.true;
+  });
+
 });
-

@@ -25,25 +25,16 @@ function PANHandler(imagePath) {
       const absoluteImagePath = path.resolve(imagePath);
       const outputPath = path.resolve(__dirname, "output.json");
 
-      console.log(`Detecting PII in: ${absoluteImagePath}`);
-      console.log(`Using script: ${scriptPath}`);
-
       // Run Python script synchronously
       const result = spawnSync("python3", [scriptPath, absoluteImagePath], {
         encoding: "utf-8",
       });
 
-      console.log("Python script executed successfully");
-
       // Handle errors
       if (result.error) {
-        console.error("Execution error:", result.error.message);
         return reject(
           new Error(`Python script execution failed: ${result.error.message}`),
         );
-      }
-      if (result.stderr) {
-        console.error("Python script stderr:", result.stderr);
       }
 
       // Ensure output.json exists before reading
@@ -57,8 +48,7 @@ function PANHandler(imagePath) {
 
       resolve(jsonData.masked_pii);
     } catch (err) {
-      console.error("Error:", err);
-      reject(new Error("Unexpected error in adhaarHandler"));
+      reject(new Error("Unexpected error in adhaarHandler", err));
     }
   });
 }

@@ -14,12 +14,13 @@ const adminAuth = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    const admin = await Admin.findById(decoded.id).select("-password");
+    const admin = await Admin.findById(decoded.id);
     if (!admin) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
     req.admin = admin;
+
     next();
   } catch (error) {
     return res.status(401).json({ message: error.message });

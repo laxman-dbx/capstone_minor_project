@@ -7,6 +7,7 @@ const {
   changePassword,
   getUsers,
   getNotification,
+  userMarkAsRead,
 } = require("../controllers/userController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const uploadMiddleware = require("../middlewares/uploadMiddleware");
@@ -37,6 +38,9 @@ router.post("/encrypt-text", authMiddleware, encryptText);
 router.delete("/deleteEntry/:messageId", authMiddleware, senderDeletion);
 router.get("/shared-by-me", authMiddleware, sharedByMe);
 router.get("/shared-to-me", authMiddleware, sharedToMe);
+
+//notifications routes
 router.get("/notifications", authMiddleware, getNotification);
+router.put("/notification/:id/read", authMiddleware, userMarkAsRead);
 
 module.exports = router;

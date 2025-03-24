@@ -2,8 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { Subscription, interval } from 'rxjs';
-import { SocketService } from '../../services/socket.service';
-import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../services/user.service';
 import { Notification } from '../../models/notification.model';
 
@@ -105,10 +103,13 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   async loadNotifications() {
     try {
-      const response: Notification[] = await this.userService.getUserNotifications();
-    this.notifications = response.sort((a: Notification, b: Notification) => {
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
+      const response: Notification[] =
+        await this.userService.getUserNotifications();
+      this.notifications = response.sort((a: Notification, b: Notification) => {
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
       this.notificationCount = response.length;
     } catch (error) {
       console.error('Error loading notifications:', error);
@@ -168,13 +169,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   markAllAsRead(): void {
     this.notifications.forEach((notification) => {
-      notification.isRead = true;
+      this.userService.markNotificationAsRead(notification._id);
     });
-    this.updateNotificationCount();
-  }
-
-  markAsRead(notification: Notification): void {
-    notification.isRead = true;
     this.updateNotificationCount();
   }
 

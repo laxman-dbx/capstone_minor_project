@@ -1,10 +1,9 @@
 const { PythonShell } = require("python-shell");
 
 async function detectPii(text) {
-    if (!text) {
-        return { error: "Text parameter is required" };
-    }
-
+  if (!text) {
+    return { error: "Text parameter is required" };
+  }
 
   const options = {
     pythonPath: "/usr/bin/python3",
@@ -24,7 +23,6 @@ async function detectPii(text) {
       return JSON.parse(cleanedString);
     }
   } catch (error) {
-    console.error("Error executing Python script:", error);
     return { error: "Error executing Python script", details: error.message };
   }
 }

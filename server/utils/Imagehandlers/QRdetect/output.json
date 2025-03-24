@@ -1,14 +1,14 @@
 {
-  "masked_pii": [
-    {
-      "pattern": "QR",
-      "text": "QR",
-      "location": {
-        "Left": 484,
-        "Top": 277,
-        "Width": 159,
-        "Height": 150
-      }
-    }
-  ]
+    "masked_pii": [
+        {
+            "pattern": "QR",
+            "text": "QR",
+            "location": {
+                "Left": 484,
+                "Top": 277,
+                "Width": 159,
+                "Height": 150
+            }
+        }
+    ]
 }

@@ -1,7 +1,7 @@
 const detectPii = require("./detectPii");
 
 exports.replaceChars = async (req, res) =>{
-    const text = req.body.text;
+    let text = req.body.text;
     if (!text) {
         return res.status(200).send({ success: false, error: "Text parameter is required" });
     }

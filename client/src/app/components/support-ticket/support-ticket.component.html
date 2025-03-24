@@ -61,7 +61,7 @@
         <div
           class="ticket-list-item"
           *ngFor="let ticket of tickets"
-          [class.selected]="ticket._id === selectedTicketId"
+          [class.selected]="ticket._id === selectedTicket?._id"
           (click)="selectTicket(ticket._id)"
         >
           <div class="ticket-header">
@@ -93,40 +93,34 @@
   </div>
 
   <!-- Right Section - Chat -->
-  <div
-    class="chat-container"
-    *ngIf="selectedTicketData; else selectTicketPrompt"
-  >
+  <div class="chat-container" *ngIf="selectedTicket; else selectTicketPrompt">
     <div class="card">
       <div class="chat-header">
         <div class="ticket-info">
           <h2 class="chat-title">
             Ticket #{{
-              selectedTicketData._id.substr(selectedTicketData._id.length - 6)
+              selectedTicket._id.substr(selectedTicket._id.length - 6)
             }}
             <span
               class="ticket-status"
-              [class]="getStatusClass(selectedTicketData.status)"
+              [class]="getStatusClass(selectedTicket.status)"
             >
-              {{ selectedTicketData.status }}
+              {{ selectedTicket.status }}
             </span>
           </h2>
-          <p class="issue-text">{{ selectedTicketData.issue }}</p>
+          <p class="issue-text">{{ selectedTicket.issue }}</p>
         </div>
       </div>
 
       <div class="messages-container fixed-height">
-        <div
-          *ngIf="selectedTicketData.messages.length === 0"
-          class="no-messages"
-        >
+        <div *ngIf="selectedTicket.messages.length === 0" class="no-messages">
           <i class="fas fa-comments"></i>
           <p>No messages yet. Start the conversation!</p>
         </div>
 
         <div class="messages" #messageContainer>
           <div
-            *ngFor="let message of selectedTicketData.messages"
+            *ngFor="let message of selectedTicket.messages"
             class="message"
             [class.user-message]="message.sender === 'user'"
             [class.admin-message]="message.sender === 'admin'"

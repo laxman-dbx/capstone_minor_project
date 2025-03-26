@@ -68,6 +68,7 @@ exports.updateTicketStatus = async (req, res) => {
   }
 };
 
+//get user logs
 exports.usersLogs = async (req, res) => {
   try {
     const userslog = await ActivityLog.find();

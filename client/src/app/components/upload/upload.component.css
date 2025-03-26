@@ -152,31 +152,36 @@
   margin-bottom: 0.75rem;
   font-size: 1.1rem;
 }
+.info-container {
+  position: relative;
+  display: inline-block;
+}
 
-.info-button,
-.info-icon {
-  display: inline-flex;
+.info-button {
+  display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.75rem;
-  color: var(--gray-500);
-  cursor: pointer;
-  transition: all 0.2s ease;
   width: 24px;
   height: 24px;
   border-radius: 50%;
   background-color: var(--gray-100);
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.info-button:hover,
-.info-icon:hover {
+.info-button:hover {
   color: var(--primary-800);
   background-color: var(--primary-100);
   transform: scale(1.1);
 }
 
+/* Tooltip Styling */
 .tooltip {
   position: absolute;
+  left: 50%;
+  top: 35px; /* Adjusted for better placement */
+  transform: translateX(-50%);
   background-color: var(--gray-800);
   color: white;
   padding: 1rem;
@@ -184,34 +189,37 @@
   font-size: 0.9rem;
   z-index: 10;
   box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.25);
-  max-width: 300px;
-  margin-top: 0.75rem;
-  margin-left: 1.5rem;
-  animation: fadeIn 0.3s ease;
+  display: block;
+  width: auto; /* Allows natural expansion */
+  min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Tooltip Arrow */
 .tooltip::before {
   content: "";
   position: absolute;
   top: -6px;
-  left: 20px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
   width: 12px;
   height: 12px;
   background-color: var(--gray-800);
-  transform: rotate(45deg);
 }
 
+/* Tooltip Visibility Control */
+.tooltip.show {
+  opacity: 1;
+  visibility: visible;
+  max-width: 100px;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Pre tag inside tooltip */
 .tooltip pre {
   margin: 0;
   font-family: inherit;

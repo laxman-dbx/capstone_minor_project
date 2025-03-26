@@ -4,11 +4,7 @@ const User = require("../models/User");
 const dataModel = require("../models/dataReceiver");
 const ActivityLog = require("../models/ActivityLog");
 
-/**
- * @desc    Get document usage metrics for the current user
- * @route   GET /api/analytics/document-metrics
- * @access  Private
- */
+//Get document usage metrics for the current user
 exports.getDocumentMetrics = async (req, res) => {
   try {
     const userId = req.userId;
@@ -90,9 +86,7 @@ exports.getDocumentMetrics = async (req, res) => {
 };
 
 /**
- * @desc    Get full admin analytics data
- * @route   GET /api/admin/analytics/full
- * @access  Admin
+ * Get full admin analytics data
  */
 exports.getFullAdminAnalytics = async (req, res) => {
   try {
@@ -255,9 +249,7 @@ exports.getFullAdminAnalytics = async (req, res) => {
 };
 
 /**
- * @desc    Get admin activity logs for all users
- * @route   GET /api/admin/analytics/activity-logs
- * @access  Admin
+ * Get admin activity logs for all users
  */
 exports.getAdminActivityLogs = async (req, res) => {
   const page = parseInt(req.query.page) || 1;

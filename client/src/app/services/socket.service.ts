@@ -1,9 +1,8 @@
-// src/app/services/socket.service.ts
 import { Injectable, inject } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../environments/environment'; // Import environment
-import { AuthService } from './auth.service'; // Import AuthService
+import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 import { UserTicket } from '../models/support.model';
 
 export interface ChatMessage {
@@ -13,17 +12,16 @@ export interface ChatMessage {
 }
 
 @Injectable({
-  providedIn: 'root', // Make it a singleton, available app-wide
+  providedIn: 'root',
 })
 export class SocketService {
-  private socket!: Socket; //  '!'  non-null assertion operator
+  private socket!: Socket;
   private _messages: BehaviorSubject<ChatMessage[]> = new BehaviorSubject<
     ChatMessage[]
   >([]);
   public messages$: Observable<ChatMessage[]> = this._messages.asObservable();
-  private authService = inject(AuthService);
 
-  constructor() {}
+  constructor(private authService: AuthService) {}
 
   connect() {
     const token = this.authService.getToken();
@@ -31,11 +29,9 @@ export class SocketService {
       console.error('No token available.  Cannot connect to socket.');
       return;
     }
-    // Best practice
     this.socket = io(environment.apiUrl, {
-      // Replace with your server URL
       auth: {
-        token: token, // Use the 'auth' option, and put it in a 'token' field
+        token: token,
       },
     });
 
@@ -49,7 +45,6 @@ export class SocketService {
   }
 
   joinChat(ticket: UserTicket) {
-    // Clear previous messages when joining a new chat.  Important!
     this._messages.next(ticket.messages);
 
     // Listen for messages related to *this* ticket.  Crucial for multiple tickets.

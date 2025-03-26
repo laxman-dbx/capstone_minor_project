@@ -26,7 +26,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
   showNotifications: boolean = false;
   notificationCount: number = 0;
   notifications: Notification[] = [];
-  private subscriptions: Subscription[] = [];
   private pollingSubscription?: Subscription;
 
   constructor(
@@ -121,8 +120,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (this.pollingSubscription) {
       this.pollingSubscription.unsubscribe();
     }
-    // Clean up subscriptions
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
 
     // Remove event listener
     document.removeEventListener('click', this.handleOutsideClick.bind(this));

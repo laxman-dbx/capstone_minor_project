@@ -6,8 +6,8 @@ before(async () => {
 });
 
 const sinon = require("sinon");
-let replaceCharsController = require("../../controllers/replaceChars");
-let { detectPii } = require("../../controllers/detectPii");
+const replaceCharsController = require("../../controllers/replaceChars");
+const { detectPii } = require("../../controllers/detectPii");
 
 let mockRequest;
 let mockResponse;
@@ -51,7 +51,7 @@ describe("Replace with Chars", function () {
       ],
     };
 
-    let expectedResponse = {
+    const expectedResponse = {
       success: true,
       encryptedText: "hello ***** this is ****** from *********",
       newIndex: [

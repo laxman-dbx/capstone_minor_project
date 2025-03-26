@@ -14,6 +14,7 @@ export default [
       globals: {
         ...globals.node,
         ...globals.express,
+        ...globals.mocha,
       },
     },
     rules: {

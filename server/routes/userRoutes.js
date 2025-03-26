@@ -20,7 +20,7 @@ const { sharedToMe } = require("../controllers/sharedToMe");
 
 const router = express();
 
-// Protected Routes
+// Profile Edit Routes
 router.get("/profile", authMiddleware, getUserProfile);
 router.put("/profile", authMiddleware, updateUserProfile);
 router.delete("/profile", authMiddleware, deleteUserAccount);
@@ -31,7 +31,11 @@ router.post(
   updateProfileImage,
 );
 router.post("/change-password", authMiddleware, changePassword);
+
+//searching users
 router.get("/getUsers", authMiddleware, getUsers);
+
+//text-pii
 router.post("/decrypt-text", authMiddleware, decryptText);
 router.post("/replace-chars", replaceChars);
 router.post("/encrypt-text", authMiddleware, encryptText);

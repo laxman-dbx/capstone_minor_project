@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { uploadDocument } from '../../models/document.model';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service';
-
+import { GuideComponent } from '../guide/guide.component';
 interface FileEvent {
   files: File[];
 }
@@ -20,7 +20,13 @@ type DocumentType = 'adhaar' | 'pan' | 'driving_license' | 'other';
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css'],
   standalone: true,
-  imports: [CommonModule, DropfileinputComponent, FormsModule, RouterModule],
+  imports: [
+    CommonModule,
+    DropfileinputComponent,
+    FormsModule,
+    RouterModule,
+    GuideComponent,
+  ],
 })
 export class UploadComponent implements OnInit {
   file: File | null = null;
@@ -37,6 +43,7 @@ export class UploadComponent implements OnInit {
   showTooltip2: boolean = false;
   uploadProgress: number = 0;
   originalFileName: string | null = null;
+  showGuide: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -259,5 +266,8 @@ export class UploadComponent implements OnInit {
     } finally {
       this.isDownloading = false;
     }
+  }
+  closeGuide() {
+    this.showGuide = false;
   }
 }

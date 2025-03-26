@@ -5,6 +5,8 @@ const http = require("http");
 const socketIO = require("socket.io");
 const connectDB = require("./config/db");
 const path = require("path");
+
+//import routes
 const authRoutes = require("./routes/authRoutes");
 const documentRoutes = require("./routes/documentRoutes.js");
 const userRoutes = require("./routes/userRoutes");
@@ -12,6 +14,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const ticketRoutes = require("./routes/ticketRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 
+//call mongo conect
 dotenv.config();
 connectDB();
 
@@ -23,7 +26,7 @@ const corsOptions = {
   origin: [
     "http://localhost:5000",
     "http://127.0.0.1:5000",
-    "http://localhost:4000",
+    "http://localhost:4200",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -42,7 +45,7 @@ const io = socketIO(server, {
     origin: [
       "http://localhost:5000",
       "http://127.0.0.1:5000",
-      "http://localhost:4000",
+      "http://localhost:4200",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -56,6 +59,7 @@ const io = socketIO(server, {
 // Socket.io setup
 require("./socket")(io);
 
+//using the routes
 app.use("/api/auth", authRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/users", userRoutes);
@@ -63,6 +67,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
+//frontend hosting in backend
 app.use(
   express.static(path.join(__dirname, "../client/dist/dms-client/browser")),
 );
@@ -74,59 +79,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// const express = require('express');
-// const multer = require('multer');
-// const maskImagePii = require('./Imagehandlers/maskImagePII'); // Ensure this function works correctly
-// const fs = require('fs').promises;
-// const path = require('path');
-
-// const app = express();
-// const port = 3000;
-
-// // Configure multer for file uploads (store files in memory)
-// const storage = multer.memoryStorage();
-// const upload = multer({ storage: storage });
-
-// app.post('/upload', upload.single('document'), async (req, res) => {
-//     try {
-//         if (!req.file) {
-//             return res.status(400).send('No file uploaded.');
-//         }
-
-//         // Ensure directories exist
-//         const uploadDir = path.join(__dirname, 'uploads');
-//         const maskedUploadDir = path.join(__dirname, 'masked_uploads');
-//         await fs.mkdir(uploadDir, { recursive: true });
-//         await fs.mkdir(maskedUploadDir, { recursive: true });
-
-//         // Save the original image
-//         const originalFilePath = path.join(uploadDir, req.file.originalname);
-//         await fs.writeFile(originalFilePath, req.file.buffer);
-//         console.log(`Original file saved at: ${originalFilePath}`);
-
-//         // Process the image for PII masking
-//         const maskedFilePath = await maskImagePii(originalFilePath, maskedUploadDir);
-
-//         if (!maskedFilePath) {
-//             throw new Error('Masked image processing failed.');
-//         }
-
-//         console.log(`Masked file saved at: ${maskedFilePath}`);
-
-//         // Send the masked image back to the client
-//         res.status(201).send({
-//             original: req.file.originalname,
-//             masked: path.basename(maskedFilePath),
-//             message: 'Masked image created successfully.'
-//         });
-
-//     } catch (error) {
-//         console.error('Error processing document:', error);
-//         res.status(500).send('Error processing document.');
-//     }
-// });
-
-// app.listen(port, () => {
-//     console.log(`Server listening at http://localhost:${port}`);
-// });

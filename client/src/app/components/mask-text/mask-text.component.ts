@@ -1,13 +1,14 @@
 // mask-text.component.ts
 import { Component } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-mask-text',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mask-text.component.html',
   styleUrls: ['./mask-text.component.css'],
 })
@@ -30,7 +31,7 @@ export class MaskTextComponent {
     this.errorMessage = '';
 
     this.http
-      .post<any>('http://localhost:5000/api/users/replace-chars', {
+      .post<any>(`${environment.apiUrl}/api/users/replace-chars`, {
         text: this.inputText,
       })
       .subscribe({

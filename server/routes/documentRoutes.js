@@ -13,10 +13,13 @@ const {
 
 const router = express();
 
+//protected documents routes
 router.post("/upload", authMiddleware, uploadMiddleware, uploadDocument);
 router.get("/user-docs", authMiddleware, getUserDocuments);
 router.get("/download/:fileKey", authMiddleware, downloadDocument);
 router.delete("/delete/:fileKey", authMiddleware, deleteDocument);
+
+//public upload routes
 router.post("/public-upload", uploadMiddleware, publicUploadDocument);
 
 module.exports = router;

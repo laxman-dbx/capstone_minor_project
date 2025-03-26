@@ -31,7 +31,6 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
   newTicket = { issue: '', priority: 'low' }; // For creating new tickets
   loading: boolean = false;
   ticketId: string = '';
-  private subscriptions: Subscription[] = [];
 
   constructor(
     private userTicketService: UserTicketService,
@@ -69,7 +68,6 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach((sub) => sub.unsubscribe());
     this.messagesSubscription?.unsubscribe();
     if (this.selectedTicket) {
       this.socketService.leaveChat(this.selectedTicket._id); // IMPORTANT: Leave the chat on destroy
@@ -150,10 +148,9 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       timestamp: new Date(),
     };
 
-    // Optimistic UI update (add message *before* sending)
     this.selectedTicket.messages = this.selectedTicket.messages || [];
     this.cdRef.detectChanges();
-    this.newMessage = ''; // Clear input
+    this.newMessage = '';
 
     try {
       await this.socketService.sendMessage(
@@ -163,7 +160,6 @@ export class SupportTicketComponent implements OnInit, OnDestroy {
       this.scrollToBottom();
     } catch (error) {
       console.error('Failed to send message:', error);
-      // Rollback: Remove the message if sending failed.
       this.selectedTicket.messages = this.selectedTicket.messages.filter(
         (m) => m !== messageData,
       );

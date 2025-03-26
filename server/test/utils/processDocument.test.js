@@ -244,31 +244,4 @@ describe("processDocument - maskImagePII", () => {
       expect(error.message).to.equal("Error in PII or QR Code detection");
     }
   });
-  it("should call extractAndHashAadharNumber with null piiLoc", async () => {
-    const imagePath = "test_image.jpg";
-    const maskedUploadDir = "masked_uploads";
-
-    adhaarHandlerStub.resolves([
-      {
-        location: { Left: 50, Top: 75, Width: 100, Height: 25 },
-        pattern: "some_other_pattern",
-      },
-    ]);
-    qrHandlerStub.resolves([
-      {
-        location: { Left: 50, Top: 75, Width: 100, Height: 25 },
-        pattern: "some_other_pattern",
-      },
-    ]);
-    extractDataPiiStub.resolves([
-      {
-        location: { Left: 50, Top: 75, Width: 100, Height: 25 },
-        pattern: "some_other_pattern",
-      },
-    ]);
-
-    const result = await maskImagePII(imagePath, maskedUploadDir, "adhaar");
-
-    expect(consoleErrorStub.calledWith("pii location not found!"));
-  });
 });

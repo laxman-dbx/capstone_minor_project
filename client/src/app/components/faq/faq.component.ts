@@ -25,7 +25,7 @@ export class FaqComponent {
     {
       question: 'What types of information can I blur?',
       answer:
-        'You can blur faces, phone numbers, email addresses, credit card numbers, and bank account numbers.',
+        'You can blur  phone numbers, email addresses, credit card numbers, and bank account numbers.',
       isOpen: false,
     },
     {
@@ -37,7 +37,7 @@ export class FaqComponent {
     {
       question: 'What happens to my images?',
       answer:
-        'Your images are not stored on our servers. They are processed by the model and the blurred image is returned to you.',
+        'Your images are not stored on our servers until unless you mention to save. They are processed by the model and the blurred image is returned to you.',
       isOpen: false,
     },
   ];

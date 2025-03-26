@@ -59,17 +59,12 @@ export class GuideComponent implements OnInit {
 
   ngOnInit() {
     // Check if component is being used as a standalone page
-    this.isStandalonePage = this.route.snapshot.url.length > 0;
+    this.isStandalonePage = this.route.snapshot.url[0].path == 'guide';
 
     // If it's a standalone page, always show the content
     if (this.isStandalonePage) {
       this.show = true;
     }
-
-    console.log(
-      'Guide component initialized. Standalone mode:',
-      this.isStandalonePage,
-    );
   }
 
   nextStep() {

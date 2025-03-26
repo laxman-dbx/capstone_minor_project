@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DocumentsComponent } from './documents/documents.component';
 import { TextComponent } from './text/text.component';
@@ -18,7 +18,7 @@ import { AnalyticsComponent } from './analytics/analytics.component';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardComponent implements OnInit, OnDestroy {
   refreshTrigger = false;
   userName: string | null = null;
   animationObserver: IntersectionObserver | null = null;
@@ -48,10 +48,6 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  ngAfterViewInit() {
-    this.setupScrollAnimations();
-  }
-
   ngOnDestroy() {
     // Clean up the observer when component is destroyed
     if (this.animationObserver) {
@@ -75,30 +71,5 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.titleService.setTitle('Dashboard - Secure Document Management');
     }
-  }
-
-  private setupScrollAnimations() {
-    // Set up intersection observer for scroll animations
-    this.animationObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            // Once the animation has played, no need to observe this element anymore
-            this.animationObserver?.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        root: null, // Use viewport as root
-        threshold: 0.1, // Trigger when 10% of the element is visible
-        rootMargin: '0px 0px -50px 0px', // Adjust the trigger point
-      },
-    );
-
-    // Observe all elements with the animate-on-scroll class
-    document.querySelectorAll('.animate-on-scroll').forEach((element) => {
-      this.animationObserver?.observe(element);
-    });
   }
 }

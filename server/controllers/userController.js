@@ -5,6 +5,7 @@ const { s3 } = require("../config/aws");
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const Notification = require("../models/Notification");
 const { markAsRead } = require("../utils/notificationManager");
+
 //  Get User Profile
 exports.getUserProfile = async (req, res) => {
   try {
@@ -140,6 +141,7 @@ exports.getUsers = async (req, res) => {
   }
 };
 
+//user notifications
 exports.getNotification = async (req, res) => {
   try {
     const userId = req.userId;
@@ -156,6 +158,7 @@ exports.getNotification = async (req, res) => {
   }
 };
 
+//mark as read a notification
 exports.userMarkAsRead = async (req, res) => {
   try {
     const notificationId = req.params.id;

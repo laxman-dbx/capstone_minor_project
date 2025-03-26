@@ -10,34 +10,39 @@
     <div class="upload">
       <div class="header-box">
         <h4 class="header-content" *ngIf="!isSuccess">SELECT YOUR FILES</h4>
-        <a routerLink="/guide" class="guide-link" *ngIf="!isSuccess">
+        <button
+          *ngIf="!isSuccess"
+          class="guide-link"
+          (click)="showGuide = true"
+        >
           <i class="fas fa-book"></i> View Upload Guide
-        </a>
+        </button>
         <h4 class="header-content" *ngIf="isSuccess">MASKED IMAGE</h4>
       </div>
 
       <div class="upload-content" *ngIf="!isSuccess">
         <div class="document-type-wrapper">
-          <label for="documentType" class="label-dropdown flex items-center">
+          <label
+            for="documentType"
+            class="label-dropdown flex items-center"
+            (mouseenter)="showTooltip = true"
+            (mouseleave)="showTooltip = false"
+          >
             Select Document Type:
-            <span
-              class="info-button"
+            <div
+              class="info-container"
               (mouseenter)="showTooltip = true"
               (mouseleave)="showTooltip = false"
-              (click)="showTooltip = !showTooltip"
             >
-              <i class="fas fa-info-circle"></i>
-            </span>
-            <span class="tooltip" *ngIf="showTooltip">
-              <pre>
-Choose the document type 
-you want to upload.</pre
-              >
-              <pre>
-This can enhance the level 
-of masking the data.</pre
-              >
-            </span>
+              <span class="info-button" (click)="showTooltip = !showTooltip">
+                <i class="fas fa-info-circle"></i>
+              </span>
+
+              <div class="tooltip" [ngClass]="{ show: showTooltip }">
+                <pre>Choose the document type you want to upload.</pre>
+                <pre>This can enhance the level of masking the data.</pre>
+              </div>
+            </div>
           </label>
 
           <select
@@ -60,19 +65,21 @@ of masking the data.</pre
         <div class="toggle-container" *ngIf="isLogin">
           <div class="labelForSwitch">
             <label class="toggle-label">Save Masked Document?</label>
-            <span
-              class="info-icon"
-              (mouseenter)="(showTooltip2)"
+            <div
+              class="info-container"
+              (mouseenter)="showTooltip2 = true"
               (mouseleave)="showTooltip2 = false"
-              (click)="showTooltip2 = !showTooltip2"
             >
-              <i class="fas fa-info-circle"></i>
-            </span>
-            <span class="tooltip" *ngIf="showTooltip2">
-              <pre>
-We securely store the masked document with AES-256 encryption.</pre
-              >
-            </span>
+              <span class="info-button" (click)="showTooltip2 = !showTooltip2">
+                <i class="fas fa-info-circle"></i>
+              </span>
+
+              <div class="tooltip" [ngClass]="{ show: showTooltip2 }">
+                <pre>
+We securely store the masked document with encryption.</pre
+                >
+              </div>
+            </div>
           </div>
 
           <label class="switch">
@@ -167,4 +174,6 @@ We securely store the masked document with AES-256 encryption.</pre
       </div>
     </div>
   </div>
+
+  <app-guide [show]="showGuide" (close)="closeGuide()"> </app-guide>
 </div>

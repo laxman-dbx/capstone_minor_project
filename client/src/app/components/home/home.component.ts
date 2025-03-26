@@ -20,8 +20,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   navigate: string = '/dashboard';
   animationObserver: IntersectionObserver | null = null;
 
-  constructor(private authService: AuthService) {}
-
   ngOnInit(): void {
     // Check if user is logged in
     const token = localStorage.getItem('authToken');

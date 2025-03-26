@@ -35,7 +35,7 @@ export class DocumentService {
           },
         },
       );
-      console.log(response.data);
+
       const textResponse = await response.data.text();
       try {
         const jsonData = JSON.parse(textResponse);

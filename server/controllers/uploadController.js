@@ -6,6 +6,7 @@ const { PutObjectCommand } = require("@aws-sdk/client-s3");
 const Document = require("../models/Document");
 const { logActivity } = require("../utils/activityLogger");
 
+//upload the document for masking
 const uploadDocument = async (req, res) => {
   try {
     // Validate request
@@ -142,6 +143,7 @@ const uploadDocument = async (req, res) => {
   }
 };
 
+//public doc to upload
 const publicUploadDocument = async (req, res) => {
   try {
     // Validate request

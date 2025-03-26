@@ -3,12 +3,7 @@ const router = express();
 const protect = require("../middlewares/authMiddleware");
 const admin = require("../middlewares/adminMiddleware");
 const {
-  // getDocumentStats,
-  // getDocumentTypeDistribution,
-  // getPIIStats,
-  // getRecentActivities,
   getFullAdminAnalytics,
-  // getAnalyticsData
   getDocumentMetrics,
   getAdminActivityLogs,
 } = require("../controllers/analyticsController");

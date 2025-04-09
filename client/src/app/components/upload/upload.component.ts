@@ -63,10 +63,10 @@ export class UploadComponent implements OnInit {
 
   validateFile(file: File): string | null {
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
 
     if (!allowedTypes.includes(file.type)) {
-      return 'Only JPEG, PNG and PDF files are allowed';
+      return 'Only JPEG and PNG files are allowed';
     }
 
     if (file.size > maxSize) {

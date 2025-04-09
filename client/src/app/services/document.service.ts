@@ -113,6 +113,7 @@ export class DocumentService {
         );
       } else if (error.response?.status === 401) {
         throw new Error('Session expired. Please login again.');
+        window.location.href = '/login';
       } else {
         throw new Error('Failed to upload document. Please try again.');
       }
@@ -130,6 +131,7 @@ export class DocumentService {
         this.toastr.error('Session expired. Please login again.', '', {
           positionClass: 'toast-top-center',
         });
+        window.location.href = '/login';
       }
       throw error;
     }
@@ -146,7 +148,11 @@ export class DocumentService {
       if (error.response?.status === 404) {
         throw new Error('File not found or has been deleted.');
       } else if (error.response?.status === 401) {
-        throw new Error('Session expired. Please login again.');
+        this.toastr.error('Session expired. Please login again.', '', {
+          positionClass: 'toast-top-center',
+        });
+        window.location.href = '/login';
+        
       }
       throw new Error('Failed to download document. Please try again.');
     }
@@ -162,7 +168,10 @@ export class DocumentService {
       if (error.response?.status === 404) {
         throw new Error('File not found or already deleted.');
       } else if (error.response?.status === 401) {
-        throw new Error('Session expired. Please login again.');
+        this.toastr.error('Session expired. Please login again.', '', {
+          positionClass: 'toast-top-center',
+        });
+        window.location.href = '/login';
       }
       throw new Error('Failed to delete document. Please try again.');
     }

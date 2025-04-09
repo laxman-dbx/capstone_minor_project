@@ -14,9 +14,6 @@ export class AnalyticsService {
   private token = localStorage.getItem('authToken');
 
   constructor(private http: HttpClient) {}
-  /**
-   * Get user usage metrics
-   */
   getUserMetrics(): Observable<UsageMetrics> {
     return this.http
       .get<UsageMetrics>(`${this.apiUrl}/user-metrics`, {

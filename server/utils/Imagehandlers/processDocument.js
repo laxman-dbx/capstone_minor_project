@@ -142,7 +142,7 @@ async function maskImagePII(imagePath, maskedUploadDir, documentType) {
       }
     }
 
-    return { imagePath, piiHash }; // Return original path if no masking is needed
+    return { maskedFilePath:imagePath, piiHash }; // Return original path if no masking is needed
   } catch (error) {
     throw error;
   }

@@ -86,6 +86,12 @@ exports.updateProfileImage = async (req, res) => {
     fs.unlink(filePath, (err) => {
       if (err) console.error("Error deleting local file:", err);
     });
+    // Update user profile image URL in the database
+    await User.findByIdAndUpdate(
+      req.userId,
+      { profileImage: profileImageUrl },
+      { new: true },
+    );
 
     res.status(200).json({
       message: "Profile image updated successfully",

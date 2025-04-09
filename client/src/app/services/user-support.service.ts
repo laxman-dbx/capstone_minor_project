@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +10,7 @@ import { environment } from '../../environments/environment';
 export class UserTicketService {
   private apiUrl = `${environment.apiUrl}/api/tickets`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,private toastr: ToastrService) {}
 
   private getAuthToken(): string {
     const token = localStorage.getItem('authToken');
@@ -63,9 +64,19 @@ export class UserTicketService {
 
     if (error instanceof HttpErrorResponse) {
       if (error.status === 401) {
-        console.error('Authentication error. Token may be invalid or expired.');
-        // You could implement token refresh logic here or redirect to login
+        this.toastr.error('Session expired. Please login again.', '', {
+          positionClass: 'toast-top-center',
+        });
+        window.location.href = '/sign-in';
+      } else {
+        this.toastr.error(defaultMessage, '', {
+          positionClass: 'toast-top-center',
+        });
       }
+    } else {
+      this.toastr.error(defaultMessage, '', {
+        positionClass: 'toast-top-center',
+      });
     }
   }
 }

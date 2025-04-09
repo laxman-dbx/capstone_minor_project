@@ -55,7 +55,9 @@ export class ProfileComponent implements OnInit {
     if (!this.selectedFile) return;
 
     try {
-      await this.userService.updateProfileImage(this.selectedFile);
+      const res=await this.userService.updateProfileImage(this.selectedFile);
+      console.log(res);
+      this.user.profileImage;
       this.toastr.success('Updated Successfully!', '', {
         positionClass: 'toast-top-center',
       });

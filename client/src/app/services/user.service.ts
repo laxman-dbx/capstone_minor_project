@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { Notification } from '../models/notification.model';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root',
@@ -10,67 +11,85 @@ import { Notification } from '../models/notification.model';
 export class UserService {
   private apiUrl = `${environment.apiUrl}/api/users`;
 
-  constructor(private http: HttpClient) {}
-  // Get updated token for each request
-  private getToken(): string | null {
-    return localStorage.getItem('authToken');
+  constructor(private http: HttpClient,private toastr: ToastrService) {}
+
+  private getToken(): string {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('Auth token not found');
+    }
+    return token || '';
   }
 
-  // Get user profile
+  private handleError(error: any, defaultMessage: string): void {
+    console.error(defaultMessage, error);
+
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 401) {
+        this.toastr.error('Session expired. Please login again.', '', {
+          positionClass: 'toast-top-center',
+        });
+        window.location.href = '/sign-in';
+      } else {
+        this.toastr.error(defaultMessage, '', {
+          positionClass: 'toast-top-center',
+        });
+      }
+    } else {
+      this.toastr.error(defaultMessage, '', {
+        positionClass: 'toast-top-center',
+      });
+    }
+  }
+
   async getUserProfile() {
     try {
-      const response = await firstValueFrom(
+      return await firstValueFrom(
         this.http.get(`${this.apiUrl}/profile`, {
           headers: { Authorization: `Bearer ${this.getToken()}` },
         }),
       );
-      return response;
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      this.handleError(error, 'Error fetching user profile');
       throw error;
     }
   }
 
-  // Update user profile
   async updateUserProfile(userData: any) {
     try {
-      const response = await firstValueFrom(
+      return await firstValueFrom(
         this.http.put(`${this.apiUrl}/profile`, userData, {
           headers: { Authorization: `Bearer ${this.getToken()}` },
         }),
       );
-      return response;
     } catch (error) {
-      console.error('Error updating profile:', error);
+      this.handleError(error, 'Error updating profile');
       throw error;
     }
   }
 
-  // Update only the profile image
   async updateProfileImage(file: File) {
     try {
       const formData = new FormData();
       if (file) {
         formData.append('file', file);
       }
-      const response = await firstValueFrom(
+      return await firstValueFrom(
         this.http.post(`${this.apiUrl}/update-profile-image`, formData, {
           headers: {
             Authorization: `Bearer ${this.getToken()}`,
           },
         }),
       );
-      return response;
     } catch (error) {
-      console.error('Error updating profile image:', error);
+      this.handleError(error, 'Error updating profile image');
       throw error;
     }
   }
 
-  // Change password
   async changePassword(newPassword: string) {
     try {
-      const response = await firstValueFrom(
+      return await firstValueFrom(
         this.http.post(
           `${this.apiUrl}/change-password`,
           { password: newPassword },
@@ -79,40 +98,33 @@ export class UserService {
           },
         ),
       );
-      return response;
     } catch (error) {
-      console.error('Error changing password:', error);
+      this.handleError(error, 'Error changing password');
       throw error;
     }
   }
 
-  // Delete user account
   async deleteUser() {
     try {
-      const response = await firstValueFrom(
+      return await firstValueFrom(
         this.http.delete(`${this.apiUrl}/delete`, {
           headers: { Authorization: `Bearer ${this.getToken()}` },
         }),
       );
-      return response;
     } catch (error) {
-      console.error('Error deleting user:', error);
+      this.handleError(error, 'Error deleting user');
       throw error;
     }
   }
 
-  //get user Notifications
-
   async getUserNotifications(): Promise<Notification[]> {
     try {
-      const response = await firstValueFrom(
+      return await firstValueFrom(
         this.http.get<Notification[]>(`${this.apiUrl}/notifications`, {
           headers: { Authorization: `Bearer ${this.getToken()}` },
         }),
       );
-      return response;
     } catch (error) {
-      console.error('Error fetching notifications:', error);
       return [];
     }
   }
@@ -129,7 +141,7 @@ export class UserService {
         ),
       );
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      this.handleError(error, 'Error marking notification as read');
     }
   }
 }
